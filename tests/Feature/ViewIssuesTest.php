@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\Issue;
 use Carbon\Carbon;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ViewIssuesTest extends TestCase
 {
+    use RefreshDatabase;
 
     /** @test */
     public function user_can_view_all_tracked_issues()
@@ -19,7 +21,8 @@ class ViewIssuesTest extends TestCase
             'due_date' => Carbon::now()->addDays(10)
         ]);
 
-        $response = $this->get('/issues');
+        $response = $this->get(route('issues'));
         $response->assertStatus(200);
+        $response->assertSee($issue->title);
     }
 }
