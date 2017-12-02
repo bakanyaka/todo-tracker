@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BusinessDate;
 use App\Models\Issue;
 use Illuminate\Http\Request;
 
@@ -31,12 +32,17 @@ class IssueController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store()
     {
-        Issue::create(request()->all());
+        $dueDate = BusinessDate::parse(request('created_on'))->addBusinessHours(request('estimated_hours'));
+        Issue::create([
+            'title' => request('title'),
+            'issue_id' => request('issue_id'),
+            'created_on' => request('created_on'),
+            'due_date' => $dueDate
+        ]);
         return redirect(route('issues'));
     }
 

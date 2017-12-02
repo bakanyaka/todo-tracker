@@ -1,6 +1,6 @@
 <?php
 
-use Carbon\Carbon;
+use App\BusinessDate;
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\Issue::class, function (Faker $faker) {
@@ -8,7 +8,7 @@ $factory->define(App\Models\Issue::class, function (Faker $faker) {
     return [
         'title' => $title,
         'issue_id' => $faker->unique()->randomNumber(5),
-        'created_on' => Carbon::now(),
-        'due_date' => Carbon::now()->addDays(10)
+        'created_on' => BusinessDate::now(),
+        'due_date' => BusinessDate::now()->addDays(10)
     ];
 });

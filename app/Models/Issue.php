@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\BusinessDate;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -11,8 +12,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property string $title
  * @property int $issue_id
- * @property string $created_on
- * @property string $due_date
+ * @property BusinessDate $created_on
+ * @property BusinessDate $due_date
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereCreatedAt($value)
@@ -26,5 +27,14 @@ use Illuminate\Database\Eloquent\Model;
 class Issue extends Model
 {
     protected $guarded = [];
-    protected $dates = ['created_on','due_date'];
+
+    public function getCreatedOnAttribute($value)
+    {
+        return BusinessDate::parse($value);
+    }
+
+    public function getDueDateAttribute($value)
+    {
+        return BusinessDate::parse($value);
+    }
 }
