@@ -26,4 +26,5 @@ use Illuminate\Database\Eloquent\Model;
 class Issue extends Model
 {
     protected $guarded = [];
+    protected $dates = ['created_on','due_date'];
 }

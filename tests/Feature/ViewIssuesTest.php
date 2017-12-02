@@ -24,5 +24,9 @@ class ViewIssuesTest extends TestCase
         $response = $this->get(route('issues'));
         $response->assertStatus(200);
         $response->assertSee($issue->title);
+        $response->assertSee((string)$issue->issue_id);
+        $response->assertSee($issue->created_on->toDateTimeString());
     }
+
+
 }
