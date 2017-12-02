@@ -14,7 +14,8 @@ class IssueController extends Controller
      */
     public function index()
     {
-        //
+        $issues = Issue::all();
+        return view('issues.index', ['issues' => $issues]);
     }
 
     /**
