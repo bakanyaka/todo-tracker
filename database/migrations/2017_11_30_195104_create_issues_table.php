@@ -16,7 +16,7 @@ class CreateIssuesTable extends Migration
         Schema::create('issues', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->unsignedInteger('issue_id');
+            $table->unsignedInteger('issue_id')->unique();
             $table->dateTime('created_on');
             $table->dateTime('due_date');
             $table->timestamps();

@@ -25,7 +25,7 @@ class IssueController extends Controller
      */
     public function create()
     {
-        //
+
     }
 
     /**
@@ -36,7 +36,8 @@ class IssueController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Issue::create(request()->all());
+        return redirect(route('issues'));
     }
 
     /**
