@@ -13,12 +13,10 @@
 
 Auth::routes();
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
+Route::redirect('/', '/issues');
 Route::get('/issues', 'IssueController@index')->name('issues');
-Route::post('/issues', 'IssueController@store')->name('issues');
+Route::post('/issues', 'IssueController@store');
 
 
 

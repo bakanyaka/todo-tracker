@@ -31,10 +31,13 @@ class IssuesTest extends TestCase
         $response = $this->post(route('issues'), [
             'title' => $issue->title,
             'issue_id' => $issue->issue_id,
-            'created_on' => '2017-12-04 08:00',
-            'estimated_hours' => 5
+            'created_on' => '2017-12-04 15:00',
+            'estimated_hours' => 3
         ]);
         $this->assertDatabaseHas('issues', ['issue_id' => $issue->issue_id]);
+        $response = $this->get(route('issues'));
+        $response->assertSee($issue->title);
+        $response->assertSee('2017-12-05 10:00');
     }
 
 }
