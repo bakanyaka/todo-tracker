@@ -17,7 +17,7 @@ class RedmineService
      * @param string $token
      * @param Client $client
      */
-    public function __construct($token,Client $client)
+    public function __construct(Client $client, $token = '')
     {
         $this->token = $token;
         $this->client = $client;

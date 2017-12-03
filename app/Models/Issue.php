@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @mixin \Eloquent
  * @property int $id
- * @property string $title
+ * @property string $subject
  * @property int $issue_id
  * @property BusinessDate $created_on
  * @property BusinessDate $due_date

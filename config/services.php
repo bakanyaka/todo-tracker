@@ -35,4 +35,8 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'redmine' => [
+        'uri' => env('REDMINE_URI', 'https://www.redmine.org')
+    ]
+
 ];

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\BusinessDate;
 use App\Models\Issue;
+use App\Services\RedmineService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class IssueController extends Controller
@@ -23,11 +25,13 @@ class IssueController extends Controller
      * Show the form for creating a new resource.
      *
      * @param $issue_id
+     * @param RedmineService $redmine
      * @return \Illuminate\Http\Response
      */
-    public function create($issue_id)
+    public function create($issue_id, RedmineService $redmine)
     {
-        return view('issues.create', ['issue_id' => $issue_id]);
+        $issue = $redmine->getIssue($issue_id);
+        return view('issues.create', ['issue' => $issue->issue]);
     }
 
     /**
@@ -39,9 +43,9 @@ class IssueController extends Controller
     {
         $dueDate = BusinessDate::parse(request('created_on'))->addBusinessHours(request('estimated_hours'));
         Issue::create([
-            'title' => request('title'),
             'issue_id' => request('issue_id'),
-            'created_on' => request('created_on'),
+            'subject' => request('subject'),
+            'created_on' => Carbon::parse(request('created_on')),
             'due_date' => $dueDate
         ]);
         return redirect(route('issues'));
