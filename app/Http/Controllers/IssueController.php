@@ -22,11 +22,12 @@ class IssueController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param $issue_id
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($issue_id)
     {
-
+        return view('issues.create', ['issue_id' => $issue_id]);
     }
 
     /**

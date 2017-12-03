@@ -16,7 +16,8 @@ Auth::routes();
 
 Route::redirect('/', '/issues');
 Route::get('/issues', 'IssueController@index')->name('issues');
-Route::post('/issues', 'IssueController@store');
+Route::get('/issues/{issue_id}/add', 'IssueController@create')->name('issues.create');
+Route::post('/issues', 'IssueController@store')->name('issues.store');
 
 
 

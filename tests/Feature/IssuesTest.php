@@ -26,9 +26,16 @@ class IssuesTest extends TestCase
     }
 
     /** @test */
+    public function user_can_see_create_a_new_issue_form() {
+        $response = $this->get(route('issues.create', ['issue_id' => 1]));
+        $response->assertSee('Добавление задачи в остлеживаемые');
+        $response->assertSee('id="issue_id" value="1"');
+    }
+
+    /** @test */
     public function user_can_create_a_new_issue() {
         $issue = make('App\Models\Issue');
-        $response = $this->post(route('issues'), [
+        $response = $this->post(route('issues.store'), [
             'title' => $issue->title,
             'issue_id' => $issue->issue_id,
             'created_on' => '2017-12-04 15:00',
