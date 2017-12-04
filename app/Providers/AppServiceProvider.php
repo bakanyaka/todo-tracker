@@ -28,7 +28,12 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->app->singleton('GuzzleHttp\Client', function() {
-            return new \GuzzleHttp\Client(['base_uri' => config('services.redmine.uri')]);
+            return new \GuzzleHttp\Client([
+                'base_uri' => config('services.redmine.uri'),
+                'headers' => [
+                    'X-Redmine-API-Key' => config('services.redmine.secret')
+                ]
+            ]);
         });
     }
 }

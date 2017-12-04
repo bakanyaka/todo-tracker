@@ -36,7 +36,8 @@ return [
     ],
 
     'redmine' => [
-        'uri' => env('REDMINE_URI', 'https://www.redmine.org')
+        'uri' => env('REDMINE_URI', 'https://www.redmine.org'),
+        'secret' => env('REDMINE_SECRET', '')
     ]
 
 ];
