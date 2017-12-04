@@ -24,7 +24,7 @@ class IssuesTest extends TestCase
     {
         $issue = create('App\Models\Issue');
 
-        $response = $this->get(route('issues'));
+        $response = $this->signIn()->get(route('issues'));
 
         $response->assertStatus(200);
         $response->assertSee($issue->subject);
@@ -42,16 +42,19 @@ class IssuesTest extends TestCase
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
         $this->app->bind('App\Services\RedmineService', function($app) use ($client) {
-            return new RedmineService($client, 'ajgjkag');
+            return new RedmineService($client);
         });
-        $response = $this->get(route('issues.create', ['issue_id' => 1]));
+        $response = $this->signIn()->get(route('issues.create', ['issue_id' => 1]));
         $response->assertSee($issue['issue']['subject']);
     }
 
     /** @test */
     public function user_can_create_a_new_issue()
     {
+
         $issue = make('App\Models\Issue');
+
+        $this->signIn();
         $response = $this->post(route('issues.store'), [
             'subject' => $issue->subject,
             'issue_id' => $issue->issue_id,

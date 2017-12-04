@@ -24,14 +24,13 @@ class IssueController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @param $issue_id
      * @param RedmineService $redmine
      * @return \Illuminate\Http\Response
      */
-    public function create($issue_id, RedmineService $redmine)
+    public function create(RedmineService $redmine)
     {
-        $issue = $redmine->getIssue($issue_id);
-        return view('issues.create', ['issue' => $issue->issue]);
+        $issue = $redmine->getIssue(request('issue_id'));
+        return view('issues.create', ['issue' => $issue['issue']]);
     }
 
     /**

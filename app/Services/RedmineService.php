@@ -14,18 +14,16 @@ class RedmineService
 
     /**
      * RedmineService constructor.
-     * @param string $token
      * @param Client $client
      */
-    public function __construct(Client $client, $token = '')
+    public function __construct(Client $client)
     {
-        $this->token = $token;
         $this->client = $client;
     }
 
     public function getIssue($issue_id)
     {
         $response = $this->client->get("issues/{$issue_id}.json");
-        return json_decode($response->getBody());
+        return json_decode($response->getBody(),true);
     }
 }

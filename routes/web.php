@@ -14,10 +14,13 @@
 Auth::routes();
 
 
-Route::redirect('/', '/issues');
-Route::get('/issues', 'IssueController@index')->name('issues');
-Route::post('/issues', 'IssueController@store')->name('issues.store');
-Route::get('/issues/{issue_id}/add', 'IssueController@create')->name('issues.create');
+Route::middleware(['auth'])->group(function() {
+    Route::redirect('/', '/issues');
+    Route::get('/issues', 'IssueController@index')->name('issues');
+    Route::post('/issues', 'IssueController@store')->name('issues.store');
+    Route::get('/issues/add', 'IssueController@create')->name('issues.create');
+});
+
 
 
 
