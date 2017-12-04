@@ -20,16 +20,26 @@ class IssuesTest extends TestCase
     use MakesFakeIssues;
 
     /** @test */
-    public function user_can_view_all_tracked_issues()
+    public function user_can_view_own_tracked_issues()
     {
+
+        //Given we have an issue tracked by user
+        $user = create('App\User');
         $issue = create('App\Models\Issue');
+        $issue->trackedByUsers()->attach($user);
 
-        $response = $this->signIn()->get(route('issues'));
+        //And issue tracked by another user
+        $otherUser = create('App\User');
+        $otherIssue = create('App\Models\Issue');
+        $otherIssue->trackedByUsers()->attach($otherUser);
 
+        //When user visits issues page, he can see his tracked issues
+        //and can't see other user's tracked issues
+        $response = $this->signIn($user)->get(route('issues'));
         $response->assertStatus(200);
-        $response->assertSee($issue->subject);
         $response->assertSee((string)$issue->issue_id);
-        $response->assertSee($issue->created_on->toDateTimeString());
+        $response->assertDontSee((string)$otherIssue->issue_id);
+
     }
 
     /** @test */

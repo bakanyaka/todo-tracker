@@ -37,4 +37,9 @@ class Issue extends Model
     {
         return BusinessDate::parse($value);
     }
+
+    public function trackedByUsers()
+    {
+        return $this->belongsToMany('App\User');
+    }
 }

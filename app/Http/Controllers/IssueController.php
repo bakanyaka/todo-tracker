@@ -17,7 +17,8 @@ class IssueController extends Controller
      */
     public function index()
     {
-        $issues = Issue::all();
+
+        $issues =auth()->user()->issues;
         return view('issues.index', ['issues' => $issues]);
     }
 
@@ -41,12 +42,13 @@ class IssueController extends Controller
     public function store()
     {
         $dueDate = BusinessDate::parse(request('created_on'))->addBusinessHours(request('estimated_hours'));
-        Issue::create([
+        $issue = Issue::create([
             'issue_id' => request('issue_id'),
             'subject' => request('subject'),
             'created_on' => Carbon::parse(request('created_on')),
             'due_date' => $dueDate
         ]);
+        $issue->trackedByUsers()->attach(auth()->user());
         return redirect(route('issues'));
     }
 

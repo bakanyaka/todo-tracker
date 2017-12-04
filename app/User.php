@@ -46,4 +46,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    function issues() {
+        return $this->belongsToMany('App\Models\Issue');
+    }
 }
