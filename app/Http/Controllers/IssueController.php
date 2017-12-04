@@ -43,7 +43,7 @@ class IssueController extends Controller
     {
         $dueDate = BusinessDate::parse(request('created_on'))->addBusinessHours(request('estimated_hours'));
         $issue = Issue::create([
-            'issue_id' => request('issue_id'),
+            'id' => request('issue_id'),
             'subject' => request('subject'),
             'created_on' => Carbon::parse(request('created_on')),
             'due_date' => $dueDate

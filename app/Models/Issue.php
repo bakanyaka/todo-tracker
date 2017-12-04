@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Model;
 class Issue extends Model
 {
     protected $guarded = [];
+    public $incrementing = false;
 
     public function getCreatedOnAttribute($value)
     {

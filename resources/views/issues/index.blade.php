@@ -15,7 +15,7 @@
             </tr>
             @foreach($issues as $issue)
                 <tr>
-                    <td>{{$issue->issue_id}}</td>
+                    <td>{{$issue->id}}</td>
                     <td>{{$issue->subject}}</td>
                     <td>{{$issue->created_on}}</td>
                     <td></td>

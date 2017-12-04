@@ -37,13 +37,13 @@ class IssuesTest extends TestCase
         //and can't see other user's tracked issues
         $response = $this->signIn($user)->get(route('issues'));
         $response->assertStatus(200);
-        $response->assertSee((string)$issue->issue_id);
-        $response->assertDontSee((string)$otherIssue->issue_id);
+        $response->assertSee((string)$issue->id);
+        $response->assertDontSee((string)$otherIssue->id);
 
     }
 
     /** @test */
-    public function create_new_issue_form_is_auto_filled_with_data_retrieved_from_redmine()
+/*    public function create_new_issue_form_is_auto_filled_with_data_retrieved_from_redmine()
     {
         $issue = $this->makeFakeIssue();
         $mock = new MockHandler([
@@ -56,22 +56,22 @@ class IssuesTest extends TestCase
         });
         $response = $this->signIn()->get(route('issues.create', ['issue_id' => 1]));
         $response->assertSee($issue['issue']['subject']);
-    }
+    }*/
 
     /** @test */
-    public function user_can_create_a_new_issue()
+    public function user_can_add_new_issue()
     {
 
         $issue = make('App\Models\Issue');
 
         $this->signIn();
         $response = $this->post(route('issues.store'), [
+            'issue_id' => $issue->id,
             'subject' => $issue->subject,
-            'issue_id' => $issue->issue_id,
             'created_on' => '2017-12-04T15:00:00Z',
             'estimated_hours' => 3
         ]);
-        $this->assertDatabaseHas('issues', ['issue_id' => $issue->issue_id]);
+        $this->assertDatabaseHas('issues', ['id' => $issue->id]);
         $response = $this->get(route('issues'));
         $response->assertSee($issue->subject);
         $response->assertSee('2017-12-05 10:00');
