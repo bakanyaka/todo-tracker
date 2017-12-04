@@ -13,21 +13,59 @@ use Faker\Factory;
 trait MakesFakeIssues
 {
     /**
+     * @param array $attributes
      * @return array
      */
-    protected function makeFakeIssue()
+    protected function makeFakeIssue($attributes = [])
     {
         $faker = Factory::create('ru_RU');
-        return [
+        $issue = array_merge([
             'issue' => [
-                'id' => $faker->randomNumber(2),
+                'id' => $faker->unique()->randomNumber(5),
                 'project' => [
-                    'id' => $faker->randomNumber(2),
+                    'id' => 90,
+                    'name' => 'Служба технической поддержки МЗ Арсенал'
                 ],
-                "subject" => $faker->realText(60),
-                "priority_id" => 4,
-                "created_on" => $faker->dateTime()->format('Y-m-d\TH:i:s\Z')
+                'tracker' => [
+                    'id' => 3,
+                    'name' => 'Поддержка'
+                ],
+                'status' => [
+                    'id' => 2,
+                    'name' => 'Назначен'
+                ],
+                'priority' => [
+                    'id' => 4,
+                    'name' => 'Нормальный'
+                ],
+                'author' => [
+                    'id' => $faker->randomNumber(3),
+                    'name' => $faker->name
+                ],
+                'assigned_to' => [
+                    'id' => $faker->randomNumber(3),
+                    'name' => $faker->name
+                ],
+                'subject' => $faker->name . ' : ' . $faker->realText(60),
+                'description' => $faker->realText(),
+                'start_date' => $faker->dateTimeThisMonth()->format('Y-m-d'),
+                'done_ratio' => $faker->numberBetween(0, 100),
+                'custom_fields' => [
+                    [
+                        'id' => 1,
+                        'name' => 'Подразделение',
+                        'value' => '115 Управление информационных систем'
+                    ],
+                    [
+                        'id' => 65,
+                        'name' => 'Сервис',
+                        'value' => 'Организация рабочих мест пользователей'
+                    ]
+                ],
+                'created_on' => $faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z'),
+                'updated_on' => $faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z'),
             ]
-        ];
+        ], $attributes);
+        return $issue;
     }
 }
