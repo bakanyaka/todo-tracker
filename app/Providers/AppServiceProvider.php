@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Redmine;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -34,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
                     'X-Redmine-API-Key' => config('services.redmine.secret')
                 ]
             ]);
+        });
+
+        $this->app->singleton('Redmine', function ($app) {
+            return new Redmine($app->make('GuzzleHttp\Client'));
         });
     }
 }

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\BusinessDate;
+use App\Facades\Redmine;
 use App\Models\Issue;
-use App\Services\RedmineService;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 
 class IssueController extends Controller
@@ -25,27 +26,35 @@ class IssueController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @param RedmineService $redmine
-     * @return \Illuminate\Http\Response
+     * @return void
      */
-    public function create(RedmineService $redmine)
+    public function create()
     {
-        $issue = $redmine->getIssue(request('issue_id'));
-        return view('issues.create', ['issue' => $issue['issue']]);
+
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @return \Illuminate\Http\Response
+     * @throws Exception
      */
     public function store()
     {
-        $dueDate = BusinessDate::parse(request('created_on'))->addBusinessHours(request('estimated_hours'));
+        $issue = Redmine::getIssue(request('issue_id'));
+
+        if ($issue) {
+            $issue = $issue['issue'];
+        } else {
+            // TODO: Return Issue not found response
+            throw new Exception('Issue Not Found');
+        }
+        $createdOn = BusinessDate::parse($issue['created_on']);
+        $dueDate = $createdOn->addBusinessHours(5);
         $issue = Issue::create([
             'id' => request('issue_id'),
-            'subject' => request('subject'),
-            'created_on' => Carbon::parse(request('created_on')),
+            'subject' => $issue['subject'],
+            'created_on' => $createdOn,
             'due_date' => $dueDate
         ]);
         $issue->trackedByUsers()->attach(auth()->user());

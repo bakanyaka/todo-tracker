@@ -2,14 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\BusinessDate;
-use App\Models\Issue;
-use App\Services\RedmineService;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
+use App\Facades\Redmine;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Traits\MakesFakeIssues;
@@ -43,38 +36,24 @@ class IssuesTest extends TestCase
     }
 
     /** @test */
-/*    public function create_new_issue_form_is_auto_filled_with_data_retrieved_from_redmine()
+    public function user_can_add_new_issue_by_id()
     {
+
         $issue = $this->makeFakeIssue();
-        $mock = new MockHandler([
-            new Response(200, ['content-type' => 'application/json; charset=utf8'],json_encode($issue))
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
-        $this->app->bind('App\Services\RedmineService', function($app) use ($client) {
-            return new RedmineService($client);
-        });
-        $response = $this->signIn()->get(route('issues.create', ['issue_id' => 1]));
-        $response->assertSee($issue['issue']['subject']);
-    }*/
+        $issueId = $issue['issue']['id'];
 
-    /** @test */
-    public function user_can_add_new_issue()
-    {
-
-        $issue = make('App\Models\Issue');
+        Redmine::shouldReceive('getIssue')
+            ->once()
+            ->with($issueId)
+            ->andReturn($issue);
 
         $this->signIn();
-        $response = $this->post(route('issues.store'), [
-            'issue_id' => $issue->id,
-            'subject' => $issue->subject,
-            'created_on' => '2017-12-04T15:00:00Z',
-            'estimated_hours' => 3
-        ]);
-        $this->assertDatabaseHas('issues', ['id' => $issue->id]);
+        $response = $this->post(route('issues.track'), ['issue_id' => $issueId]);
+
+        $this->assertDatabaseHas('issues', ['id' => $issueId]);
         $response = $this->get(route('issues'));
-        $response->assertSee($issue->subject);
-        $response->assertSee('2017-12-05 10:00');
+        $response->assertSee((string)$issueId);
+        $response->assertSee((string)$issue['issue']['subject']);
     }
 
 }

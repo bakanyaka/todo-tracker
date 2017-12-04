@@ -12,7 +12,7 @@
                 <a class="nav-link" href="{{route('issues')}}">Все задачи</a>
             </li>
         </ul>
-        <form class="form-inline ml-5" method="GET" action="{{route('issues.create')}}">
+        <form class="form-inline ml-5" method="POST" action="{{route('issues.track')}}">
             <input class="form-control form-control-sm mr-sm-2" name="issue_id" type="text" placeholder="# Задачи">
             <button class="btn btn-primary btn-sm my-2 my-sm-0" type="submit">Отслеживать</button>
         </form>

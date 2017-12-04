@@ -17,8 +17,7 @@ Auth::routes();
 Route::middleware(['auth'])->group(function() {
     Route::redirect('/', '/issues');
     Route::get('/issues', 'IssueController@index')->name('issues');
-    Route::post('/issues', 'IssueController@store')->name('issues.store');
-    Route::get('/issues/add', 'IssueController@create')->name('issues.create');
+    Route::post('/issues/track', 'IssueController@store')->name('issues.track');
 });
 
 

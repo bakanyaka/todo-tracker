@@ -6,7 +6,7 @@ namespace App\Services;
 
 use GuzzleHttp\Client;
 
-class RedmineService
+class Redmine
 {
     protected $redmineUrl;
     protected $token;

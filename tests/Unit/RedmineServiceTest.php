@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Services\RedmineService;
+use App\Services\Redmine;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -24,7 +24,7 @@ class RedmineServiceTest extends TestCase
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
 
-        $redmine = new RedmineService($client, 'af38788jkhajghajk7');
+        $redmine = new Redmine($client);
         $response = $redmine->getIssue(324);
         $this->assertJson(json_encode($issue), $response);
     }
