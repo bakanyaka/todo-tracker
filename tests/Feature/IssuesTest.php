@@ -19,7 +19,7 @@ class IssuesTest extends TestCase
     }
 
     /** @test */
-    public function user_can_view_own_tracked_issues()
+    public function user_can_view_his_own_tracked_issues()
     {
 
         //Given we have an issue tracked by user
@@ -42,7 +42,7 @@ class IssuesTest extends TestCase
     }
 
     /** @test */
-    public function user_can_add_new_issue_by_id()
+    public function user_can_add_new_issue_to_his_tracked_issues_by_id()
     {
 
         $issue = $this->makeFakeIssueArray();
@@ -61,4 +61,5 @@ class IssuesTest extends TestCase
         $response->assertSee((string)$issueId);
         $response->assertSee((string)$issue['subject']);
     }
+
 }

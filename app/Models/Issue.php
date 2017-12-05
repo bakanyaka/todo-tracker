@@ -60,7 +60,10 @@ class Issue extends Model
 
     public function track(User $user)
     {
-        $this->users()->attach($user);
+        if(!$this->users()->find($user->id))
+        {
+            $this->users()->attach($user);
+        }
     }
 
     public function updateFromRedmine()
