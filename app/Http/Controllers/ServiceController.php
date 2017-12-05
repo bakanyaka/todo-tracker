@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\BusinessDate;
-use App\Facades\Redmine;
-use App\Models\Issue;
-use Carbon\Carbon;
-use Exception;
-use Hamcrest\Core\Is;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
-class IssueController extends Controller
+class ServiceController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,43 +14,37 @@ class IssueController extends Controller
      */
     public function index()
     {
-
-        $issues =auth()->user()->issues;
-        return view('issues.index', ['issues' => $issues]);
+        //
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return void
+     * @return \Illuminate\Http\Response
      */
     public function create()
     {
-
+        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
-     * @throws Exception
      */
-    public function store()
+    public function store(Request $request)
     {
-        $issue = Issue::firstOrNew(['id' => request('issue_id')]);
-        $issue->updateFromRedmine();
-        $issue->save();
-        $issue->track(auth()->user());
-        return redirect(route('issues'));
+        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Issue  $issue
+     * @param  \App\Models\Service  $service
      * @return \Illuminate\Http\Response
      */
-    public function show(Issue $issue)
+    public function show(Service $service)
     {
         //
     }
@@ -63,10 +52,10 @@ class IssueController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Issue  $issue
+     * @param  \App\Models\Service  $service
      * @return \Illuminate\Http\Response
      */
-    public function edit(Issue $issue)
+    public function edit(Service $service)
     {
         //
     }
@@ -75,10 +64,10 @@ class IssueController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Issue  $issue
+     * @param  \App\Models\Service  $service
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Issue $issue)
+    public function update(Request $request, Service $service)
     {
         //
     }
@@ -86,10 +75,10 @@ class IssueController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Issue  $issue
+     * @param  \App\Models\Service  $service
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Issue $issue)
+    public function destroy(Service $service)
     {
         //
     }

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\BusinessDate;
+use App\Facades\Redmine;
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -11,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
  * @mixin \Eloquent
  * @property int $id
  * @property string $subject
- * @property int $issue_id
  * @property BusinessDate $created_on
  * @property BusinessDate $due_date
  * @property \Carbon\Carbon|null $created_at
@@ -23,6 +24,9 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereIssueId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereUpdatedAt($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $trackedByUsers
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereSubject($value)
+ * @property-read \App\Models\Service $service
  */
 class Issue extends Model
 {
@@ -39,8 +43,32 @@ class Issue extends Model
         return BusinessDate::parse($value);
     }
 
-    public function trackedByUsers()
+    public function users()
     {
         return $this->belongsToMany('App\User');
+    }
+
+    public function service()
+    {
+        return $this->belongsTo('App\Models\Service');
+    }
+
+    public function getEstimatedHours()
+    {
+        return optional($this->service)->hours;
+    }
+
+    public function track(User $user)
+    {
+        $this->users()->attach($user);
+    }
+
+    public function updateFromRedmine()
+    {
+        $issueData = Redmine::getIssue($this->id);
+        $this->subject = $issueData['subject'];
+        $this->created_on = $issueData['created_on'];
+        $service = Service::where('name', $issueData['service'])->first();
+        $this->service()->associate($service);
     }
 }

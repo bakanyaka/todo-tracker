@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateIssuesTable extends Migration
+class CreateServicesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreateIssuesTable extends Migration
      */
     public function up()
     {
-        Schema::create('issues', function (Blueprint $table) {
-            $table->unsignedInteger('id')->unique();
-            $table->string('subject');
-            $table->dateTime('created_on');
-            $table->integer('service_id')->unsigned()->nullable();
+        Schema::create('services', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->unsignedSmallInteger('hours');
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ class CreateIssuesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('issues');
+        Schema::dropIfExists('services');
     }
 }

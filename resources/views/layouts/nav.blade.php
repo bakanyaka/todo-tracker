@@ -15,6 +15,7 @@
         <form class="form-inline ml-5" method="POST" action="{{route('issues.track')}}">
             <input class="form-control form-control-sm mr-sm-2" name="issue_id" type="text" placeholder="# Задачи">
             <button class="btn btn-primary btn-sm my-2 my-sm-0" type="submit">Отслеживать</button>
+            {{ csrf_field() }}
         </form>
         <ul class="navbar-nav ml-auto">
             @guest

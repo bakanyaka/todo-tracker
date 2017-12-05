@@ -3,14 +3,20 @@
 namespace Tests\Feature;
 
 use App\Facades\Redmine;
+use App\Models\Service;
+use Carbon\Carbon;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Traits\MakesFakeIssues;
 
 class IssuesTest extends TestCase
 {
     use RefreshDatabase;
-    use MakesFakeIssues;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->artisan("db:Seed");
+    }
 
     /** @test */
     public function user_can_view_own_tracked_issues()
@@ -19,12 +25,12 @@ class IssuesTest extends TestCase
         //Given we have an issue tracked by user
         $user = create('App\User');
         $issue = create('App\Models\Issue');
-        $issue->trackedByUsers()->attach($user);
+        $issue->track($user);
 
         //And issue tracked by another user
         $otherUser = create('App\User');
         $otherIssue = create('App\Models\Issue');
-        $otherIssue->trackedByUsers()->attach($otherUser);
+        $otherIssue->track($otherUser);
 
         //When user visits issues page, he can see his tracked issues
         //and can't see other user's tracked issues
@@ -39,8 +45,8 @@ class IssuesTest extends TestCase
     public function user_can_add_new_issue_by_id()
     {
 
-        $issue = $this->makeFakeIssue();
-        $issueId = $issue['issue']['id'];
+        $issue = $this->makeFakeIssueArray();
+        $issueId = $issue['id'];
 
         Redmine::shouldReceive('getIssue')
             ->once()
@@ -48,12 +54,11 @@ class IssuesTest extends TestCase
             ->andReturn($issue);
 
         $this->signIn();
-        $response = $this->post(route('issues.track'), ['issue_id' => $issueId]);
+        $this->post(route('issues.track'), ['issue_id' => $issueId]);
 
         $this->assertDatabaseHas('issues', ['id' => $issueId]);
         $response = $this->get(route('issues'));
         $response->assertSee((string)$issueId);
-        $response->assertSee((string)$issue['issue']['subject']);
+        $response->assertSee((string)$issue['subject']);
     }
-
 }

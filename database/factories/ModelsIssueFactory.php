@@ -9,6 +9,6 @@ $factory->define(App\Models\Issue::class, function (Faker $faker) {
         'id' => $faker->unique()->randomNumber(5),
         'subject' => $title,
         'created_on' => BusinessDate::now(),
-        'due_date' => BusinessDate::now()->addDays(10)
+        'service_id' => $faker->numberBetween(0, 100)
     ];
 });
