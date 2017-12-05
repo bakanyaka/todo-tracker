@@ -3,20 +3,12 @@
 namespace Tests\Feature;
 
 use App\Facades\Redmine;
-use App\Models\Service;
-use Carbon\Carbon;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class IssuesTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->artisan("db:Seed");
-    }
 
     /** @test */
     public function user_can_view_his_own_tracked_issues()
@@ -60,6 +52,16 @@ class IssuesTest extends TestCase
         $response = $this->get(route('issues'));
         $response->assertSee((string)$issueId);
         $response->assertSee((string)$issue['subject']);
+    }
+
+    /** @test */
+    public function issue_id_is_required_to_add_new_issue()
+    {
+        $this->withExceptionHandling();
+        $this->signIn();
+        $response = $this->json('POST', route('issues.track'), ['issue_id' => '']);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['issue_id']);
     }
 
 }

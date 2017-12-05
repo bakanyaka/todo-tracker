@@ -8,7 +8,7 @@
                 <th>№</th>
                 <th>Название</th>
                 <th>Дата создания</th>
-                <th>Категория</th>
+                <th>Сервис</th>
                 <th>Расчетное время</th>
                 <th>Плановая дата завершения</th>
                 <th>Фактическая дата завершения</th>
@@ -18,9 +18,9 @@
                     <td>{{$issue->id}}</td>
                     <td>{{$issue->subject}}</td>
                     <td>{{$issue->created_on}}</td>
-                    <td></td>
-                    <td></td>
-                    <td>{{$issue->due_date}}</td>
+                    <td>{{$issue->service->name or 'Прочее'}}</td>
+                    <td>{{$issue->service->hours or 'Прочее'}}</td>
+                    <td>{{$issue->due_date or 'Отсутствует'}}</td>
                     <td></td>
                 </tr>
             @endforeach

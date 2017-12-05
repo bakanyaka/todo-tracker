@@ -8,7 +8,7 @@ $factory->define(App\Models\Issue::class, function (Faker $faker) {
     return [
         'id' => $faker->unique()->randomNumber(5),
         'subject' => $title,
-        'created_on' => BusinessDate::now(),
+        'created_on' => BusinessDate::instance($faker->dateTimeThisMonth),
         'service_id' => $faker->numberBetween(0, 4)
     ];
 });

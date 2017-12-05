@@ -30,17 +30,47 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Issue extends Model
 {
+    /**
+     * Don't auto-apply mass assignment protection.
+     *
+     * @var array
+     */
     protected $guarded = [];
+
+    /**
+     * The relationships to always eager-load.
+     *
+     * @var array
+     */
+    protected $with = ['service'];
+
+    /**
+     * Don't auto increment id column
+     *
+     * @var bool
+     */
     public $incrementing = false;
 
+    /**
+     * @param $value
+     * @return BusinessDate
+     */
     public function getCreatedOnAttribute($value)
     {
         return BusinessDate::parse($value);
     }
 
+    /**
+     * @param $value
+     * @return BusinessDate | null
+     */
     public function getDueDateAttribute($value)
     {
-        return BusinessDate::parse($value);
+        if ($this->estimatedHours)
+        {
+            return $this->created_on->addBusinessHours($this->estimatedHours);
+        }
+        return null;
     }
 
     public function users()
@@ -53,7 +83,7 @@ class Issue extends Model
         return $this->belongsTo('App\Models\Service');
     }
 
-    public function getEstimatedHours()
+    public function getEstimatedHoursAttribute()
     {
         return optional($this->service)->hours;
     }

@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Facades\Redmine;
 use App\Models\Issue;
+use App\Models\Service;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -47,7 +48,21 @@ class IssueModelTest extends TestCase
         //When we try to track same issue by same user again
         $issue->track($user);
         //Then it doesn't get tracked again
-        $recordsCount = DB::table('issue_user')->where(['user_id' => $user->id, 'issue_id' => $issue->id])->count();
+        $recordsCount = $user->issues()->where(['issue_id' => $issue->id])->count();
         $this->assertEquals(1, $recordsCount);
+    }
+
+    /** @test */
+    public function it_calculates_due_date()
+    {
+        $service = Service::create([
+            'name' => 'Тестирование',
+            'hours' => 2
+        ]);
+        $issue = create('App\Models\Issue',[
+            'service_id' => $service->id,
+            'created_on' => '2017-12-05 15:00:00'
+        ]);
+        $this->assertEquals('2017-12-06 09:00:00',$issue->dueDate);
     }
 }

@@ -11,5 +11,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Service extends Model
 {
-    //
+    /**
+     * Don't auto-apply mass assignment protection.
+     *
+     * @var array
+     */
+    protected $guarded = [];
 }

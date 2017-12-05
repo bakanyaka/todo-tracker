@@ -37,12 +37,13 @@ class IssueController extends Controller
     /**
      * Store a newly created resource in storage.
      *
+     * @param Request $request
      * @return \Illuminate\Http\Response
-     * @throws Exception
      */
-    public function store()
+    public function store(Request $request)
     {
-        $issue = Issue::firstOrNew(['id' => request('issue_id')]);
+        $request->validate(['issue_id' => 'required|int']);
+        $issue = Issue::firstOrNew(['id' => $request->issue_id]);
         $issue->updateFromRedmine();
         $issue->save();
         $issue->track(auth()->user());
