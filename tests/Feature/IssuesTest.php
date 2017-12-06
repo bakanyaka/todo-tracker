@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\BusinessDate;
 use App\Facades\Redmine;
+use App\Models\Service;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -34,23 +36,42 @@ class IssuesTest extends TestCase
     }
 
     /** @test */
+    public function all_required_issue_properties_are_loaded_from_redmine_and_displayed()
+    {
+        $service = Service::create([
+            'name' => 'Тестирование',
+            'hours' => 333
+        ]);
+        $created_on = BusinessDate::parse('2017-12-06 09:00:00');
+        $closed_on = BusinessDate::instance($created_on)->addHours(100);
+        $issue = $this->makeIssueAndTrackIt([
+            'service' => 'Тестирование',
+            'created_on' => $created_on,
+            'closed_on' => $closed_on
+        ]);
+
+        $response = $this->get(route('issues'));
+
+        $response->assertStatus(200);
+        $response->assertSee((string)$issue['id']);
+        $response->assertSee($issue['subject']);
+        $response->assertSee((string)$created_on);
+        $response->assertSee((string)$closed_on);
+        $response->assertSee($issue['service']);
+        $response->assertSee('333');
+        $response->assertSee((string)$created_on->addBusinessHours(333));
+
+    }
+
+    /** @test */
     public function user_can_add_new_issue_to_his_tracked_issues_by_id()
     {
 
-        $issue = $this->makeFakeIssueArray();
-        $issueId = $issue['id'];
+        $issue = $this->makeIssueAndTrackIt();
 
-        Redmine::shouldReceive('getIssue')
-            ->once()
-            ->with($issueId)
-            ->andReturn($issue);
-
-        $this->signIn();
-        $this->post(route('issues.track'), ['issue_id' => $issueId]);
-
-        $this->assertDatabaseHas('issues', ['id' => $issueId]);
+        $this->assertDatabaseHas('issues', ['id' => $issue['id']]);
         $response = $this->get(route('issues'));
-        $response->assertSee((string)$issueId);
+        $response->assertSee((string)$issue['id']);
         $response->assertSee((string)$issue['subject']);
     }
 
@@ -62,6 +83,25 @@ class IssuesTest extends TestCase
         $response = $this->json('POST', route('issues.track'), ['issue_id' => '']);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['issue_id']);
+    }
+
+    /**
+     * @param array $attributes
+     * @return array
+     */
+    private function makeIssueAndTrackIt($attributes=[])
+    {
+        $issue = $this->makeFakeIssueArray($attributes);
+        $issueId = $issue['id'];
+
+        Redmine::shouldReceive('getIssue')
+            ->once()
+            ->with($issueId)
+            ->andReturn($issue);
+
+        $this->signIn();
+        $this->post(route('issues.track'), ['issue_id' => $issueId]);
+        return $issue;
     }
 
 }

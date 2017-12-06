@@ -18,6 +18,7 @@ class CreateIssuesTable extends Migration
             $table->string('subject');
             $table->dateTime('created_on');
             $table->integer('service_id')->unsigned()->nullable();
+            $table->dateTime('closed_on')->nullable();
             $table->timestamps();
         });
     }

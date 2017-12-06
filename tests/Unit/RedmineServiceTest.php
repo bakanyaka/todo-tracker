@@ -25,7 +25,7 @@ class RedmineServiceTest extends TestCase
         $client = new Client(['handler' => $handler]);
 
         $redmine = new Redmine($client);
-        $response = $redmine->getIssue(324);
+        $result = $redmine->getIssue(324);
         $this->assertEquals([
             'id' =>  $issueData['id'],
             'status' => $issueData['status']['id'],
@@ -38,7 +38,8 @@ class RedmineServiceTest extends TestCase
             'service' => $issueData['custom_fields'][1]['value'],
             'created_on' => Carbon::parse($issueData['created_on']),
             'updated_on' => Carbon::parse($issueData['updated_on']),
-        ],$response);
+            'closed_on' => Carbon::parse($issueData['closed_on']),
+        ],$result);
     }
 
     /**
@@ -88,10 +89,16 @@ class RedmineServiceTest extends TestCase
                         'id' => 65,
                         'name' => 'Сервис',
                         'value' => 'Организация рабочих мест пользователей'
+                    ],
+                    [
+                        'id' => 66,
+                        'name' => 'Контроль',
+                        'value' => 0
                     ]
                 ],
                 'created_on' => $this->faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z'),
                 'updated_on' => $this->faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z'),
+                'closed_on' => $this->faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z')
             ]
         ], $attributes);
         return $issue;

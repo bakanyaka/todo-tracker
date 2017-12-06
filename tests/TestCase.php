@@ -41,6 +41,7 @@ abstract class TestCase extends BaseTestCase
             'service' => 'Организация рабочих мест пользователей',
             'created_on' => Carbon::instance($this->faker->dateTimeThisMonth()),
             'updated_on' => Carbon::instance($this->faker->dateTimeThisMonth()),
+            'closed_on' => Carbon::instance($this->faker->dateTimeThisMonth()),
         ],$attributes);
         return $issue;
     }

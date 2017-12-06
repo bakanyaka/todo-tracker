@@ -3,7 +3,7 @@
 @section('content')
 <div class="container-fluid">
     <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped table-sm">
             <tr>
                 <th>№</th>
                 <th>Название</th>
@@ -19,9 +19,9 @@
                     <td>{{$issue->subject}}</td>
                     <td>{{$issue->created_on}}</td>
                     <td>{{$issue->service->name or 'Прочее'}}</td>
-                    <td>{{$issue->service->hours or 'Прочее'}}</td>
+                    <td>{{$issue->service->hours or ''}}</td>
                     <td>{{$issue->due_date or 'Отсутствует'}}</td>
-                    <td></td>
+                    <td>{{$issue->closed_on or ''}}</td>
                 </tr>
             @endforeach
         </table>

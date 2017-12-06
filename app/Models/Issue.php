@@ -62,15 +62,21 @@ class Issue extends Model
 
     /**
      * @param $value
+     * @return BusinessDate
+     */
+    public function getClosedOnAttribute($value)
+    {
+        return $value ? BusinessDate::parse($value) : null;
+    }
+
+
+    /**
+     * @param $value
      * @return BusinessDate | null
      */
     public function getDueDateAttribute($value)
     {
-        if ($this->estimatedHours)
-        {
-            return $this->created_on->addBusinessHours($this->estimatedHours);
-        }
-        return null;
+        return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours) : null;
     }
 
     public function users()
@@ -101,6 +107,7 @@ class Issue extends Model
         $issueData = Redmine::getIssue($this->id);
         $this->subject = $issueData['subject'];
         $this->created_on = $issueData['created_on'];
+        $this->closed_on = $issueData['closed_on'];
         $service = Service::where('name', $issueData['service'])->first();
         $this->service()->associate($service);
     }
