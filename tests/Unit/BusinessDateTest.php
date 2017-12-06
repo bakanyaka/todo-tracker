@@ -43,9 +43,9 @@ class BusinessDateTest extends TestCase
         $this->assertEquals($expectedDate,$date);
 
         //Initial date is weekEnd
-        $date = BusinessDate::create(2017,12,2,13);
-        $expectedDate = BusinessDate::create(2017,12,4,9);
-        $date->addBusinessHours(1);
+        $date = BusinessDate::create(2017,12,2,14);
+        $expectedDate = BusinessDate::create(2017,12,4,12);
+        $date->addBusinessHours(4);
         $this->assertEquals($expectedDate,$date);
     }
 

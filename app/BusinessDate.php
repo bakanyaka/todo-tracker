@@ -34,16 +34,19 @@ class BusinessDate extends Carbon
 
         $hoursToAdd = $remainderHours;
 
-        //If resulting hour is after business hours,
-        if ($this->hour + $remainderHours > static::BUSINESS_DAY_END_HOUR && $hours >= 0) {
-            // Start from next day
-            $fullDaysToAdd++;
-            //Calculate how many hours get transferred to next day
-            $hoursToAdd = $remainderHours - (static::BUSINESS_DAY_END_HOUR - $this->hour);
-        } elseif ($this->hour + $remainderHours < static::BUSINESS_DAY_START_HOUR) {
-            // If resulting hour is before business hours (only reachable when we are subtracting hours)
-            // then start from previous day
-            $fullDaysToAdd--;
+        // TODO: Needs refactoring
+        if (!$this->isWeekend()) {
+            //If resulting hour is after business hours,
+            if ($this->hour + $remainderHours > static::BUSINESS_DAY_END_HOUR && $hours >= 0) {
+                // Start from next day
+                $fullDaysToAdd++;
+                //Calculate how many hours get transferred to next day
+                $hoursToAdd = $remainderHours - (static::BUSINESS_DAY_END_HOUR - $this->hour);
+            } elseif ($this->hour + $remainderHours < static::BUSINESS_DAY_START_HOUR) {
+                // If resulting hour is before business hours (only reachable when we are subtracting hours)
+                // then start from previous day
+                $fullDaysToAdd--;
+            }
         }
 
         if ($fullDaysToAdd > 0 || ($this->isWeekend() && $hours > 0 )) {
