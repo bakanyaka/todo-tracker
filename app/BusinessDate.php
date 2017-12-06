@@ -21,25 +21,25 @@ class BusinessDate extends Carbon
         $fullDaysToAdd = (int)($hours / $hoursInADay);
         $remainderHours = $hours % $hoursInADay;
 
-        //If current hour is before business hours, start counting from start of the business day
+        //If current hour is before business hours, start counting from the start of the business day
+        //Need this only for adding hours
         if ($this->hour < static::BUSINESS_DAY_START_HOUR) {
            $this->hour = static::BUSINESS_DAY_START_HOUR;
+        }
+        //If current hour is after business hours, start counting from the end of the business day
+        //Need this only for subtracting hours
+        if ($this->hour > static::BUSINESS_DAY_END_HOUR) {
+            $this->hour =  static::BUSINESS_DAY_END_HOUR;
         }
 
         $hoursToAdd = $remainderHours;
 
         //If resulting hour is after business hours,
-        if ($this->hour + $remainderHours > static::BUSINESS_DAY_END_HOUR) {
-            //If we are adding hours then start from next day
-            if($hours >= 0) {
-                $fullDaysToAdd++;
-                //Calculate how many hours get transferred to next day
-                $currentDayHoursLeft = static::BUSINESS_DAY_END_HOUR - $this->hour;
-                $hoursToAdd = $currentDayHoursLeft > 0 ? $remainderHours - $currentDayHoursLeft : $remainderHours;
-            } else {
-                //If we are subtracting hours then start from the end of current business day
-                $this->hour = static::BUSINESS_DAY_END_HOUR;
-            }
+        if ($this->hour + $remainderHours > static::BUSINESS_DAY_END_HOUR && $hours >= 0) {
+            // Start from next day
+            $fullDaysToAdd++;
+            //Calculate how many hours get transferred to next day
+            $hoursToAdd = $remainderHours - (static::BUSINESS_DAY_END_HOUR - $this->hour);
         } elseif ($this->hour + $remainderHours < static::BUSINESS_DAY_START_HOUR) {
             // If resulting hour is before business hours (only reachable when we are subtracting hours)
             // then start from previous day
