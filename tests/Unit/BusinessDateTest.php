@@ -76,6 +76,11 @@ class BusinessDateTest extends TestCase
         $expectedDate = BusinessDate::create(2017,12,1,14);
         $date->addBusinessHours(-2);
         $this->assertEquals($expectedDate,$date);
+
+        $date = BusinessDate::create(2017,12,6,16);
+        $expectedDate = BusinessDate::create(2017,12,6,8);
+        $date->addBusinessHours(-8);
+        $this->assertEquals($expectedDate,$date);
     }
 
     /** @test */

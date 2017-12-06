@@ -55,6 +55,12 @@ class BusinessDate extends Carbon
         if ($fullDaysToAdd === 0 && $hours < 0 && $this->isWeekend()) {
             $fullDaysToAdd--;
         }
+        //TODO: This is temporary patch. Need another solution. Should not work like that
+        if ($fullDaysToAdd === -1 && $hoursToAdd === 0)
+        {
+            $this->hour(static::BUSINESS_DAY_START_HOUR);
+            $fullDaysToAdd = 0;
+        }
         return $this->addWeekdays($fullDaysToAdd)->addHours($hoursToAdd);
 
     }
