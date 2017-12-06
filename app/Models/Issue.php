@@ -27,6 +27,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $trackedByUsers
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereSubject($value)
  * @property-read \App\Models\Service $service
+ * @property int|null $service_id
+ * @property-read BusinessDate $closed_on
+ * @property-read mixed $estimated_hours
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $users
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereServiceId($value)
  */
 class Issue extends Model
 {
@@ -71,6 +76,7 @@ class Issue extends Model
 
 
     /**
+     * Calculates due date based on created on timestamp and estimated hours
      * @param $value
      * @return BusinessDate | null
      */
@@ -79,21 +85,34 @@ class Issue extends Model
         return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours) : null;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function users()
     {
         return $this->belongsToMany('App\User');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function service()
     {
         return $this->belongsTo('App\Models\Service');
     }
 
+    /**
+     * @return int | null
+     */
     public function getEstimatedHoursAttribute()
     {
         return optional($this->service)->hours;
     }
 
+    /**
+     * Add this issue to user's tracked issues
+     * @param User $user
+     */
     public function track(User $user)
     {
         if(!$this->users()->find($user->id))
@@ -102,6 +121,10 @@ class Issue extends Model
         }
     }
 
+    /**
+     * Update model data with data loaded from Redmine API
+     *
+     */
     public function updateFromRedmine()
     {
         $issueData = Redmine::getIssue($this->id);

@@ -16,37 +16,66 @@ class BusinessDateTest extends TestCase
         $date = BusinessDate::create(2017,12,4,15);
         $expectedDate = BusinessDate::create(2017,12,5,10);
         $date->addBusinessHours(3);
-        $this->assertEquals($expectedDate->timestamp,$date->timestamp);
+        $this->assertEquals($expectedDate,$date);
 
         // Add one day as full working day
         $date = BusinessDate::create(2017,12,4,15);
         $expectedDate = BusinessDate::create(2017,12,6,10);
         $date->addBusinessHours(11);
-        $this->assertEquals($expectedDate->timestamp,$date->timestamp);
+        $this->assertEquals($expectedDate,$date);
 
         // It adds weekends as extra days
         $date = BusinessDate::create(2017,12,1,15);
         $expectedDate = BusinessDate::create(2017,12,4,10);
         $date->addBusinessHours(3);
-        $this->assertEquals($expectedDate->timestamp,$date->timestamp);
+        $this->assertEquals($expectedDate,$date);
 
         //Initial date is outside of business hours
         $date = BusinessDate::create(2017,12,4,18);
         $expectedDate = BusinessDate::create(2017,12,5,9);
         $date->addBusinessHours(1);
-        $this->assertEquals($expectedDate->timestamp,$date->timestamp);
+        $this->assertEquals($expectedDate,$date);
 
         //Initial date is before business hours
         $date = BusinessDate::create(2017,12,4,7);
         $expectedDate = BusinessDate::create(2017,12,4,9);
         $date->addBusinessHours(1);
-        $this->assertEquals($expectedDate->timestamp,$date->timestamp);
+        $this->assertEquals($expectedDate,$date);
 
         //Initial date is weekEnd
         $date = BusinessDate::create(2017,12,2,13);
         $expectedDate = BusinessDate::create(2017,12,4,9);
         $date->addBusinessHours(1);
-        $this->assertEquals($expectedDate->timestamp,$date->timestamp);
+        $this->assertEquals($expectedDate,$date);
+    }
+
+    /** @test */
+    public function it_subtracts_business_hours_from_date()
+    {
+        $date = BusinessDate::create(2017,12,6,18);
+        $expectedDate = BusinessDate::create(2017,12,6,15);
+        $date->addBusinessHours(-1);
+        $this->assertEquals($expectedDate,$date);
+
+        $date = BusinessDate::create(2017,12,6,6);
+        $expectedDate = BusinessDate::create(2017,12,5,15);
+        $date->addBusinessHours(-1);
+        $this->assertEquals($expectedDate,$date);
+
+        $date = BusinessDate::create(2017,12,6,16);
+        $expectedDate = BusinessDate::create(2017,12,5,15);
+        $date->addBusinessHours(-9);
+        $this->assertEquals($expectedDate,$date);
+
+        $date = BusinessDate::create(2017,12,9,12);
+        $expectedDate = BusinessDate::create(2017,12,8,14);
+        $date->addBusinessHours(-2);
+        $this->assertEquals($expectedDate,$date);
+
+        $date = BusinessDate::create(2017,12,4,07);
+        $expectedDate = BusinessDate::create(2017,12,1,14);
+        $date->addBusinessHours(-2);
+        $this->assertEquals($expectedDate,$date);
     }
 
     /** @test */

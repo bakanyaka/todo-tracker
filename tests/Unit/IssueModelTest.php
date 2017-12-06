@@ -2,9 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\BusinessDate;
 use App\Facades\Redmine;
 use App\Models\Issue;
 use App\Models\Service;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -65,5 +67,20 @@ class IssueModelTest extends TestCase
             'created_on' => '2017-12-05 15:00:00'
         ]);
         $this->assertEquals('2017-12-06 09:00:00',$issue->dueDate);
+    }
+
+    /** @test */
+    public function it_calculates_time_left_to_solve_the_issue()
+    {
+        $service = Service::create([
+            'name' => 'Тестирование',
+            'hours' => 2
+        ]);
+        $issue = create('App\Models\Issue',[
+            'service_id' => $service->id,
+            'created_on' => Carbon::now()->addWeekdays(-2)
+        ]);
+
+
     }
 }
