@@ -110,6 +110,29 @@ class Issue extends Model
     }
 
     /**
+     *  Calculates difference in business hours between current timestamp and due date
+     * @return int|null
+     */
+    public function getTimeLeftAttribute()
+    {
+        if (is_null($this->due_date) || !is_null($this->closed_on)){
+            return null;
+        }
+        $now = BusinessDate::now();
+        $difference = $now->diffInBusinessHours($this->due_date);
+        if ($this->due_date->gt($now)) {
+            return $difference;
+        } else {
+            return $difference * -1;
+        }
+    }
+
+    public function getActualTimeAttribute()
+    {
+        return is_null($this->closed_on) ? null : $this->created_on->diffInBusinessHours($this->closed_on);
+    }
+
+    /**
      * Add this issue to user's tracked issues
      * @param User $user
      */

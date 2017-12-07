@@ -42,14 +42,33 @@ class RedmineServiceTest extends TestCase
         ],$result);
     }
 
+    /** @test */
+    public function ic_converts_gmt_time_to_local_time() {
+        $issue = $this->makeFakeRedmineIssue([
+            'created_on' => '2017-12-07T06:27:42Z'
+        ]);
+        $issueData = $issue['issue'];
+        $mock = new MockHandler([
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],json_encode($issue))
+        ]);
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+
+        $redmine = new Redmine($client);
+        $result = $redmine->getIssue(322);
+
+        $this->assertEquals('2017-12-07 09:27:42',$result['created_on']);
+
+    }
+
     /**
      * @param array $attributes
      * @return array
      */
     protected function makeFakeRedmineIssue($attributes = [])
     {
-        $issue = array_merge([
-            'issue' => [
+        $issue = [
+            'issue' => array_merge([
                 'id' => $this->faker->unique()->randomNumber(5),
                 'project' => [
                     'id' => 90,
@@ -99,8 +118,8 @@ class RedmineServiceTest extends TestCase
                 'created_on' => $this->faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z'),
                 'updated_on' => $this->faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z'),
                 'closed_on' => $this->faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z')
-            ]
-        ], $attributes);
+            ],$attributes)
+        ];
         return $issue;
     }
 }

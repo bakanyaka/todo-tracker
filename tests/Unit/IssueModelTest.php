@@ -72,15 +72,55 @@ class IssueModelTest extends TestCase
     /** @test */
     public function it_calculates_time_left_to_solve_the_issue()
     {
+        $now = Carbon::create(2017,12,07,12);
+        Carbon::setTestNow($now);
+
+        // Overdue issue should return negative value
         $service = Service::create([
             'name' => 'Тестирование',
             'hours' => 2
         ]);
-        $issue = create('App\Models\Issue',[
+        $overDueIssue = create('App\Models\Issue',[
             'service_id' => $service->id,
-            'created_on' => Carbon::now()->addWeekdays(-2)
+            'created_on' => Carbon::create(2017,12,07,8)
         ]);
+        $this->assertEquals(-2, $overDueIssue->time_left);
 
+        // On time issue should return positive value
+        $onTimeIssue = create('App\Models\Issue',[
+            'service_id' => $service->id,
+            'created_on' => Carbon::create(2017,12,07,11)
+        ]);
+        $this->assertEquals(1, $onTimeIssue->time_left);
 
+        // Issue without due time should return null value
+        $issueWithoutDueDate = create('App\Models\Issue',[
+            'service_id' => null
+        ]);
+        $this->assertEquals(null,$issueWithoutDueDate->time_left);
+
+        // Issue with closed on time should return null value
+        $closedIssue = create('App\Models\Issue',[
+            'service_id' => $service->id,
+            'created_on' => Carbon::create(2017,12,07,11),
+            'closed_on' => Carbon::create(2017,12,07,12),
+        ]);
+        $this->assertEquals(null,$closedIssue->time_left);
+    }
+
+    /** @test */
+    public function it_calculates_actual_time_since_issue_was_created_till_it_was_closed()
+    {
+        $issue = create('App\Models\Issue',[
+            'created_on' => Carbon::create(2017,12,07,11),
+            'closed_on' => Carbon::create(2017,12,07,15),
+        ]);
+        $this->assertEquals(4, $issue->actual_time);
+
+        //Issue that is not close should return null
+        $issue = create('App\Models\Issue',[
+            'created_on' => Carbon::create(2017,12,07,11)
+        ]);
+        $this->assertEquals(null, $issue->actual_time);
     }
 }

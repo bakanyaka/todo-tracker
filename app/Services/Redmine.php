@@ -49,9 +49,9 @@ class Redmine
             'description' => $issueData['description'],
             'department' => $department,
             'service' => $service,
-            'created_on' => Carbon::parse($issueData['created_on']),
-            'updated_on' => Carbon::parse($issueData['updated_on']),
-            'closed_on' => $issueData['closed_on'] ? Carbon::parse($issueData['closed_on']) : null
+            'created_on' => Carbon::parse($issueData['created_on'])->timezone('Europe/Moscow'),
+            'updated_on' => Carbon::parse($issueData['updated_on'])->timezone('Europe/Moscow'),
+            'closed_on' => array_has($issueData,'closed_on') ? Carbon::parse($issueData['closed_on'])->timezone('Europe/Moscow') : null
         ];
     }
 
