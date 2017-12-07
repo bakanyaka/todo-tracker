@@ -115,16 +115,21 @@ class Issue extends Model
      */
     public function getTimeLeftAttribute()
     {
-        if (is_null($this->due_date) || !is_null($this->closed_on)){
+        if (is_null($this->due_date) ){
             return null;
         }
-        $now = BusinessDate::now();
-        $difference = $now->diffInBusinessHours($this->due_date);
-        if ($this->due_date->gt($now)) {
+        $timestamp = is_null($this->closed_on) ? BusinessDate::now() : $this->closed_on;
+        $difference = $timestamp->diffInBusinessHours($this->due_date);
+        if ($this->due_date->gte($timestamp)) {
             return $difference;
         } else {
             return $difference * -1;
         }
+    }
+
+    public function getPercentOfTimeLeftAttribute()
+    {
+        return is_null(optional($this->service)->hours) ? null : $this->time_left / $this->service->hours * 100;
     }
 
     public function getActualTimeAttribute()

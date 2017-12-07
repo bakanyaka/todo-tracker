@@ -70,7 +70,7 @@ class IssueModelTest extends TestCase
     }
 
     /** @test */
-    public function it_calculates_time_left_to_solve_the_issue()
+    public function it_calculates_time_left_to_solve_the_issue_or_overdue_time_while_issue_is_open()
     {
         $now = Carbon::create(2017,12,07,12);
         Carbon::setTestNow($now);
@@ -98,14 +98,32 @@ class IssueModelTest extends TestCase
             'service_id' => null
         ]);
         $this->assertEquals(null,$issueWithoutDueDate->time_left);
+    }
 
-        // Issue with closed on time should return null value
-        $closedIssue = create('App\Models\Issue',[
+    /** @test */
+    public function it_calculates_time_left_before_deadline_or_overdue_time_when_issue_is_closed()
+    {
+
+        $service = Service::create([
+            'name' => 'Тестирование',
+            'hours' => 2
+        ]);
+
+        // In time issue should return positive value
+        $closedInTimeIssue = create('App\Models\Issue',[
             'service_id' => $service->id,
             'created_on' => Carbon::create(2017,12,07,11),
-            'closed_on' => Carbon::create(2017,12,07,12),
+            'closed_on' => Carbon::create(2017,12,07,12)
         ]);
-        $this->assertEquals(null,$closedIssue->time_left);
+        $this->assertEquals(1, $closedInTimeIssue->time_left);
+
+        // Overdue issue should return positive value
+        $closedInTimeIssue = create('App\Models\Issue',[
+            'service_id' => $service->id,
+            'created_on' => Carbon::create(2017,12,07,11),
+            'closed_on' => Carbon::create(2017,12,07,15)
+        ]);
+        $this->assertEquals(-2, $closedInTimeIssue->time_left);
     }
 
     /** @test */
@@ -122,5 +140,24 @@ class IssueModelTest extends TestCase
             'created_on' => Carbon::create(2017,12,07,11)
         ]);
         $this->assertEquals(null, $issue->actual_time);
+    }
+
+    /** @test */
+    public function it_calculates_percent_of_time_left()
+    {
+
+        $service = Service::create([
+            'name' => 'Тестирование',
+            'hours' => 4
+        ]);
+
+        $now = Carbon::create(2017,12,07,12);
+        Carbon::setTestNow($now);
+
+        $closedInTimeIssue = create('App\Models\Issue',[
+            'service_id' => $service->id,
+            'created_on' => Carbon::create(2017,12,07,10),
+        ]);
+        $this->assertEquals(50, $closedInTimeIssue->percent_of_time_left);
     }
 }

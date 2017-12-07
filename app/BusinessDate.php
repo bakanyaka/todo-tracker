@@ -46,6 +46,8 @@ class BusinessDate extends Carbon
                 // If resulting hour is before business hours (only reachable when we are subtracting hours)
                 // then start from previous day
                 $fullDaysToAdd--;
+                //Calculate how many hours get transferred to next day
+                $hoursToAdd= $remainderHours + ($this->hour - static::BUSINESS_DAY_START_HOUR);
             }
         }
 
