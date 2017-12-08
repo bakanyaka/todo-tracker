@@ -20,7 +20,9 @@
                     <td>{{$issue->subject}}</td>
                     <td>{{$issue->service->name or 'Прочее'}}</td>
                     <td>{{$issue->service->hours or ''}}</td>
-                    <td class="{{$issue->percent_of_time_left < 30 ? 'table-warning' : ''}}">{{$issue->time_left or ''}}</td>
+                    <td class="{{($issue->percent_of_time_left < 30 && $issue->percent_of_time_left !== null )? 'table-warning' : ''}}">
+                        {{$issue->time_left or ''}}
+                    </td>
                     <td>{{$issue->created_on}}</td>
                     <td>{{$issue->due_date or ''}}</td>
                     <td>{{$issue->closed_on or ''}}</td>

@@ -161,5 +161,6 @@ class Issue extends Model
         $this->closed_on = $issueData['closed_on'];
         $service = Service::where('name', $issueData['service'])->first();
         $this->service()->associate($service);
+        return $this;
     }
 }

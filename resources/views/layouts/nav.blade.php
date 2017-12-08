@@ -17,6 +17,11 @@
             <button class="btn btn-primary btn-sm my-2 my-sm-0" type="submit">Отслеживать</button>
             {{ csrf_field() }}
         </form>
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="btn btn-primary btn-sm ml-sm-2" href="{{route('issues.update')}}">Обновить данные</a>
+            </li>
+        </ul>
         <ul class="navbar-nav ml-auto">
             @guest
                 <li class="nav-item">

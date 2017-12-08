@@ -85,6 +85,25 @@ class IssuesTest extends TestCase
         $response->assertJsonValidationErrors(['issue_id']);
     }
 
+    /** @test */
+    public function user_can_force_an_update_of_all_tracked_issues()
+    {
+        $issue = create('App\Models\Issue');
+        $newIssueData = $this->makeFakeIssueArray();
+
+        Redmine::shouldReceive('getIssue')
+            ->once()
+            ->with($issue['id'])
+            ->andReturn($newIssueData);
+
+        $this->signIn();
+        $this->get(route('issues.update'));
+        $issue->refresh();
+
+        $this->assertEquals($newIssueData['subject'],$issue->subject);
+        $this->assertEquals($newIssueData['closed_on'],$issue->closed_on);
+    }
+
     /**
      * @param array $attributes
      * @return array

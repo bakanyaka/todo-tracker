@@ -84,6 +84,14 @@ class IssueController extends Controller
         //
     }
 
+    public function updateAll()
+    {
+        Issue::all()->each(function($issue){
+            $issue->updateFromRedmine()->save();
+        });
+        return redirect(route('issues'));
+    }
+
     /**
      * Remove the specified resource from storage.
      *
