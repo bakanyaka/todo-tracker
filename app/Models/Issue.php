@@ -181,4 +181,15 @@ class Issue extends Model
         $this->service()->associate($service);
         return $this;
     }
+
+    public static function defaultSort($a,$b){
+        if (is_null($a->time_left) && !is_null($b->time_left)) {
+            return 1;
+        } elseif (is_null($b->time_left) && !is_null($a->time_left)){
+            return -1;
+        } elseif ($a->priority_id === $b->priority_id) {
+            return $a->time_left - $b->time_left;
+        }
+        return $a->priority_id - $b->priority_id;
+    }
 }

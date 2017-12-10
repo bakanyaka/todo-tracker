@@ -20,8 +20,7 @@ class IssueController extends Controller
      */
     public function index()
     {
-
-        $issues =auth()->user()->issues->sortBy('time_left');
+        $issues =auth()->user()->issues->sort([Issue::class,'defaultSort']);
         return view('issues.index', ['issues' => $issues]);
     }
 
