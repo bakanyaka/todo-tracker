@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\BusinessDate;
+use App\Exceptions\FailedToRetrieveRedmineIssueException;
 use App\Facades\Redmine;
 use App\User;
 use Illuminate\Database\Eloquent\Model;

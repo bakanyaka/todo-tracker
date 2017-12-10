@@ -9,7 +9,10 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="{{route('issues')}}">Все задачи</a>
+                <a class="nav-link" href="{{route('issues')}}">Задачи</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{route('services')}}">Сервисы</a>
             </li>
         </ul>
         <form class="form-inline ml-5" method="POST" action="{{route('issues.track')}}">

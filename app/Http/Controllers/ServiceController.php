@@ -14,7 +14,8 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        //
+        $services = Service::orderBy('name')->get();
+        return view('services.index', ['services' => $services]);
     }
 
     /**
@@ -24,7 +25,7 @@ class ServiceController extends Controller
      */
     public function create()
     {
-        //
+        return view('services.create');
     }
 
     /**
@@ -35,18 +36,11 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Service  $service
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Service $service)
-    {
-        //
+        Service::create([
+            'name' => $request->name,
+            'hours' => $request->hours
+        ]);
+        return redirect(route('services'));
     }
 
     /**
@@ -57,7 +51,7 @@ class ServiceController extends Controller
      */
     public function edit(Service $service)
     {
-        //
+        return view('services.edit', ['service' => $service]);
     }
 
     /**
@@ -69,17 +63,23 @@ class ServiceController extends Controller
      */
     public function update(Request $request, Service $service)
     {
-        //
+        $service->update([
+            'name' => $request->name,
+            'hours' => $request->hours
+        ]);
+        return redirect(route('services'));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Service  $service
+     * @param  \App\Models\Service $service
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
     public function destroy(Service $service)
     {
-        //
+        $service->delete();
+        return redirect(route('services'));
     }
 }

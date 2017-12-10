@@ -4,8 +4,10 @@
 namespace App\Services;
 
 
+use App\Exceptions\FailedToRetrieveRedmineIssueException;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 
 class Redmine
 {
@@ -22,9 +24,18 @@ class Redmine
         $this->client = $client;
     }
 
+    /**
+     * @param $issue_id
+     * @return array
+     * @throws FailedToRetrieveRedmineIssueException
+     */
     public function getIssue($issue_id)
     {
-        $response = $this->client->get("issues/{$issue_id}.json");
+        try {
+            $response = $this->client->get("issues/{$issue_id}.json");
+        } catch (ClientException $exception){
+            throw new FailedToRetrieveRedmineIssueException();
+        }
         return $this->parseRedmineInfo(json_decode($response->getBody(),true));
     }
 
