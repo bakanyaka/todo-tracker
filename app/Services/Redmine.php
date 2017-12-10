@@ -53,7 +53,7 @@ class Redmine
         return [
             'id' =>  $issueData['id'],
             'status' => $issueData['status']['id'],
-            'priority' => $issueData['priority']['name'],
+            'priority_id' => $issueData['priority']['id'],
             'author' => $issueData['author']['name'],
             'assignedTo' => data_get($issueData,'assigned_to.name'),
             'subject' => $issueData['subject'],

@@ -22,6 +22,29 @@ class IssueModelTest extends TestCase
         $this->artisan("db:Seed");
     }
 
+    /** @test */
+    public function can_get_priority_name()
+    {
+        $priority = \App\Models\Priority::create([
+            'id' => 1,
+            'name' => 'Высокий'
+        ]);
+        $issue = create('App\Models\Issue', [
+            'priority_id' => $priority->id
+        ]);
+
+        $this->assertEquals('Высокий',$issue->priority->name);
+    }
+
+    /** @test */
+    public function issue_is_created_with_default_priority_id_when_no_priority_specified()
+    {
+        $issue = create('App\Models\Issue');
+        $issue = $issue->fresh();
+        $this->assertEquals(4,$issue->priority_id);
+    }
+
+
 
     /** @test */
     public function it_updates_model_data_from_redmine()
@@ -36,6 +59,8 @@ class IssueModelTest extends TestCase
 
         $issue->updateFromRedmine();
         $this->assertEquals($issueData['subject'],$issue->subject);
+        $this->assertEquals($issueData['priority_id'],$issue->priority_id);
+        $this->assertEquals($issueData['department'],$issue->department);
         $this->assertEquals($issueData['created_on'],$issue->created_on);
         $this->assertEquals($issueData['closed_on'],$issue->closed_on);
         $this->assertEquals(24,$issue->estimatedHours);

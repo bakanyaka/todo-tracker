@@ -16,8 +16,10 @@ class CreateIssuesTable extends Migration
         Schema::create('issues', function (Blueprint $table) {
             $table->unsignedInteger('id')->unique();
             $table->string('subject');
+            $table->string('department')->nullable();
             $table->dateTime('created_on');
             $table->integer('service_id')->unsigned()->nullable();
+            $table->integer('priority_id')->unsigned()->default(4);
             $table->dateTime('closed_on')->nullable();
             $table->timestamps();
         });

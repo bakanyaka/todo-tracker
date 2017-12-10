@@ -33,6 +33,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read mixed $estimated_hours
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $users
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereServiceId($value)
+ * @property-read mixed $actual_time
+ * @property-read mixed $percent_of_time_left
+ * @property-read int|null $time_left
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereClosedOn($value)
  */
 class Issue extends Model
 {
@@ -48,7 +52,7 @@ class Issue extends Model
      *
      * @var array
      */
-    protected $with = ['service'];
+    protected $with = ['service','priority'];
 
     /**
      * Don't auto increment id column
@@ -100,6 +104,14 @@ class Issue extends Model
     public function service()
     {
         return $this->belongsTo('App\Models\Service');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function priority()
+    {
+        return $this->belongsTo('App\Models\Priority');
     }
 
     /**
@@ -158,8 +170,13 @@ class Issue extends Model
     {
         $issueData = Redmine::getIssue($this->id);
         $this->subject = $issueData['subject'];
+        $this->department = $issueData['department'];
         $this->created_on = $issueData['created_on'];
         $this->closed_on = $issueData['closed_on'];
+        $priority = Priority::find($issueData['priority_id']);
+        if (!is_null($priority)) {
+            $this->priority_id = $priority->id;
+        }
         $service = Service::where('name', $issueData['service'])->first();
         $this->service()->associate($service);
         return $this;

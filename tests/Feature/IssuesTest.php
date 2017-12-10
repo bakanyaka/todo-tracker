@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\BusinessDate;
 use App\Facades\Redmine;
+use App\Models\Priority;
 use App\Models\Service;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -11,6 +12,13 @@ use Tests\TestCase;
 class IssuesTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->artisan("db:Seed", ['--class' => 'PrioritiesTableSeeder']);
+    }
+
 
     /** @test */
     public function user_can_view_his_own_tracked_issues()
@@ -36,16 +44,21 @@ class IssuesTest extends TestCase
     }
 
     /** @test */
-    public function all_required_issue_properties_are_loaded_from_redmine_and_displayed()
+    public function all_necessary_issue_properties_are_loaded_from_redmine_and_displayed()
     {
-        $service = Service::create([
+        Service::create([
             'name' => 'Тестирование',
             'hours' => 333
+        ]);
+        $priority = Priority::create([
+            'name' => 'Вчера'
         ]);
         $created_on = BusinessDate::parse('2017-12-06 09:00:00');
         $closed_on = BusinessDate::instance($created_on)->addHours(100);
         $issue = $this->makeIssueAndTrackIt([
             'service' => 'Тестирование',
+            'priority_id' => $priority->id,
+            'department' => 'Тестовое подразделение',
             'created_on' => $created_on,
             'closed_on' => $closed_on
         ]);
@@ -55,10 +68,12 @@ class IssuesTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee((string)$issue['id']);
         $response->assertSee($issue['subject']);
+        $response->assertSee($issue['department']);
         $response->assertSee((string)$created_on);
         $response->assertSee((string)$closed_on);
         $response->assertSee($issue['service']);
         $response->assertSee('333');
+        $response->assertSee('Вчера');
         $response->assertSee((string)$created_on->addBusinessHours(333));
 
     }

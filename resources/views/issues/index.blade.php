@@ -7,6 +7,8 @@
             <tr>
                 <th>№</th>
                 <th>Название</th>
+                <th>Подразделение</th>
+                <th>Приоритет</th>
                 <th>Сервис</th>
                 <th>Расчетное время</th>
                 <th>Оставшееся время</th>
@@ -18,6 +20,8 @@
                 <tr class="{{$issue->time_left < 0 ? 'table-danger' : ''}}">
                     <td><a href="{{config('services.redmine.uri') . '/issues/' . $issue->id}}">{{$issue->id}}</a></td>
                     <td>{{$issue->subject}}</td>
+                    <td>{{$issue->department}}</td>
+                    <td>{{$issue->priority->name}}</td>
                     <td>{{$issue->service->name or 'Прочее'}}</td>
                     <td>{{$issue->service->hours or ''}}</td>
                     <td class="{{($issue->percent_of_time_left < 30 && $issue->percent_of_time_left !== null )? 'table-warning' : ''}}">
