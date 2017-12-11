@@ -6,6 +6,7 @@ use App\BusinessDate;
 use App\Exceptions\FailedToRetrieveRedmineIssueException;
 use App\Facades\Redmine;
 use App\User;
+use Cache;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -131,13 +132,16 @@ class Issue extends Model
         if (is_null($this->due_date) ){
             return null;
         }
-        $timestamp = is_null($this->closed_on) ? BusinessDate::now() : $this->closed_on;
-        $difference = $timestamp->diffInBusinessHours($this->due_date);
-        if ($this->due_date->gte($timestamp)) {
-            return $difference;
-        } else {
-            return $difference * -1;
-        }
+        $value = Cache::remember("issues.{$this->id}.timeleft",1,function (){
+            $timestamp = is_null($this->closed_on) ? BusinessDate::now() : $this->closed_on;
+            $difference = $timestamp->diffInBusinessHours($this->due_date);
+            if ($this->due_date->gte($timestamp)) {
+                return $difference;
+            } else {
+                return $difference * -1;
+            }
+        });
+        return $value;
     }
 
     public function getPercentOfTimeLeftAttribute()
@@ -197,7 +201,13 @@ class Issue extends Model
         } elseif (is_null($b->time_left) && !is_null($a->time_left)){
             return -1;
         } elseif ($a->priority_id === $b->priority_id) {
-            return $a->time_left - $b->time_left;
+            if ($a->time_left > $b->time_left) {
+                return 1;
+            } elseif ($a->time_left < $b->time_left) {
+                return -1;
+            } else {
+                return 0;
+            }
         }
         return $b->priority_id - $a->priority_id;
     }
