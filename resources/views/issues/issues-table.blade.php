@@ -5,6 +5,7 @@
                 <th>№</th>
                 <th>Название</th>
                 <th>Подразделение</th>
+                <th>Назначена</th>
                 <th>Приоритет</th>
                 <th>Сервис</th>
                 <th>Расчетное время</th>
@@ -19,6 +20,7 @@
                     <td><a href="{{config('services.redmine.uri') . '/issues/' . $issue->id}}">{{$issue->id}}</a></td>
                     <td>{{$issue->subject}}</td>
                     <td>{{$issue->department}}</td>
+                    <td>{{$issue->assigned_to or ''}}</td>
                     <td>{{$issue->priority->name}}</td>
                     <td>{{$issue->service->name or 'Прочее'}}</td>
                     <td>{{$issue->service->hours or ''}}</td>

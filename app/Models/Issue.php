@@ -194,6 +194,7 @@ class Issue extends Model
         $issueData = Redmine::getIssue($this->id);
         $this->subject = $issueData['subject'];
         $this->department = $issueData['department'];
+        $this->assigned_to = $issueData['assigned_to'];
         $this->created_on = $issueData['created_on'];
         $this->closed_on = $issueData['closed_on'];
         $priority = Priority::find($issueData['priority_id']);

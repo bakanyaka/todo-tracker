@@ -31,7 +31,7 @@ class RedmineServiceTest extends TestCase
             'status' => $issueData['status']['id'],
             'priority_id' => $issueData['priority']['id'],
             'author' => $issueData['author']['name'],
-            'assignedTo' => $issueData['assigned_to']['name'],
+            'assigned_to' => $issueData['assigned_to']['name'],
             'subject' => $issueData['subject'],
             'description' => $issueData['description'],
             'department' => $issueData['custom_fields'][0]['value'],

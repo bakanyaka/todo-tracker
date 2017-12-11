@@ -34,7 +34,7 @@ abstract class TestCase extends BaseTestCase
             'status' => 3,
             'priority_id' => 4,
             'author' => $this->faker->name,
-            'assignedTo' => $this->faker->name,
+            'assigned_to' => $this->faker->name,
             'subject' => $this->faker->name . ' : ' . $this->faker->realText(60),
             'description' => $this->faker->realText(),
             'department' => '115 Управление информационных систем',

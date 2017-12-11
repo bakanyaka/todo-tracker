@@ -101,6 +101,7 @@ class IssuesTest extends TestCase
         $response->assertSee((string)$issue['id']);
         $response->assertSee($issue['subject']);
         $response->assertSee($issue['department']);
+        $response->assertSee($issue['assigned_to']);
         $response->assertSee((string)$created_on);
         $response->assertSee((string)$closed_on);
         $response->assertSee($issue['service']);

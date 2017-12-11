@@ -55,7 +55,7 @@ class Redmine
             'status' => $issueData['status']['id'],
             'priority_id' => $issueData['priority']['id'],
             'author' => $issueData['author']['name'],
-            'assignedTo' => data_get($issueData,'assigned_to.name'),
+            'assigned_to' => data_get($issueData,'assigned_to.name'),
             'subject' => $issueData['subject'],
             'description' => $issueData['description'],
             'department' => $department,
