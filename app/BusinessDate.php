@@ -5,6 +5,7 @@ namespace App;
 
 
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 
 class BusinessDate extends Carbon
 {
@@ -25,12 +26,12 @@ class BusinessDate extends Carbon
         //If current hour is before business hours, start counting from the start of the business day
         //Need this only for adding hours
         if ($this->hour < static::BUSINESS_DAY_START_HOUR) {
-           $this->hour = static::BUSINESS_DAY_START_HOUR;
+            $this->hour = static::BUSINESS_DAY_START_HOUR;
         }
         //If current hour is after business hours, start counting from the end of the business day
         //Need this only for subtracting hours
         if ($this->hour > static::BUSINESS_DAY_END_HOUR) {
-            $this->hour =  static::BUSINESS_DAY_END_HOUR;
+            $this->hour = static::BUSINESS_DAY_END_HOUR;
         }
 
         // TODO: Needs refactoring
@@ -54,18 +55,17 @@ class BusinessDate extends Carbon
         $hoursToAdd = $hours % $hoursInADay;
 
 
-        if ($fullDaysToAdd > 0 || ($this->isWeekend() && $hours > 0 )) {
+        if ($fullDaysToAdd > 0 || ($this->isWeekend() && $hours > 0)) {
             $this->hour(static::BUSINESS_DAY_START_HOUR);
         }
-        if ($fullDaysToAdd < 0 || ($this->isWeekend() && $hours < 0 )) {
+        if ($fullDaysToAdd < 0 || ($this->isWeekend() && $hours < 0)) {
             $this->hour(static::BUSINESS_DAY_END_HOUR);
         }
         if ($fullDaysToAdd === 0 && $hours < 0 && $this->isWeekend()) {
             $fullDaysToAdd--;
         }
         //TODO: This is temporary patch. Need another solution. Should not work like that
-        if ($fullDaysToAdd === -1 && $hoursToAdd === 0)
-        {
+        if ($fullDaysToAdd === -1 && $hoursToAdd === 0) {
             $this->hour(static::BUSINESS_DAY_START_HOUR);
             $fullDaysToAdd = 0;
         }
@@ -75,13 +75,14 @@ class BusinessDate extends Carbon
 
     /**
      * @param Carbon $dt
-     * @return int
+     * @return float
      */
     public function diffInBusinessHours(Carbon $dt)
     {
-        return $this->diffInHoursFiltered(function (BusinessDate $date) {
+        $minutes = $this->diffFiltered(CarbonInterval::minute(), function (BusinessDate $date) {
             return $date->isBusinessHour();
         }, $dt);
+        return round($minutes/60,2);
     }
 
     public function isBusinessHour()
