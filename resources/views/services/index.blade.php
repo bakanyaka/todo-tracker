@@ -1,11 +1,12 @@
 @extends('layouts.app')
 
+@section('title','Сервисы')
+
 @section('content')
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
                 <div class="mt-2 mb-2">
-                    <h1 class="h2 pull-left">Сервисы</h1>
                     <a class="btn btn-primary pull-right" href="{{route('services.new')}}" role="button">Cоздать</a>
                 </div>
                 <div class="table-responsive">

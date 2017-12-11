@@ -19,6 +19,38 @@ class IssuesTest extends TestCase
         $this->artisan("db:Seed", ['--class' => 'PrioritiesTableSeeder']);
     }
 
+    /** @test */
+    public function user_can_view_all_issues_tracked_by_users()
+    {
+        //Given we have a user
+        $this->signIn();
+
+        //And issue tracked by another user
+        $otherUser = create('App\User');
+        $otherIssue = create('App\Models\Issue');
+        $otherIssue->track($otherUser);
+
+        //When we visit issues page with
+        $response = $this->get(route('issues', ['user' => 'all']));
+        //We can see issue tracked by another user
+        $response->assertStatus(200);
+        $response->assertSee((string)$otherIssue->subject);
+        $response->assertSee((string)$otherIssue->id);
+    }
+
+    /** @test */
+    public function user_can_not_view_issues_tracked_by_no_one()
+    {
+        $this->signIn();
+        $issue = create('App\Models\Issue');
+
+        $response = $this->get(route('issues', ['user' => 'all']));
+
+        $response->assertStatus(200);
+        $response->assertDontSee($issue->subject);
+        $response->assertDontSee((string)$issue->id);
+    }
+
 
     /** @test */
     public function user_can_view_his_own_tracked_issues()

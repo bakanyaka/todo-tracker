@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\BusinessDate;
 use App\Exceptions\FailedToRetrieveRedmineIssueException;
-use App\Facades\Redmine;
 use App\Models\Issue;
-use Carbon\Carbon;
+use App\User;
 use Exception;
-use Hamcrest\Core\Is;
 use Illuminate\Http\Request;
 
 class IssueController extends Controller
@@ -20,7 +17,14 @@ class IssueController extends Controller
      */
     public function index()
     {
-        $issues =auth()->user()->issues->sort([Issue::class,'defaultSort']);
+        if (request('user') === null) {
+            $issues = auth()->user()->issues->sort([Issue::class, 'defaultSort']);
+        } elseif (request('user') === 'all') {
+            $issues = Issue::has('users')->get()->sort([Issue::class, 'defaultSort']);
+        } else {
+            $user = User::whereUsername(request('user'))->firstOrFail();
+            $issues = $user->issues->sort([Issue::class, 'defaultSort']);
+        }
         return view('issues.index', ['issues' => $issues]);
     }
 
@@ -47,7 +51,7 @@ class IssueController extends Controller
         $issue = Issue::firstOrNew(['id' => $request->issue_id]);
         try {
             $issue->updateFromRedmine();
-        } catch (FailedToRetrieveRedmineIssueException $exception){
+        } catch (FailedToRetrieveRedmineIssueException $exception) {
             abort(404);
         }
         $issue->save();
@@ -59,7 +63,7 @@ class IssueController extends Controller
     public function updateAll()
     {
         try {
-            Issue::all()->each(function($issue){
+            Issue::all()->each(function ($issue) {
                 $issue->updateFromRedmine()->save();
             });
         } catch (FailedToRetrieveRedmineIssueException $exception) {
@@ -71,7 +75,7 @@ class IssueController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Issue  $issue
+     * @param  \App\Models\Issue $issue
      * @return \Illuminate\Http\Response
      */
     public function destroy(Issue $issue)

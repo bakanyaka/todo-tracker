@@ -37,16 +37,6 @@ class IssueModelTest extends TestCase
     }
 
     /** @test */
-    public function issue_is_created_with_default_priority_id_when_no_priority_specified()
-    {
-        $issue = create('App\Models\Issue');
-        $issue = $issue->fresh();
-        $this->assertEquals(4,$issue->priority_id);
-    }
-
-
-
-    /** @test */
     public function it_updates_model_data_from_redmine()
     {
         $issueData = $this->makeFakeIssueArray();
@@ -78,6 +68,19 @@ class IssueModelTest extends TestCase
         //Then it doesn't get tracked again
         $recordsCount = $user->issues()->where(['issue_id' => $issue->id])->count();
         $this->assertEquals(1, $recordsCount);
+    }
+
+    /** @test */
+    public function it_knows_if_it_is_tracked_by_user()
+    {
+        $user = create('App\User');
+        $anotherUser = create('App\User');
+        $issue = create('App\Models\Issue');
+        $issue->track($user);
+
+        $this->assertEquals(true,$issue->isTrackedBy($user));
+        $this->assertEquals(false,$issue->isTrackedBy($anotherUser));
+
     }
 
     /** @test */

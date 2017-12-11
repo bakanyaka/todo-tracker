@@ -38,6 +38,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read mixed $percent_of_time_left
  * @property-read int|null $time_left
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereClosedOn($value)
+ * @property string|null $department
+ * @property int $priority_id
+ * @property-read \App\Models\Priority $priority
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereDepartment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue wherePriorityId($value)
  */
 class Issue extends Model
 {
@@ -152,6 +157,11 @@ class Issue extends Model
     public function getActualTimeAttribute()
     {
         return is_null($this->closed_on) ? null : $this->created_on->diffInBusinessHours($this->closed_on);
+    }
+
+    public function isTrackedBy(User $user)
+    {
+        return $this->users()->find($user->id) !== null;
     }
 
     /**
