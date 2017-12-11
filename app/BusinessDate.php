@@ -17,9 +17,10 @@ class BusinessDate extends Carbon
      */
     public function addBusinessHours(int $hours)
     {
+        $hoursToAdd = 0;
+        $fullDaysToAdd = 0;
+
         $hoursInADay = static::BUSINESS_DAY_END_HOUR - static::BUSINESS_DAY_START_HOUR;
-        $fullDaysToAdd = (int)($hours / $hoursInADay);
-        $remainderHours = $hours % $hoursInADay;
 
         //If current hour is before business hours, start counting from the start of the business day
         //Need this only for adding hours
@@ -32,24 +33,26 @@ class BusinessDate extends Carbon
             $this->hour =  static::BUSINESS_DAY_END_HOUR;
         }
 
-        $hoursToAdd = $remainderHours;
-
         // TODO: Needs refactoring
         if (!$this->isWeekend()) {
             //If resulting hour is after business hours,
-            if ($this->hour + $remainderHours > static::BUSINESS_DAY_END_HOUR && $hours >= 0) {
+            if ($this->hour + $hours > static::BUSINESS_DAY_END_HOUR && $hours >= 0) {
                 // Start from next day
                 $fullDaysToAdd++;
                 //Calculate how many hours get transferred to next day
-                $hoursToAdd = $remainderHours - (static::BUSINESS_DAY_END_HOUR - $this->hour);
-            } elseif ($this->hour + $remainderHours < static::BUSINESS_DAY_START_HOUR) {
+                $hours = $hours - (static::BUSINESS_DAY_END_HOUR - $this->hour);
+            } elseif ($this->hour + $hours < static::BUSINESS_DAY_START_HOUR) {
                 // If resulting hour is before business hours (only reachable when we are subtracting hours)
                 // then start from previous day
                 $fullDaysToAdd--;
                 //Calculate how many hours get transferred to next day
-                $hoursToAdd= $remainderHours + ($this->hour - static::BUSINESS_DAY_START_HOUR);
+                $hours = $hours + ($this->hour - static::BUSINESS_DAY_START_HOUR);
             }
         }
+
+        $fullDaysToAdd += (int)($hours / $hoursInADay);
+        $hoursToAdd = $hours % $hoursInADay;
+
 
         if ($fullDaysToAdd > 0 || ($this->isWeekend() && $hours > 0 )) {
             $this->hour(static::BUSINESS_DAY_START_HOUR);

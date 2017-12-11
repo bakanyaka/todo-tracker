@@ -18,6 +18,12 @@ class BusinessDateTest extends TestCase
         $date->addBusinessHours(3);
         $this->assertEquals($expectedDate,$date);
 
+        // Date should be carried over to several days later
+        $date = BusinessDate::create(2017,12,5,11);
+        $expectedDate = BusinessDate::create(2017,12,8,11);
+        $date->addBusinessHours(24);
+        $this->assertEquals($expectedDate,$date);
+
         // Add one day as full working day
         $date = BusinessDate::create(2017,12,4,15);
         $expectedDate = BusinessDate::create(2017,12,6,10);
