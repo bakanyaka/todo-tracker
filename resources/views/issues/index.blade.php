@@ -15,6 +15,7 @@
                 <th>Дата создания</th>
                 <th>Плановая дата завершения</th>
                 <th>Фактическая дата завершения</th>
+                <th>&nbsp;</th>
             </tr>
             @foreach($issues as $issue)
                 <tr class="{{$issue->time_left < 0 ? 'table-danger' : ''}}">
@@ -30,6 +31,13 @@
                     <td>{{$issue->created_on}}</td>
                     <td>{{$issue->due_date or ''}}</td>
                     <td>{{$issue->closed_on or ''}}</td>
+                    <td class="align-middle">
+                        <a class="btn btn-sm btn-primary" href="#" onclick="event.preventDefault();document.getElementById('issue-{{$issue->id}}-untrack-form').submit();" role="button">Удалить</a>
+                        <form id="issue-{{$issue->id}}-untrack-form" action="{{route('issues.untrack', ['id' => $issue->id])}}" method="POST" style="display: none;">
+                            {{ csrf_field() }}
+                            {{method_field('DELETE')}}
+                        </form>
+                    </td>
                 </tr>
             @endforeach
         </table>

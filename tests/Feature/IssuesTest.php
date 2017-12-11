@@ -91,6 +91,24 @@ class IssuesTest extends TestCase
     }
 
     /** @test */
+    public function user_can_remove_issue_from_his_tracked_issues()
+    {
+        //Given we have an issue tracked by user
+        $user = create('App\User');
+        $this->signIn($user);
+        $issue = create('App\Models\Issue');
+        $issue->track($user);
+        $this->assertEquals($issue->id,$user->issues()->first()->id);
+
+        //When we send a request to untrack it
+        $response = $this->delete(route('issues.untrack', ['id' => $issue['id']]));
+        $response->assertRedirect(route('issues'));
+
+        //It should be removed from his tracked issues
+        $this->assertEquals(null, $user->issues()->first());
+    }
+
+    /** @test */
     public function issue_id_is_required_to_add_new_issue()
     {
         $this->withExceptionHandling();

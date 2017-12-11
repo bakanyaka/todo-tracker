@@ -18,7 +18,6 @@ class BusinessDate extends Carbon
      */
     public function addBusinessHours(int $hours)
     {
-        $hoursToAdd = 0;
         $fullDaysToAdd = 0;
 
         $hoursInADay = static::BUSINESS_DAY_END_HOUR - static::BUSINESS_DAY_START_HOUR;
@@ -70,7 +69,6 @@ class BusinessDate extends Carbon
             $fullDaysToAdd = 0;
         }
         return $this->addWeekdays($fullDaysToAdd)->addHours($hoursToAdd);
-
     }
 
     /**

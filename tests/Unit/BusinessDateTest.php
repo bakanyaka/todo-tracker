@@ -13,9 +13,9 @@ class BusinessDateTest extends TestCase
     public function it_adds_business_hours_to_date()
     {
         // Date should be carried over to next day
-        $date = BusinessDate::create(2017,12,4,15);
-        $expectedDate = BusinessDate::create(2017,12,5,10);
-        $date->addBusinessHours(3);
+        $date = BusinessDate::create(2017,12,4,12,45);
+        $expectedDate = BusinessDate::create(2017,12,5,8,45);
+        $date->addBusinessHours(4);
         $this->assertEquals($expectedDate,$date);
 
         // Date should be carried over to several days later
@@ -111,6 +111,10 @@ class BusinessDateTest extends TestCase
         $date = BusinessDate::create(2017,12,1,15);
         $secondDate = BusinessDate::create(2017,12,4,15,15);
         $this->assertEquals(8.25, $date->diffInBusinessHours($secondDate));
+
+        $date = BusinessDate::create(2017,12,11,13,15);
+        $secondDate = BusinessDate::create(2017,12,11,15,45);
+        $this->assertEquals(2.5, $date->diffInBusinessHours($secondDate));
     }
 
 }

@@ -18,6 +18,7 @@ Route::middleware(['auth'])->group(function() {
     Route::redirect('/', '/issues');
 
     Route::get('/issues', 'IssueController@index')->name('issues');
+    Route::delete('/issues/{issue}/track', 'IssueController@destroy')->name('issues.untrack');
     Route::post('/issues/track', 'IssueController@store')->name('issues.track');
     Route::get('/issues/update', 'IssueController@updateAll')->name('issues.update');
 

@@ -76,6 +76,7 @@ class IssueController extends Controller
      */
     public function destroy(Issue $issue)
     {
-        //
+        $issue->untrack(auth()->user());
+        return redirect(route('issues'));
     }
 }

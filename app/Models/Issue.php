@@ -163,6 +163,15 @@ class Issue extends Model
     }
 
     /**
+     * Remove issue from user's tracked issues
+     * @param User $user
+     */
+    public function untrack(User $user)
+    {
+        $this->users()->detach($user);
+    }
+
+    /**
      * Update model data with data loaded from Redmine API
      *
      */
@@ -190,6 +199,6 @@ class Issue extends Model
         } elseif ($a->priority_id === $b->priority_id) {
             return $a->time_left - $b->time_left;
         }
-        return $a->priority_id - $b->priority_id;
+        return $b->priority_id - $a->priority_id;
     }
 }
