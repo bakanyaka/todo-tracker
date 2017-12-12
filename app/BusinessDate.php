@@ -77,9 +77,13 @@ class BusinessDate extends Carbon
      */
     public function diffInBusinessHours(Carbon $dt)
     {
-        $minutes = $this->diffFiltered(CarbonInterval::minute(), function (BusinessDate $date) {
+        $start = static::instance($this)->minute(0);
+        $end = static::instance($dt)->minute(0);
+
+        $hours = $start->diffFiltered(CarbonInterval::hours(), function (BusinessDate $date) {
             return $date->isBusinessHour();
-        }, $dt);
+        }, $end);
+        $minutes = $hours * 60 - $this->minute + $dt->minute;
         return round($minutes/60,2);
     }
 

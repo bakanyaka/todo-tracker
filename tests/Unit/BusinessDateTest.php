@@ -115,6 +115,10 @@ class BusinessDateTest extends TestCase
         $date = BusinessDate::create(2017,12,11,13,15);
         $secondDate = BusinessDate::create(2017,12,11,15,45);
         $this->assertEquals(2.5, $date->diffInBusinessHours($secondDate));
+
+        $date = BusinessDate::create(2017,11,11,13,15);
+        $secondDate = BusinessDate::create(2017,12,11,15,45);
+        $this->assertEquals(167.5, $date->diffInBusinessHours($secondDate));
     }
 
 }
