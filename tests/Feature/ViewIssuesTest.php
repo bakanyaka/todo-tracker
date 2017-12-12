@@ -72,7 +72,7 @@ class ViewIssuesTest extends IssuesTestCase
         $incompleteIssue = $this->createTrackedIssue();
         $completeIssue = $this->createTrackedIssue(null,['closed_on' => Carbon::now()]);
 
-        $response = $this->get(route('issues', ['user' => 'all', 'completed' => 'false']));
+        $response = $this->get(route('issues', ['user' => 'all', 'only_open' => 'true']));
 
         $response->assertSee((string)$incompleteIssue->id);
         $response->assertDontSee((string)$completeIssue->id);
@@ -98,7 +98,7 @@ class ViewIssuesTest extends IssuesTestCase
             'closed_on' => $closed_on
         ]);
 
-        $response = $this->get(route('issues'));
+        $response = $this->get(route('issues',['user'=> 'all','only_open' => 'false']));
 
         $response->assertStatus(200);
         $response->assertSee((string)$issue['id']);

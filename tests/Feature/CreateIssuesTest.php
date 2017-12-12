@@ -11,7 +11,7 @@ class CreateIssuesTest extends IssuesTestCase
     public function user_can_add_new_issue_to_his_tracked_issues_by_id()
     {
 
-        $issue = $this->makeIssueAndTrackIt();
+        $issue = $this->makeIssueAndTrackIt(['closed_on' => null]);
 
         $this->assertDatabaseHas('issues', ['id' => $issue['id']]);
         $response = $this->get(route('issues'));

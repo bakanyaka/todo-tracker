@@ -18,10 +18,10 @@ class IssueController extends Controller
     public function index()
     {
         if (request('user') === null) {
-            $issues = auth()->user()->issues->sort([Issue::class, 'defaultSort']);
+            $issues = auth()->user()->issues()->open()->get()->sort([Issue::class, 'defaultSort']);
         } elseif (request('user') === 'all') {
-            if(request('completed') === 'false') {
-                $issues = Issue::has('users')->incomplete()->get()->sort([Issue::class, 'defaultSort']);
+            if(request('only_open') === 'true') {
+                $issues = Issue::has('users')->open()->get()->sort([Issue::class, 'defaultSort']);
             } else {
                 $issues = Issue::has('users')->get()->sort([Issue::class, 'defaultSort']);
             }

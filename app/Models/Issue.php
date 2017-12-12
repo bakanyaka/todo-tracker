@@ -73,7 +73,7 @@ class Issue extends Model
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeIncomplete($query)
+    public function scopeOpen($query)
     {
         return $query->whereNull('closed_on');
     }

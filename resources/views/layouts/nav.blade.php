@@ -11,9 +11,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{route('issues')}}">Задачи</a>
             </li>
-            <li class="nav-item">
+{{--            <li class="nav-item">
                 <a class="nav-link" href="{{route('services')}}">Сервисы</a>
-            </li>
+            </li>--}}
         </ul>
         <form class="form-inline ml-5" method="POST" action="{{route('issues.track')}}">
             <input class="form-control form-control-sm mr-sm-2" name="issue_id" type="text" placeholder="# Задачи">
