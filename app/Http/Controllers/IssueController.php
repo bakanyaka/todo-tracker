@@ -20,7 +20,11 @@ class IssueController extends Controller
         if (request('user') === null) {
             $issues = auth()->user()->issues->sort([Issue::class, 'defaultSort']);
         } elseif (request('user') === 'all') {
-            $issues = Issue::has('users')->get()->sort([Issue::class, 'defaultSort']);
+            if(request('completed') === 'false') {
+                $issues = Issue::has('users')->incomplete()->get()->sort([Issue::class, 'defaultSort']);
+            } else {
+                $issues = Issue::has('users')->get()->sort([Issue::class, 'defaultSort']);
+            }
         } else {
             $user = User::whereUsername(request('user'))->firstOrFail();
             $issues = $user->issues->sort([Issue::class, 'defaultSort']);

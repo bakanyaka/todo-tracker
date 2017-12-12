@@ -68,6 +68,18 @@ class Issue extends Model
     public $incrementing = false;
 
     /**
+     * Scope a query to only include incomplete issues.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeIncomplete($query)
+    {
+        return $query->whereNull('closed_on');
+    }
+
+
+    /**
      * @param $value
      * @return BusinessDate
      */

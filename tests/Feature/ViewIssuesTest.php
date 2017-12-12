@@ -3,21 +3,13 @@
 namespace Tests\Feature;
 
 use App\BusinessDate;
-use App\Facades\Redmine;
+use App\Models\Issue;
 use App\Models\Priority;
 use App\Models\Service;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Carbon\Carbon;
 
-class IssuesTest extends TestCase
+class ViewIssuesTest extends IssuesTestCase
 {
-    use RefreshDatabase;
-
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->artisan("db:Seed", ['--class' => 'PrioritiesTableSeeder']);
-    }
 
     /** @test */
     public function user_can_view_all_issues_tracked_by_users()
@@ -58,13 +50,11 @@ class IssuesTest extends TestCase
 
         //Given we have an issue tracked by user
         $user = create('App\User');
-        $issue = create('App\Models\Issue');
-        $issue->track($user);
+        $issue = $this->createTrackedIssue($user);
 
         //And issue tracked by another user
         $otherUser = create('App\User');
-        $otherIssue = create('App\Models\Issue');
-        $otherIssue->track($otherUser);
+        $otherIssue = $this->createTrackedIssue($otherUser);
 
         //When user visits issues page, he can see his tracked issues
         //and can't see other user's tracked issues
@@ -73,6 +63,19 @@ class IssuesTest extends TestCase
         $response->assertSee((string)$issue->id);
         $response->assertDontSee((string)$otherIssue->id);
 
+    }
+
+    /** @test */
+    public function user_can_filter_tasks_based_on_completion()
+    {
+        $this->signIn();
+        $incompleteIssue = $this->createTrackedIssue();
+        $completeIssue = $this->createTrackedIssue(null,['closed_on' => Carbon::now()]);
+
+        $response = $this->get(route('issues', ['user' => 'all', 'completed' => 'false']));
+
+        $response->assertSee((string)$incompleteIssue->id);
+        $response->assertDontSee((string)$completeIssue->id);
     }
 
     /** @test */
@@ -111,81 +114,16 @@ class IssuesTest extends TestCase
 
     }
 
-    /** @test */
-    public function user_can_add_new_issue_to_his_tracked_issues_by_id()
-    {
-
-        $issue = $this->makeIssueAndTrackIt();
-
-        $this->assertDatabaseHas('issues', ['id' => $issue['id']]);
-        $response = $this->get(route('issues'));
-        $response->assertSee((string)$issue['id']);
-        $response->assertSee((string)$issue['subject']);
-    }
-
-    /** @test */
-    public function user_can_remove_issue_from_his_tracked_issues()
-    {
-        //Given we have an issue tracked by user
-        $user = create('App\User');
-        $this->signIn($user);
-        $issue = create('App\Models\Issue');
-        $issue->track($user);
-        $this->assertEquals($issue->id,$user->issues()->first()->id);
-
-        //When we send a request to untrack it
-        $response = $this->delete(route('issues.untrack', ['id' => $issue['id']]));
-        $response->assertRedirect(route('issues'));
-
-        //It should be removed from his tracked issues
-        $this->assertEquals(null, $user->issues()->first());
-    }
-
-    /** @test */
-    public function issue_id_is_required_to_add_new_issue()
-    {
-        $this->withExceptionHandling();
-        $this->signIn();
-        $response = $this->json('POST', route('issues.track'), ['issue_id' => '']);
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['issue_id']);
-    }
-
-    /** @test */
-    public function user_can_force_an_update_of_all_tracked_issues()
-    {
-        $issue = create('App\Models\Issue');
-        $newIssueData = $this->makeFakeIssueArray();
-
-        Redmine::shouldReceive('getIssue')
-            ->once()
-            ->with($issue['id'])
-            ->andReturn($newIssueData);
-
-        $this->signIn();
-        $this->get(route('issues.update'));
-        $issue->refresh();
-
-        $this->assertEquals($newIssueData['subject'],$issue->subject);
-        $this->assertEquals($newIssueData['closed_on'],$issue->closed_on);
-    }
-
     /**
+     * @param \App\User $user
      * @param array $attributes
-     * @return array
+     * @return \App\Models\Issue
      */
-    private function makeIssueAndTrackIt($attributes=[])
+    protected function createTrackedIssue($user = null, $attributes = [])
     {
-        $issue = $this->makeFakeIssueArray($attributes);
-        $issueId = $issue['id'];
-
-        Redmine::shouldReceive('getIssue')
-            ->once()
-            ->with($issueId)
-            ->andReturn($issue);
-
-        $this->signIn();
-        $this->post(route('issues.track'), ['issue_id' => $issueId]);
+        $user = $user ? $user : create('App\User');
+        $issue = create('App\Models\Issue', $attributes);
+        $issue->track($user);
         return $issue;
     }
 
