@@ -18,57 +18,33 @@ class BusinessDate extends Carbon
      */
     public function addBusinessHours(int $hours)
     {
-        $fullDaysToAdd = 0;
+        $minutesLeftThisDay = 0;
+        if ($this->isBusinessDay()) {
+            //If current hour is before business hours, start counting from the start of the business day
+            if ($this->hour < static::BUSINESS_DAY_START_HOUR) {
+                $this->hour = static::BUSINESS_DAY_START_HOUR;
+                $this->minute = 0;
+            }
 
-        $hoursInADay = static::BUSINESS_DAY_END_HOUR - static::BUSINESS_DAY_START_HOUR;
-
-        //If current hour is before business hours, start counting from the start of the business day
-        //Need this only for adding hours
-        if ($this->hour < static::BUSINESS_DAY_START_HOUR) {
-            $this->hour = static::BUSINESS_DAY_START_HOUR;
-        }
-        //If current hour is after business hours, start counting from the end of the business day
-        //Need this only for subtracting hours
-        if ($this->hour > static::BUSINESS_DAY_END_HOUR) {
-            $this->hour = static::BUSINESS_DAY_END_HOUR;
-        }
-
-        // TODO: Needs refactoring
-        if (!$this->isWeekend()) {
-            //If resulting hour is after business hours,
-            if ($this->hour + $hours > static::BUSINESS_DAY_END_HOUR && $hours >= 0) {
-                // Start from next day
-                $fullDaysToAdd++;
-                //Calculate how many hours get transferred to next day
-                $hours = $hours - (static::BUSINESS_DAY_END_HOUR - $this->hour);
-            } elseif ($this->hour + $hours < static::BUSINESS_DAY_START_HOUR) {
-                // If resulting hour is before business hours (only reachable when we are subtracting hours)
-                // then start from previous day
-                $fullDaysToAdd--;
-                //Calculate how many hours get transferred to next day
-                $hours = $hours + ($this->hour - static::BUSINESS_DAY_START_HOUR);
+            $dayEnd = $this->copy()->hour(static::BUSINESS_DAY_END_HOUR)->minute(0);
+            $result = $this->copy()->addHours($hours);
+            //Resulting date is within same forking day
+            if ($result->lte($dayEnd)) {
+                $this->timestamp = $result->timestamp;
+                return $this;
+            }
+            if($this->lt($dayEnd)) {
+                $minutesLeftThisDay = $this->diffInMinutes($dayEnd,false);
             }
         }
+        $hoursInADay = static::BUSINESS_DAY_END_HOUR - static::BUSINESS_DAY_START_HOUR;
+        $minutesToAdd = ($hours * 60 - $minutesLeftThisDay) % ($hoursInADay * 60);
+        $daysToAdd = (int)(($hours * 60 - $minutesLeftThisDay) / 60 / $hoursInADay + 1);
 
-        $fullDaysToAdd += (int)($hours / $hoursInADay);
-        $hoursToAdd = $hours % $hoursInADay;
+        // Reset hours and minutes to beginning of the business day
+        $this->hour(static::BUSINESS_DAY_START_HOUR)->minute(0);
 
-
-        if ($fullDaysToAdd > 0 || ($this->isWeekend() && $hours > 0)) {
-            $this->hour(static::BUSINESS_DAY_START_HOUR);
-        }
-        if ($fullDaysToAdd < 0 || ($this->isWeekend() && $hours < 0)) {
-            $this->hour(static::BUSINESS_DAY_END_HOUR);
-        }
-        if ($fullDaysToAdd === 0 && $hours < 0 && $this->isWeekend()) {
-            $fullDaysToAdd--;
-        }
-        //TODO: This is temporary patch. Need another solution. Should not work like that
-        if ($fullDaysToAdd === -1 && $hoursToAdd === 0) {
-            $this->hour(static::BUSINESS_DAY_START_HOUR);
-            $fullDaysToAdd = 0;
-        }
-        return $this->addWeekdays($fullDaysToAdd)->addHours($hoursToAdd);
+        return $this->addWeekdays($daysToAdd)->addMinutes($minutesToAdd);
     }
 
     /**
@@ -77,8 +53,8 @@ class BusinessDate extends Carbon
      */
     public function diffInBusinessHours(Carbon $dt)
     {
-        $start = static::instance($this)->minute(0);
-        $end = static::instance($dt)->minute(0);
+        $start = $this->copy()->minute(0);
+        $end = $dt->copy()->minute(0);
 
         $hours = $start->diffFiltered(CarbonInterval::hours(), function (BusinessDate $date) {
             return $date->isBusinessHour();
@@ -90,5 +66,10 @@ class BusinessDate extends Carbon
     public function isBusinessHour()
     {
         return $this->isWeekday() && $this->hour >= static::BUSINESS_DAY_START_HOUR && $this->hour < static::BUSINESS_DAY_END_HOUR;
+    }
+
+    public function isBusinessDay()
+    {
+        return $this->isWeekday();
     }
 }
