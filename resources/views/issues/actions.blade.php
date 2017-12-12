@@ -5,7 +5,7 @@
                 <a href="{{route('issues', ['user' => 'all'])}}" class="btn btn-primary btn-block">Все отслеживаемые задачи</a>
             </div>
             <div class="col-md-3">
-                <a href="{{route('issues', ['user' => 'all', 'completed' => 'false'])}}" class="btn btn-primary btn-block">Открытые отслеживаемые задачи</a>
+                <a href="{{route('issues', ['user' => 'all', 'only_open' => 'true'])}}" class="btn btn-primary btn-block">Открытые отслеживаемые задачи</a>
             </div>
             <div class="col-md-3">
                 <a href="{{route('issues')}}" class="btn btn-primary btn-block">Отслеживаемые мной задачи</a>
