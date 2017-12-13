@@ -18,17 +18,17 @@ class IssueController extends Controller
     public function index()
     {
         if (request('user') === null) {
-            $issues = auth()->user()->issues()->open()->get()->sort([Issue::class, 'defaultSort']);
+            $issues = auth()->user()->issues();
         } elseif (request('user') === 'all') {
-            if(request('only_open') === 'true') {
-                $issues = Issue::has('users')->open()->get()->sort([Issue::class, 'defaultSort']);
-            } else {
-                $issues = Issue::has('users')->get()->sort([Issue::class, 'defaultSort']);
-            }
+            $issues = Issue::has('users');
         } else {
             $user = User::whereUsername(request('user'))->firstOrFail();
-            $issues = $user->issues->sort([Issue::class, 'defaultSort']);
+            $issues = $user->issues;
         }
+        if(request('only_open') !== 'false'){
+            $issues->open();
+        }
+        $issues = $issues->get()->sort([Issue::class, 'defaultSort']);
         return view('issues.index', ['issues' => $issues]);
     }
 
@@ -67,7 +67,7 @@ class IssueController extends Controller
     public function updateAll()
     {
         try {
-            Issue::all()->each(function ($issue) {
+            Issue::open()->each(function ($issue) {
                 $issue->updateFromRedmine()->save();
             });
         } catch (FailedToRetrieveRedmineIssueException $exception) {

@@ -149,13 +149,16 @@ class Issue extends Model
         if (is_null($this->due_date) ){
             return null;
         }
-        $timestamp = is_null($this->closed_on) ? BusinessDate::now() : $this->closed_on;
-        $difference = $timestamp->diffInBusinessHours($this->due_date);
-        if ($this->due_date->gte($timestamp)) {
-            return $difference;
-        } else {
-            return $difference * -1;
-        }
+        $value = Cache::remember("issues.{$this->id}.timeleft",1,function (){
+            $timestamp = is_null($this->closed_on) ? BusinessDate::now() : $this->closed_on;
+            $difference = $timestamp->diffInBusinessHours($this->due_date);
+            if ($this->due_date->gte($timestamp)) {
+                return $difference;
+            } else {
+                return $difference * -1;
+            }
+        });
+        return $value;
     }
 
     public function getPercentOfTimeLeftAttribute()
