@@ -96,7 +96,7 @@ class BusinessDateTest extends TestCase
     /** @test */
     public function it_calculates_difference_in_business_hours()
     {
-/*        //Same day
+        //Same day
         $date = BusinessDate::create(2017,12,4,8);
         $secondDate = BusinessDate::create(2017,12,4,15,30);
         $this->assertEquals(7.5, $date->diffInBusinessHours($secondDate));
@@ -117,11 +117,11 @@ class BusinessDateTest extends TestCase
 
         $date = BusinessDate::create(2017,11,11,13,15);
         $secondDate = BusinessDate::create(2017,12,11,15,45);
-        $this->assertEquals(167.5, $date->diffInBusinessHours($secondDate));*/
+        $this->assertEquals(167.5, $date->diffInBusinessHours($secondDate));
 
-        $date = BusinessDate::create(2017,12,15,15,49,11);
-        $secondDate = BusinessDate::create(2017,12,15,13,42);
-        $this->assertEquals(2.07, $date->diffInBusinessHours($secondDate));
+        $secondDate = BusinessDate::create(2017,12,15,15,49,11);
+        $date = BusinessDate::create(2017,12,15,13,42);
+        $this->assertEquals(2.12, $date->diffInBusinessHours($secondDate));
     }
 
 }

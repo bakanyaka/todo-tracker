@@ -53,8 +53,18 @@ class BusinessDate extends Carbon
      */
     public function diffInBusinessHours(Carbon $dt)
     {
-        $start = $this->copy()->minute(0);
-        $end = $dt->copy()->minute(0);
+        if ($this > $dt) {
+            $start = $dt->copy();
+            $end = $this->copy();
+        } else {
+            $start = $this->copy();
+            $end = $dt->copy();
+        }
+
+        $start->minute(0)->second(0);
+        $end->minute(0)->second(0);
+
+
 
         $hours = $start->diffFiltered(CarbonInterval::hours(), function (BusinessDate $date) {
             return $date->isBusinessHour();
