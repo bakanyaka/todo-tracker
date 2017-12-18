@@ -43,6 +43,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\Priority $priority
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereDepartment($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue wherePriorityId($value)
+ * @property string|null $assigned_to
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue open()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereAssignedTo($value)
  */
 class Issue extends Model
 {
@@ -201,17 +204,22 @@ class Issue extends Model
      */
     public function updateFromRedmine()
     {
-        $issueData = Redmine::getIssue($this->id);
-        $this->subject = $issueData['subject'];
-        $this->department = $issueData['department'];
-        $this->assigned_to = $issueData['assigned_to'];
-        $this->created_on = $issueData['created_on'];
-        $this->closed_on = $issueData['closed_on'];
-        $priority = Priority::find($issueData['priority_id']);
+        $redmineIssue = Redmine::getIssue($this->id);
+        return $this->updateFromRedmineIssue($redmineIssue);
+    }
+
+    public function updateFromRedmineIssue(array $redmineIssue)
+    {
+        $this->subject = $redmineIssue['subject'];
+        $this->department = $redmineIssue['department'];
+        $this->assigned_to = $redmineIssue['assigned_to'];
+        $this->created_on = $redmineIssue['created_on'];
+        $this->closed_on = $redmineIssue['closed_on'];
+        $priority = Priority::find($redmineIssue['priority_id']);
         if (!is_null($priority)) {
             $this->priority_id = $priority->id;
         }
-        $service = Service::where('name', $issueData['service'])->first();
+        $service = Service::where('name', $redmineIssue['service'])->first();
         $this->service()->associate($service);
         return $this;
     }
