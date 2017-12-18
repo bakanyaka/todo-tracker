@@ -43,7 +43,23 @@ class RedmineServiceTest extends TestCase
     }
 
     /** @test */
-    public function ic_converts_gmt_time_to_local_time() {
+    public function it_retrieves_all_issues_modified_since_given_date()
+    {
+        $mock = new MockHandler([
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],file_get_contents(__DIR__.'/../blobs/issues_page_1.json')),
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],file_get_contents(__DIR__.'/../blobs/issues_page_2.json'))
+        ]);
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $redmine = new Redmine($client);
+
+        $result =  $redmine->getUpdatedIssues(Carbon::parse('2017-12-13'));
+        $this->assertCount(49,$result);
+    }
+
+
+    /** @test */
+    public function it_converts_gmt_time_to_local_time() {
         $issue = $this->makeFakeRedmineIssue([
             'created_on' => '2017-12-07T06:27:42Z'
         ]);
