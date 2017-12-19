@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Facades\Redmine;
+use App\Jobs\SyncIssues;
 use App\Models\Issue;
 use App\Models\Synchronization;
 use App\Services\Sync;
@@ -10,7 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class SyncServiceTest extends TestCase
+class SyncIssuesJobTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -25,10 +26,11 @@ class SyncServiceTest extends TestCase
     {
         $service = create('App\Models\Service');
         $redmineIssue = $this->makeFakeIssueArray(['service' => $service->name]);
-        $syncService = new Sync();
         Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
 
-        $syncService->synchronize();
+        $syncJob = new SyncIssues();
+        $syncJob->handle();
+
         $issue = Issue::find($redmineIssue['id']);
 
         $this->assertNotNull($issue);
@@ -50,10 +52,10 @@ class SyncServiceTest extends TestCase
             'id' => $issue->id,
             'service' => $service->name
         ]);
-        $syncService = new Sync();
         Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
 
-        $syncService->synchronize();
+        $syncJob = new SyncIssues();
+        $syncJob->handle();
         $updatedIssue = $issue->fresh();
 
         $this->assertEquals($redmineIssue['subject'], $updatedIssue->subject);
@@ -70,10 +72,10 @@ class SyncServiceTest extends TestCase
     {
         $now = Carbon::create(2017,12,9,5);
         Carbon::setTestNow($now);
-        $syncService = new Sync();
         Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect());
 
-        $syncService->synchronize();
+        $syncJob = new SyncIssues();
+        $syncJob->handle();
         $sync = Synchronization::first();
 
         $this->assertEquals($now,$sync->completed_at);
@@ -90,8 +92,8 @@ class SyncServiceTest extends TestCase
             return $dt == $completedAt;
         }))->andReturn(collect([]));
 
-        $syncService = new Sync();
-        $syncService->synchronize();
+        $syncJob = new SyncIssues();
+        $syncJob->handle();
     }
 
 
