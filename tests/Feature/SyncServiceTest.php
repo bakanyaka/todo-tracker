@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Facades\Redmine;
 use App\Models\Issue;
+use App\Models\Synchronization;
 use App\Services\Sync;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,20 +18,6 @@ class SyncServiceTest extends TestCase
     {
         parent::setUp();
         $this->artisan("db:Seed", ['--class' => 'PrioritiesTableSeeder']);
-    }
-
-    /** test */
-    public function it_syncs_all_redmine_issues_updated_since_last_sync()
-    {
-        $startedAtDate = Carbon::parse('2017-12-15 10:00');
-        $issue = $this->makeFakeIssueArray();
-        \App\Models\Synchronization::create(['started_at' => $startedAtDate]);
-        $syncService = new Sync();
-
-        $syncService->synchronize();
-
-        Redmine::shouldReceive('getUpdatedIssues')->once()->with($startedAtDate)->andReturn(collect([$issue]));
-        $this->assertDatabaseHas();
     }
 
     /** @test */
@@ -81,14 +68,31 @@ class SyncServiceTest extends TestCase
     /** @test */
     public function it_saves_sync_start_and_complete_timestamps_to_db()
     {
+        $now = Carbon::create(2017,12,9,5);
+        Carbon::setTestNow($now);
         $syncService = new Sync();
         Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect());
 
         $syncService->synchronize();
-        $sync = \App\Models\Synchronization::first();
+        $sync = Synchronization::first();
 
-        $this->assertEquals(Carbon::now(),$sync->completed_at);
-
+        $this->assertEquals($now,$sync->completed_at);
     }
+
+    /** @test */
+    public function it_syncs_only_redmine_issues_updated_since_last_completed_sync()
+    {
+        Synchronization::create(['completed_at' => Carbon::parse('2017-12-10')]);
+        Synchronization::create(['completed_at' => Carbon::parse('2017-12-13')]);
+        $completedAt = Carbon::parse('2017-12-15 10:00');
+        Synchronization::create(['completed_at' => $completedAt]);
+        Redmine::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($completedAt) {
+            return $dt == $completedAt;
+        }))->andReturn(collect([]));
+
+        $syncService = new Sync();
+        $syncService->synchronize();
+    }
+
 
 }

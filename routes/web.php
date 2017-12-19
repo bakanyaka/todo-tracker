@@ -20,7 +20,7 @@ Route::middleware(['auth'])->group(function() {
     Route::get('/issues', 'IssueController@index')->name('issues');
     Route::delete('/issues/{issue}/track', 'IssueController@destroy')->name('issues.untrack');
     Route::post('/issues/track', 'IssueController@store')->name('issues.track');
-    Route::get('/issues/update', 'IssueController@updateAll')->name('issues.update');
+    Route::get('/issues/update', 'IssueController@sync')->name('issues.update');
 
     Route::get('/services','ServiceController@index')->name('services');
     Route::post('/services','ServiceController@store');

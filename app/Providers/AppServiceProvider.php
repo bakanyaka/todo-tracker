@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\Redmine;
+use App\Services\Sync;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
@@ -42,6 +43,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton('Redmine', function ($app) {
             return new Redmine($app->make('GuzzleHttp\Client'));
+        });
+
+        $this->app->singleton('Sync', function () {
+            return new Sync();
         });
     }
 }

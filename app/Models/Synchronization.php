@@ -30,4 +30,14 @@ class Synchronization extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'started_ad',
+        'completed_at'
+    ];
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FailedToRetrieveRedmineIssueException;
+use App\Facades\Sync;
 use App\Models\Issue;
 use App\User;
 use Exception;
@@ -73,6 +74,12 @@ class IssueController extends Controller
         } catch (FailedToRetrieveRedmineIssueException $exception) {
             // TODO: Log error
         }
+        return redirect(route('issues'));
+    }
+
+    public function sync()
+    {
+        Sync::synchronize();
         return redirect(route('issues'));
     }
 

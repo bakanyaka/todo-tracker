@@ -16,7 +16,15 @@ class Sync
 
     public function synchronize()
     {
-        $issues = Redmine::getUpdatedIssues(Carbon::now()->subWeek());
+        $lastSync = Synchronization::whereNotNull('completed_at')->orderByDesc('completed_at')->first();
+        $lastSyncDate = $lastSync ? $lastSync->completed_at : Carbon::now()->subWeek();
+        try {
+            $issues = Redmine::getUpdatedIssues($lastSyncDate);
+        } catch (\Exception $exception)
+        {
+            //TODO: Error Reporting
+            return;
+        }
         foreach ($issues as $redmineIssue) {
             $issue = Issue::firstOrNew(['id' => $redmineIssue['id']]);
             $issue->updateFromRedmineIssue($redmineIssue);

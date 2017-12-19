@@ -15,7 +15,7 @@ class CreateIssuesTable extends Migration
     {
         Schema::create('issues', function (Blueprint $table) {
             $table->unsignedInteger('id')->unique();
-            $table->string('subject');
+            $table->string('subject',255);
             $table->string('department')->nullable();
             $table->string('assigned_to')->nullable();
             $table->dateTime('created_on');
