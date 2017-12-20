@@ -23,11 +23,13 @@ class Issue extends Resource
             'assigned_to' => $this->assigned_to,
             'department' => $this->department,
             'priority' => $this->priority->name,
-            'service' => $this->service->name,
+            'service' => optional($this->service)->name,
             'estimated_hours' => $this->estimated_hours,
             'time_left' => $this->time_left,
             'created_on' => $this->created_on->toDateTimeString(),
-            'closed_on' => optional($this->closed_on)->toDateTimeString()
+            'due_date' => optional($this->due_date)->toDateTimeString(),
+            'closed_on' => optional($this->closed_on)->toDateTimeString(),
+            'is_tracked_by_current_user' => $this->isTrackedBy($request->user())
         ];
     }
 }

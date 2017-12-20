@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\IssueCollection;
 use App\Models\Issue;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -11,7 +12,7 @@ class IssueController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return IssueCollection
      */
     public function index()
     {
@@ -26,8 +27,8 @@ class IssueController extends Controller
         if(request('only_open') !== 'false'){
             $issues->open();
         }
-        $issues = $issues->get()->sort([Issue::class, 'defaultSort']);
-        return \App\Http\Resources\Issue::collection($issues);
+        $issues = $issues->get()->sort([Issue::class, 'defaultSort'])->values();
+        return new IssueCollection($issues);
     }
 
     /**

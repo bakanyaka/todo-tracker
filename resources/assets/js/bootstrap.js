@@ -38,6 +38,19 @@ if (token) {
 }
 
 /**
+ * Set redmine URI as global config object
+ */
+
+let redmineUri = document.head.querySelector('meta[name="redmine-uri"]');
+
+window.config = {};
+if (redmineUri) {
+    window.config.redmineUri = redmineUri.content;
+} else {
+    console.error('Redmine URI not found');
+}
+
+/**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting
  * allows your team to easily build robust real-time web applications.

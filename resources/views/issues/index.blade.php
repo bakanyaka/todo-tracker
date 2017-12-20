@@ -4,6 +4,6 @@
 
 @section('content')
     @include('issues.actions')
-    @include('issues.issues-table')
+    <issues endpoint="{{route('api.issues')}}"></issues>
 @endsection
 
