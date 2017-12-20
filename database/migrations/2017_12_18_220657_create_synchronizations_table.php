@@ -15,8 +15,8 @@ class CreateSynchronizationsTable extends Migration
     {
         Schema::create('synchronizations', function (Blueprint $table) {
             $table->increments('id');
-            $table->timestamp('started_at')->useCurrent();
-            $table->timestamp('completed_at')->nullable();
+            $table->timestamp('completed_at');
+            $table->integer('updated_issues_count')->default(0);
         });
     }
 

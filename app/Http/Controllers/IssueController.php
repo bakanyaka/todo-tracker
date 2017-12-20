@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\FailedToRetrieveRedmineIssueException;
 use App\Facades\Sync;
+use App\Jobs\SyncIssues;
 use App\Models\Issue;
 use App\User;
 use Exception;
@@ -79,7 +80,7 @@ class IssueController extends Controller
 
     public function sync()
     {
-        Sync::synchronize();
+        SyncIssues::dispatch();
         return redirect(route('issues'));
     }
 

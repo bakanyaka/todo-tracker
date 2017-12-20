@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Facades\Redmine;
+use App\Jobs\SyncIssues;
+use Illuminate\Support\Facades\Bus;
 
 class CreateIssuesTest extends IssuesTestCase
 {
@@ -50,20 +52,13 @@ class CreateIssuesTest extends IssuesTestCase
     /** @test */
     public function user_can_force_an_update_of_all_tracked_issues()
     {
-        $issue = create('App\Models\Issue');
-        $newIssueData = $this->makeFakeIssueArray();
-
-        Redmine::shouldReceive('getIssue')
-            ->once()
-            ->with($issue['id'])
-            ->andReturn($newIssueData);
-
+        Bus::fake();
         $this->signIn();
-        $this->get(route('issues.update'));
-        $issue->refresh();
 
-        $this->assertEquals($newIssueData['subject'], $issue->subject);
-        $this->assertEquals($newIssueData['closed_on'], $issue->closed_on);
+        $this->get(route('issues.update'));
+
+        Bus::assertDispatched(SyncIssues::class);
+
     }
 
 }

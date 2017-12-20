@@ -44,9 +44,5 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('Redmine', function ($app) {
             return new Redmine($app->make('GuzzleHttp\Client'));
         });
-
-        $this->app->singleton('Sync', function () {
-            return new Sync();
-        });
     }
 }
