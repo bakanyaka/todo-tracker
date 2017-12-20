@@ -114,17 +114,4 @@ class ViewIssuesTest extends IssuesTestCase
 
     }
 
-    /**
-     * @param \App\User $user
-     * @param array $attributes
-     * @return \App\Models\Issue
-     */
-    protected function createTrackedIssue($user = null, $attributes = [])
-    {
-        $user = $user ? $user : create('App\User');
-        $issue = create('App\Models\Issue', $attributes);
-        $issue->track($user);
-        return $issue;
-    }
-
 }

@@ -50,6 +50,15 @@ use Illuminate\Database\Eloquent\Model;
 class Issue extends Model
 {
     /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'integer',
+    ];
+
+    /**
      * Don't auto-apply mass assignment protection.
      *
      * @var array

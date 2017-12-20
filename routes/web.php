@@ -30,6 +30,9 @@ Route::middleware(['auth'])->group(function() {
     Route::delete('/services/{service}','ServiceController@destroy')->name('services.delete');
 });
 
+Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
+    Route::get('/issues', 'Api\IssueController@index')->name('api.issues');
+});
 
 
 
