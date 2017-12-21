@@ -31,7 +31,7 @@ class IssueController extends Controller
         if(request('only_open') !== 'false'){
             $issues->open();
         }
-        $issues = $issues->get()->sort([Issue::class, 'defaultSort']);
+        $issues = $issues->get()->sort([Issue::class, 'defaultSort'])->paginate(10);
         $lastSync = Synchronization::whereNotNull('completed_at')->orderByDesc('completed_at')->first();
         $lastSync = $lastSync ? $lastSync->completed_at->diffForHumans() : 'никогда';
         return view('issues.index', ['issues' => $issues, 'lastSync' => $lastSync]);
