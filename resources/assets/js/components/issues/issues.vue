@@ -27,9 +27,9 @@
     import issue from './issue'
     import pagination from '../shared/pagination'
     export default {
-        props: ['endpoint'],
         data () {
             return {
+                endpoint: '/api/issues',
                 issues: [],
                 meta: {}
             }

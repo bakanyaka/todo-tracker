@@ -20,7 +20,12 @@
         props: ['meta'],
         methods: {
             switched (page) {
-                this.$emit('pagination:changed', page)
+                this.$emit('pagination:changed', page);
+                this.$router.replace({
+                   query: {
+                       page
+                   }
+                });
             }
         }
     }
