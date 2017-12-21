@@ -73,7 +73,7 @@ class Redmine
      */
     public function getUpdatedIssues(Carbon $dt)
     {
-        $data = $this->getJsonDataFromRedmine("issues.json?updated_on=>={$dt->format('Y-m-d')}");
+        $data = $this->getJsonDataFromRedmine("issues.json?updated_on=>={$dt->format('Y-m-d')}&status_id=*");
         $total_count = $data['total_count'];
         $limit = $data['limit'];
         $issues = collect($data['issues']);
