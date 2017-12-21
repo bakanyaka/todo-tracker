@@ -6,6 +6,7 @@ use App\Exceptions\FailedToRetrieveRedmineIssueException;
 use App\Facades\Sync;
 use App\Jobs\SyncIssues;
 use App\Models\Issue;
+use App\Models\Synchronization;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -31,7 +32,9 @@ class IssueController extends Controller
             $issues->open();
         }
         $issues = $issues->get()->sort([Issue::class, 'defaultSort']);
-        return view('issues.index', ['issues' => $issues]);
+        $lastSync = Synchronization::whereNotNull('completed_at')->orderByDesc('completed_at')->first();
+        $lastSync = $lastSync ? $lastSync->completed_at->diffForHumans() : 'никогда';
+        return view('issues.index', ['issues' => $issues, 'lastSync' => $lastSync]);
     }
 
     /**

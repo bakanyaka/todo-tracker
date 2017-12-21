@@ -42,9 +42,6 @@ class Redmine
     private function parseRedmineInfo($issue)
     {
         $customFields = data_get($issue, 'custom_fields',[]);
-        $department = $this->getCustomFieldValue($customFields,1);
-        $service = $this->getCustomFieldValue($customFields,65);
-
         return [
             'id' =>  $issue['id'],
             'status' => $issue['status']['id'],
@@ -53,8 +50,9 @@ class Redmine
             'assigned_to' => data_get($issue,'assigned_to.name'),
             'subject' => $issue['subject'],
             'description' => $issue['description'],
-            'department' => $department,
-            'service' => $service,
+            'department' => $this->getCustomFieldValue($customFields,1),
+            'service' => $this->getCustomFieldValue($customFields,65),
+            'control' => $this->getCustomFieldValue($customFields,66),
             'created_on' => Carbon::parse($issue['created_on'])->timezone('Europe/Moscow'),
             'updated_on' => Carbon::parse($issue['updated_on'])->timezone('Europe/Moscow'),
             'closed_on' => array_has($issue,'closed_on') ? Carbon::parse($issue['closed_on'])->timezone('Europe/Moscow') : null

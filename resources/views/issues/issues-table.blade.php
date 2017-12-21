@@ -1,4 +1,7 @@
 <div class="container-fluid">
+    <div>
+        Последняя синхронизация с Redmine была {{$lastSync}}
+    </div>
     <div class="table-responsive">
         <table class="table table-striped table-sm">
             <tr>

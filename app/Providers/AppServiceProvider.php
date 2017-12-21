@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\Redmine;
 use App\Services\Sync;
+use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
@@ -19,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         URL::forceScheme('https');
+        Carbon::setLocale(config('app.locale'));
     }
 
     /**
