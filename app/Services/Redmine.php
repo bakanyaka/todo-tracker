@@ -78,7 +78,7 @@ class Redmine
         $limit = $data['limit'];
         $issues = collect($data['issues']);
         for ($offset = $limit;$offset < $total_count; $offset += $limit) {
-            $data = $this->getJsonDataFromRedmine("issues.json?updated_on=>={$dt->format('Y-m-d')}&offset={$offset}");
+            $data = $this->getJsonDataFromRedmine("issues.json?updated_on=>={$dt->format('Y-m-d')}&offset={$offset}&status_id=*");
             $issues = $issues->merge($data['issues']);
         }
         return $issues->map(function ($issue) {
