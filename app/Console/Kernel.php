@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\SyncIssues;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -24,6 +25,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->job(new SyncIssues())->everyFiveMinutes();
+
         // $schedule->command('inspire')
         //          ->hourly();
     }

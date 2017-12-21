@@ -1,4 +1,4 @@
-<div class="container-fluid">
+
     <div class="table-responsive">
         <table class="table table-striped table-sm">
             <tr>
@@ -20,4 +20,3 @@
             @endforeach
         </table>
     </div>
-</div>

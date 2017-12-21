@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Facades\Redmine;
 use App\Models\Issue;
 use App\Models\Synchronization;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -40,6 +41,11 @@ class SyncIssues implements ShouldQueue
             $issue = Issue::firstOrNew(['id' => $redmineIssue['id']]);
             $issue->updateFromRedmineIssue($redmineIssue);
             $issue->save();
+            if ($redmineIssue['control'] == 1) {
+                foreach (User::all() as $user) {
+                    $issue->track($user);
+                }
+            }
         }
         Synchronization::create([
             'completed_at' => Carbon::now(),

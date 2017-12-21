@@ -39,6 +39,7 @@ abstract class TestCase extends BaseTestCase
             'description' => $this->faker->realText(),
             'department' => '115 Управление информационных систем',
             'service' => 'Организация рабочих мест пользователей',
+            'control' => 1,
             'created_on' => Carbon::instance($this->faker->dateTimeThisMonth()),
             'updated_on' => Carbon::instance($this->faker->dateTimeThisMonth()),
             'closed_on' => Carbon::instance($this->faker->dateTimeThisMonth()),

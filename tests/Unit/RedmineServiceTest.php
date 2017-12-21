@@ -36,6 +36,7 @@ class RedmineServiceTest extends TestCase
             'description' => $issueData['description'],
             'department' => $issueData['custom_fields'][0]['value'],
             'service' => $issueData['custom_fields'][1]['value'],
+            'control' => $issueData['custom_fields'][2]['value'],
             'created_on' => Carbon::parse($issueData['created_on']),
             'updated_on' => Carbon::parse($issueData['updated_on']),
             'closed_on' => Carbon::parse($issueData['closed_on']),
@@ -128,7 +129,7 @@ class RedmineServiceTest extends TestCase
                     [
                         'id' => 66,
                         'name' => 'Контроль',
-                        'value' => 0
+                        'value' => 1
                     ]
                 ],
                 'created_on' => $this->faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z'),

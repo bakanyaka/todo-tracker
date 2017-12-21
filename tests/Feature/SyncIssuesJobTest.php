@@ -7,6 +7,7 @@ use App\Jobs\SyncIssues;
 use App\Models\Issue;
 use App\Models\Synchronization;
 use App\Services\Sync;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -94,6 +95,20 @@ class SyncIssuesJobTest extends TestCase
 
         $syncJob = new SyncIssues();
         $syncJob->handle();
+    }
+
+    /** @test */
+    public function it_adds_issue_to_tracked_issues_of_every_user_if_issue_has_control_flag()
+    {
+        $user = create(User::class);
+        $redmineIssue = $this->makeFakeIssueArray(['control' => 1]);
+        Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
+
+        $syncJob = new SyncIssues();
+        $syncJob->handle();
+
+        $this->assertNotNull($user->issues()->where(['id' => $redmineIssue['id']])->first());
+
     }
 
 
