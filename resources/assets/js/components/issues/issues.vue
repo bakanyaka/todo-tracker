@@ -19,28 +19,37 @@
                 <tr is="issue" v-for="issue in issues" :issue="issue" :key="issue.id"></tr>
             </table>
         </div>
+        <pagination :meta="meta" v-on:pagination:changed="getIssues"></pagination>
     </div>
 </template>
 
 <script>
     import issue from './issue'
+    import pagination from '../shared/pagination'
     export default {
         props: ['endpoint'],
         data () {
             return {
-                issues: []
+                issues: [],
+                meta: {}
             }
         },
         components: {
-          issue
+            issue,
+            pagination
         },
         mounted() {
             this.getIssues()
         },
         methods: {
-            getIssues() {
-                return axios.get(`${this.endpoint}`).then((response) => {
-                    this.issues = response.data.data
+            getIssues(page = 1) {
+                return axios.get(this.endpoint, {
+                    params: {
+                        page
+                    }
+                }).then((response) => {
+                    this.issues = response.data.data;
+                    this.meta = response.data.meta;
                 })
             }
         }
