@@ -22,9 +22,7 @@
             switched (page) {
                 this.$emit('pagination:changed', page);
                 this.$router.replace({
-                   query: {
-                       page
-                   }
+                   query: Object.assign({}, this.$route.query, {page})
                 });
             }
         }

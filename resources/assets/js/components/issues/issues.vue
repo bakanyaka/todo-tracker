@@ -1,5 +1,6 @@
 <template>
     <div class="container-fluid">
+        <filters></filters>
         <div class="table-responsive">
             <table class="table table-striped table-sm">
                 <tr>
@@ -25,17 +26,19 @@
 
 <script>
     import issue from './issue'
+    import filters from './filters'
     import pagination from '../shared/pagination'
     export default {
         data () {
             return {
                 endpoint: '/api/issues',
                 issues: [],
-                meta: {}
+                meta: {},
             }
         },
         components: {
             issue,
+            filters,
             pagination
         },
         mounted() {
