@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
+import App from './App'
 import router from './router'
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -16,10 +17,10 @@ require('./bootstrap');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 Vue.use(BootstrapVue);
-Vue.component('issues', require('./components/issues/issues.vue'));
 
 
 const app = new Vue({
     el: '#app',
-    router
+    router,
+    render: h => h(App)
 });

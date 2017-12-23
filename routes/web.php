@@ -16,10 +16,6 @@ Auth::routes();
 
 Route::middleware(['auth'])->group(function() {
 
-    Route::redirect('/', '/issues');
-
-    Route::view('/issues', 'index')->name('issues');
-
     Route::delete('/issues/{issue}/track', 'IssueController@destroy')->name('issues.untrack');
     Route::post('/issues/track', 'IssueController@store')->name('issues.track');
     Route::get('/issues/update', 'IssueController@sync')->name('issues.update');
@@ -30,12 +26,15 @@ Route::middleware(['auth'])->group(function() {
     Route::get('/services/{service}/edit','ServiceController@edit')->name('services.edit');
     Route::patch('/services/{service}','ServiceController@update')->name('services.update');
     Route::delete('/services/{service}','ServiceController@destroy')->name('services.delete');
+
 });
 
 Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
     Route::get('/issues', 'Api\IssueController@index')->name('api.issues');
 });
 
+//All unregistered routes should be handled by frontend
+Route::any('{all}', 'FrontendController@index')->where(['all' => '.*'])->middleware(['auth']);
 
 
 

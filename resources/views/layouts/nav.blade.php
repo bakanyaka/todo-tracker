@@ -26,30 +26,21 @@
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
-            @guest
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('login') }}">Login</a>
-                </li>
-{{--                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('register') }}">Register</a>
-                </li>--}}
-            @else
-                <div>
-                    <b-dropdown id="ddown1" text="{{ Auth::user()->name }}" variant="primary" size="sm" class="nav-link">
-                        <b-dropdown-item>First Action</b-dropdown-item>
-                        <b-dropdown-divider></b-dropdown-divider>
-                        <b-dropdown-item>Something else here...</b-dropdown-item>
-                        <b-dropdown-item disabled>Disabled action</b-dropdown-item>
-                        <a class="dropdown-item" href="{{ route('logout') }}"
-                           onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                            Logout
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                            {{ csrf_field() }}
-                        </form>
-                    </b-dropdown>
-                </div>
-            @endguest
+            <div>
+                <b-dropdown id="ddown1" text="{{ Auth::user()->name }}" variant="primary" size="sm" class="nav-link">
+                    <b-dropdown-item>First Action</b-dropdown-item>
+                    <b-dropdown-divider></b-dropdown-divider>
+                    <b-dropdown-item>Something else here...</b-dropdown-item>
+                    <b-dropdown-item disabled>Disabled action</b-dropdown-item>
+                    <a class="dropdown-item" href="{{ route('logout') }}"
+                       onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                        Logout
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        {{ csrf_field() }}
+                    </form>
+                </b-dropdown>
+            </div>
         </ul>
     </div>
 </nav>

@@ -13,15 +13,14 @@
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
-    <div id="app">
-        @include('layouts.nav')
-        @include('layouts.header')
-        @yield('content')
-        <flash message="temporary message"></flash>
-    </div>
+    @yield('content')
+<!-- Pass Routes to JS -->
+    @routes
+<!-- Pass variables to JS -->
+    @include('client-js-vars')
 <!-- Scripts -->
 <script src="{{ mix('js/manifest.js') }}"></script>
 <script src="{{ mix('js/vendor.js') }}"></script>
-<script src="{{ mix('js/app.js') }}"></script>
+<script src="{{ mix('js/main.js') }}"></script>
 </body>
 </html>

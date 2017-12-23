@@ -25,13 +25,12 @@
 </template>
 
 <script>
-    import issue from './issue'
-    import filters from './filters'
-    import pagination from '../shared/pagination'
+    import issue from './Issue'
+    import filters from './Filters'
+    import pagination from '../shared/Pagination'
     export default {
         data () {
             return {
-                endpoint: '/api/issues',
                 issues: [],
                 meta: {},
             }
@@ -46,7 +45,7 @@
         },
         methods: {
             getIssues(page = 1) {
-                return axios.get(this.endpoint, {
+                return axios.get(route('api.issues'), {
                     params: {
                         page
                     }

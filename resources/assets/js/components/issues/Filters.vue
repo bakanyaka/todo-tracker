@@ -41,7 +41,7 @@
             'filters': {
                 handler (filters) {
                     const selectedFilters = {};
-                    this.$emit('filters:changed', filters)
+                    this.$emit('filters:changed', Filters)
                 },
                 deep: true
             }
