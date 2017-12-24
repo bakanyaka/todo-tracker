@@ -8,3 +8,6 @@ $fa-font-path: '~font-awesome/fonts/';
 /* Import Simple Line Icons Set */
 $simple-line-font-path: '~simple-line-icons/fonts/';
 @import '~simple-line-icons/scss/simple-line-icons';
+
+/* Import Vue-Snotify styles */
+@import "~vue-snotify/styles/material";

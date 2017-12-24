@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
+import Snotify from 'vue-snotify';
 import App from './App'
 import router from './router'
 /**
@@ -18,6 +19,9 @@ require('./bootstrap');
  */
 Vue.use(BootstrapVue);
 
+// Use Snotify
+// You can pass {config, options} as second argument. See the next example or setConfig in [API] section
+Vue.use(Snotify);
 
 const app = new Vue({
     el: '#app',

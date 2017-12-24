@@ -11,11 +11,16 @@
                 </b-col>
                 <b-col md="8">
                     <b-card header="Фильтры">
-                        <filters></filters>
+                        <filters @filters:changed="onFiltersChanged"></filters>
                     </b-card>
                 </b-col>
             </b-row>
         <b-card header="Отслеживаемые задачи">
+            <spinner v-if="loading" size="large" message="Загрузка..."></spinner>
+            <div v-else-if="!issues.length">
+                Ничего не найдено
+            </div>
+            <template v-else>
             <b-row class="mb-3">
                 <b-col sm="6">
                     <div class="form-inline">
@@ -37,25 +42,32 @@
                 <template slot="id" slot-scope="data">
                     <a :href="`${redmineUri}/${data.value}`">{{data.value}}</a>
                 </template>
+
+                <template slot="table-caption">
+                    На странице показано {{visibleRows}} из {{pagination.totalRows}}
+                </template>
             </b-table>
             <b-pagination size="md" :total-rows="pagination.totalRows" v-model="pagination.currentPage" :per-page="pagination.perPage" @input="pageChanged">
             </b-pagination>
+            </template>
         </b-card>
     </div>
 </template>
 
 <script>
     import filters from './Filters'
+    import Spinner from 'vue-simple-spinner'
     export default {
         data () {
             return {
                 redmineUri: config.redmineUri,
+                loading: true,
                 addIssueId: null,
                 searchText: null,
                 pagination: {
                     totalRows: null,
                     perPage: 20,
-                    currentPage: 1
+                    currentPage: 1,
                 },
                 fields: [
                     {
@@ -109,6 +121,16 @@
         },
         components: {
             filters,
+            Spinner
+        },
+        computed: {
+            visibleRows () {
+                if (this.pagination.totalRows / (this.pagination.perPage * this.pagination.currentPage) >= 1 ) {
+                    return this.pagination.perPage
+                } else {
+                    return this.pagination.totalRows - this.pagination.perPage * (this.pagination.currentPage -1 )
+                }
+            }
         },
         mounted() {
             this.getIssues().then(()=>{
@@ -116,20 +138,36 @@
             });
         },
         methods: {
-            getIssues() {
-                return axios.get(route('api.issues')).then((response) => {
+            getIssues(query = this.$route.query) {
+                this.loading = true;
+                return axios.get(route('api.issues'), {
+                    params: {
+                        ...query
+                    }
+                }).then((response) => {
                     this.issues = response.data.data.map((issue) => {
-                        if (issue.estimated_hours && (issue.time_left / issue.estimated_hours < 0.3)) {
+                        if (issue.time_left && issue.time_left < 0) {
                             issue._rowVariant = 'danger'
+                        } else if (issue.estimated_hours && (issue.time_left / issue.estimated_hours < 0.3)) {
+                            issue._rowVariant = 'warning'
                         }
                         return issue;
                     });
                     this.pagination.totalRows = response.data.data.length;
                     this.meta = response.data.meta;
-                })
+                    this.loading = false;
+                }).catch((e) => {
+                    this.$snotify.error('Ошибка при загрузке задач');
+                    this.loading = false;
+                });
             },
             async addIssue () {
-                await axios.post(route('issues.track'),{issue_id: this.addIssueId});
+                try {
+                    await axios.post(route('issues.track'),{issue_id: this.addIssueId});
+                    this.$snotify.success('Задача добавлена');
+                } catch (e) {
+                    this.$snotify.error('Ошибка! Задача не добавлена');
+                }
                 this.addIssueId = null;
                 this.getIssues();
             },
@@ -140,7 +178,16 @@
                         page: this.pagination.currentPage
                     }
                 })
+            },
+            async onFiltersChanged(filters) {
+                await this.$router.replace({
+                    query: {
+                        ...filters,
+                    }
+                });
+                this.getIssues();
             }
+
         }
     }
 </script>

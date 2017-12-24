@@ -14,7 +14,7 @@
 </template>
 <script>
 export default {
-  name: 'header',
+  name: 'app-header',
   methods: {
     sidebarToggle (e) {
       e.preventDefault()

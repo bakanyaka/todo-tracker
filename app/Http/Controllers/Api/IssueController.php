@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\IssueCollection;
 use App\Models\Issue;
+use function GuzzleHttp\Promise\all;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -24,8 +25,14 @@ class IssueController extends Controller
             $user = User::whereUsername(request('user'))->firstOrFail();
             $issues = $user->issues;
         }
-        if(request('only_open') !== 'false'){
-            $issues->open();
+        switch (request('status')) {
+            case 'closed':
+                $issues->closed();
+                break;
+            case 'all':
+                break;
+            default:
+                $issues->open();
         }
         $issues = $issues->get()->sort([Issue::class, 'defaultSort'])->values();//->paginate(5);
         return new IssueCollection($issues);

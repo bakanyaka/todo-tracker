@@ -12,6 +12,7 @@
             <AppAside/>
         </div>
         <AppFooter/>
+        <vue-snotify></vue-snotify>
     </div>
 </template>
 

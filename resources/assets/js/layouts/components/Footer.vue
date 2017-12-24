@@ -1,11 +1,10 @@
 <template>
   <footer class="app-footer">
-    <span><a href="http://coreui.io">CoreUI</a> &copy; 2017 creativeLabs.</span>
-    <span class="ml-auto">Powered by <a href="http://coreui.io">CoreUI</a></span>
+    <span>&copy; 2017</span>
   </footer>
 </template>
 <script>
 export default {
-  name: 'footer'
+  name: 'app-footer'
 }
 </script>

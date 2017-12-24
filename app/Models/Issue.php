@@ -90,6 +90,18 @@ class Issue extends Model
         return $query->whereNull('closed_on');
     }
 
+    /**
+     * Scope a query to only include complete issues.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeClosed($query)
+    {
+        return $query->whereNotNull('closed_on');
+    }
+
+
 
     /**
      * @param $value

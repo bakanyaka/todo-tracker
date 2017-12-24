@@ -25,10 +25,10 @@
                         ]
                     },
                     status: {
-                        selected: 'open',
+                        selected: null,
                         options: [
-                            { value: 'open', text: 'Открытые'},
-                            { value: null, text: 'Все'},
+                            { value: null, text: 'Открытые'},
+                            { value: 'all', text: 'Все'},
                             { value: 'closed', text: 'Закрытые'}
                         ]
                     }
@@ -39,9 +39,21 @@
             'filters': {
                 handler (filters) {
                     const selectedFilters = {};
-                    this.$emit('filters:changed', Filters)
+                    for (let key in filters) {
+                        if(filters[key].selected !== null) {
+                            selectedFilters[key] = filters[key].selected
+                        }
+                    }
+                    this.$emit('filters:changed', selectedFilters);
                 },
                 deep: true
+            }
+        },
+        mounted () {
+            for (let param in this.$route.query) {
+                if(this.filters.hasOwnProperty(param)) {
+                    this.filters[param].selected = this.$route.query[param]
+                }
             }
         }
     }
