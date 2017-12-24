@@ -16,10 +16,16 @@
         "bootstrap-vue": "^1.4.0",
         "browser-sync": "^2.19.0",
         "browser-sync-webpack-plugin": "^1.2.0",
+        "chart.js": "^2.7.1",
         "cross-env": "^5.1.2",
         "laravel-mix": "^1.0",
         "lodash": "^4.17.4",
         "vue": "^2.5.7",
+        "vue-chartjs": "^3.0.2",
         "vue-router": "^3.0.1"
+    },
+    "dependencies": {
+        "font-awesome": "^4.7.0",
+        "simple-line-icons": "^2.4.1"
     }
 }

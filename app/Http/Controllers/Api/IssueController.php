@@ -27,7 +27,7 @@ class IssueController extends Controller
         if(request('only_open') !== 'false'){
             $issues->open();
         }
-        $issues = $issues->get()->sort([Issue::class, 'defaultSort'])->values()->paginate(5);
+        $issues = $issues->get()->sort([Issue::class, 'defaultSort'])->values();//->paginate(5);
         return new IssueCollection($issues);
     }
 

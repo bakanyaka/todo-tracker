@@ -16,6 +16,7 @@ let webpack = require('webpack');
 mix.js('resources/assets/js/main.js', 'public/js')
     .extract(['vue','vue-router','axios','lodash','bootstrap-vue'])
     .sass('resources/assets/sass/app.scss', 'public/css')
+    .sass('resources/assets/sass/vendor.scss', 'public/css')
     .sourceMaps();
 
 if (mix.inProduction()) {

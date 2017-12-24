@@ -1,10 +1,16 @@
+// Override Boostrap variables
+@import "bootstrap-variables";
 
-// Fonts
-@import url("https://fonts.googleapis.com/css?family=Raleway:300,400,600");
+// Import Bootstrap source files
+@import "~bootstrap/scss/bootstrap";
 
-// Variables
+// Override core variables
+@import "core-variables";
+
+// Import core styles
+@import "core/core";
+
+// Custom styles
 @import "custom";
 
-// Bootstrap
-@import "~bootstrap/scss/bootstrap";
-@import "~bootstrap-vue/dist/bootstrap-vue";
+

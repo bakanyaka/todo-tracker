@@ -1,7 +1,7 @@
 import Router from 'vue-router';
 import Vue from 'vue';
-import Full from './components/layouts/Full'
-import Issues from './components/issues/Issues'
+import Full from './layouts/Full'
+import Issues from './views/issues/Issues'
 
 Vue.use(Router);
 
@@ -11,11 +11,17 @@ let routes = [
         redirect: '/issues',
         name: 'home',
         component: Full,
+        meta: {
+            label: 'Главная'
+        },
         children: [
             {
                 path: '/issues',
                 name: 'issues.index',
-                component: Issues
+                component: Issues,
+                meta: {
+                    label: 'Задачи'
+                }
             }
         ]
     }
