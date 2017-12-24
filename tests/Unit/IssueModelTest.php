@@ -54,6 +54,7 @@ class IssueModelTest extends TestCase
         $this->assertEquals($issueData['assigned_to'],$issue->assigned_to);
         $this->assertEquals($issueData['created_on'],$issue->created_on);
         $this->assertEquals($issueData['closed_on'],$issue->closed_on);
+        $this->assertEquals(true,$issue->control);
         $this->assertEquals(24,$issue->estimatedHours);
     }
 

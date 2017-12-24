@@ -7,14 +7,18 @@
     <button class="navbar-toggler sidebar-toggler d-md-down-none mr-auto" type="button" @click="sidebarToggle">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <button class="navbar-toggler aside-menu-toggler d-md-down-none" type="button" @click="asideToggle">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <b-navbar-nav class="ml-auto mr-5">
+      <HeaderDropdown/>
+    </b-navbar-nav>
   </header>
 </template>
 <script>
+import HeaderDropdown from './HeaderDropdown';
 export default {
   name: 'app-header',
+  components: {
+      HeaderDropdown
+  },
   methods: {
     sidebarToggle (e) {
       e.preventDefault()

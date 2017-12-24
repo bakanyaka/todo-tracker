@@ -17,7 +17,7 @@ class GetIssuesTest extends IssuesTestCase
         $user = create(User::class);
         $issue = $this->createTrackedIssue($user,[],false);
 
-        $response = $this->signIn($user)->get(route('api.issues',['only_open' => 'false']));
+        $response = $this->signIn($user)->get(route('api.issues',['status' => 'all']));
 
         $response->assertStatus(200);
         $response->assertJsonFragment([
@@ -36,26 +36,51 @@ class GetIssuesTest extends IssuesTestCase
     }
 
     /** @test */
-    public function user_can_get_his_tracked_issues()
+    public function user_gets_only_his_own_tracked_open_issues_by_default()
     {
-        //Given we have an issue tracked by user
+        //Given we have an open issue tracked by user
         $user = create('App\User');
-        $issue = $this->createTrackedIssue($user);
+        $openIssue = $this->createTrackedIssue($user,[]);
+        //And closed issue tracked by user
+        $closedIssue = $this->createTrackedIssue($user,[],false);
+        
         //And issue tracked by another user
         $otherIssue = $this->createTrackedIssue(create('App\User'));
 
-        //When user makes request to get hus issues,
+        //When user makes request to get his issues,
         $response = $this->signIn($user)->get(route('api.issues'));
 
         //Response contains only his own tracked issues
         $response->assertStatus(200);
         $response->assertJsonFragment([
-            'id' => $issue->id,
+            'id' => $openIssue->id,
         ]);
         $response->assertJsonMissing([
             'id' => $otherIssue->id
         ]);
+        $response->assertJsonMissing([
+            'id' => $closedIssue->id
+        ]);
     }
+
+    /** @test */
+    public function user_can_get_own_tracked_closed_issues()
+    {
+        //Given we have an closed issue tracked by user
+        $user = create('App\User');
+        $closedIssue = $this->createTrackedIssue($user,[],false);
+
+        //When user makes request to get his closed issues,
+        $response = $this->signIn($user)->get(route('api.issues', ['status' => 'closed']));
+
+        //Response contains only his tracked closed issue
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'id' => $closedIssue->id,
+        ]);
+
+    }
+
 
     /** @test */
     public function user_can_get_all_issues_tracked_by_users()
@@ -78,6 +103,24 @@ class GetIssuesTest extends IssuesTestCase
         //Amd does not contain not tracked issue
         $response->assertJsonMissing([
            'id' => $notTrackedIssue->id
+        ]);
+    }
+
+    /** @test */
+    public function user_can_get_open_issues_marked_for_control()
+    {
+        //Given we have a user
+        $this->signIn();
+        //And an issue marked for control not tracked by anyone
+        $issue = create(Issue::class,['control' => true]);
+
+        //When user makes request to get all issues marked for control,
+        $response = $this->get(route('api.issues', ['user' => 'control']));
+
+        //Response contains issue marked for control
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'id' => $issue->id,
         ]);
     }
 

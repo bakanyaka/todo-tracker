@@ -41,11 +41,6 @@ class SyncIssues implements ShouldQueue
             $issue = Issue::firstOrNew(['id' => $redmineIssue['id']]);
             $issue->updateFromRedmineIssue($redmineIssue);
             $issue->save();
-            if ($redmineIssue['control'] == 1) {
-                foreach (User::all() as $user) {
-                    $issue->track($user);
-                }
-            }
         }
         Synchronization::create([
             'completed_at' => Carbon::now(),

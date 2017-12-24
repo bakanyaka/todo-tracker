@@ -19,6 +19,7 @@ class CreateIssuesTable extends Migration
             $table->string('department')->nullable();
             $table->string('assigned_to')->nullable();
             $table->dateTime('created_on');
+            $table->boolean('control')->default(false);
             $table->integer('service_id')->unsigned()->nullable();
             $table->integer('priority_id')->unsigned()->default(4);
             $table->dateTime('closed_on')->nullable();

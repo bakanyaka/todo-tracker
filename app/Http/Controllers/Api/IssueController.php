@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\IssueCollection;
 use App\Models\Issue;
+use App\User;
 use function GuzzleHttp\Promise\all;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -21,10 +22,13 @@ class IssueController extends Controller
             $issues = auth()->user()->issues();
         } elseif (request('user') === 'all') {
             $issues = Issue::has('users');
+        } elseif (request('user') === 'control') {
+            $issues = Issue::markedForControl();
         } else {
             $user = User::whereUsername(request('user'))->firstOrFail();
             $issues = $user->issues;
         }
+
         switch (request('status')) {
             case 'closed':
                 $issues->closed();
@@ -101,6 +105,7 @@ class IssueController extends Controller
      */
     public function destroy(Issue $issue)
     {
-        //
+        $issue->untrack(auth()->user());
+        return response()->json([]);
     }
 }

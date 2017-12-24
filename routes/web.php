@@ -16,7 +16,7 @@ Auth::routes();
 
 Route::middleware(['auth'])->group(function() {
 
-    Route::delete('/issues/{issue}/track', 'IssueController@destroy')->name('issues.untrack');
+
     Route::post('/issues/track', 'IssueController@store')->name('issues.track');
     Route::get('/issues/update', 'IssueController@sync')->name('issues.update');
 
@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function() {
 
 Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
     Route::get('/issues', 'Api\IssueController@index')->name('api.issues');
+    Route::delete('/issues/{issue}/track', 'Api\IssueController@destroy')->name('api.issues.untrack');
 });
 
 //All unregistered routes should be handled by frontend

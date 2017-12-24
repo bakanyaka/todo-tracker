@@ -21,7 +21,8 @@
                         selected: null,
                         options: [
                             { value: null, text: 'Только я'},
-                            { value: 'all', text: 'Любой пользователь'}
+                            { value: 'all', text: 'Любой пользователь'},
+                            { value: 'control', text: 'Помеченные контроль'}
                         ]
                     },
                     status: {
