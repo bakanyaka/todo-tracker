@@ -6,7 +6,8 @@
                     <div class="form-inline">
                         <b-input class="form-control-sm mr-2" type="text" placeholder="# Задачи" v-model="addIssueId"
                                  required></b-input>
-                        <b-button @click="addIssue()" variant="primary" size="sm" class="my-2"><i class="fa fa-plus"></i>&nbsp;
+                        <b-button @click="addIssue()" variant="primary" size="sm" class="my-2"><i
+                                class="fa fa-plus"></i>&nbsp;
                             Отслеживать
                         </b-button>
 
@@ -15,7 +16,8 @@
             </b-col>
             <b-col md="2">
                 <b-card header="Синхронизация с Redmine" class="text-center pb-1">
-                    <b-button @click="syncIssues()" variant="primary" size="sm" class="my-2"><i class="fa fa-refresh"></i>&nbsp;
+                    <b-button @click="syncIssues()" variant="primary" size="sm" class="my-2"><i
+                            class="fa fa-refresh"></i>&nbsp;
                         Синхронизировать
                     </b-button>
                 </b-card>
@@ -28,7 +30,9 @@
         </b-row>
         <b-card>
             <template slot="header">
-                Отслеживаемые задачи <small class="pull-right">Синхронизация с Redmine выполнена {{meta.last_sync.completed_at_human}}</small>
+                Отслеживаемые задачи
+                <small class="pull-right">Синхронизация с Redmine выполнена {{meta.hasOwnProperty('lastSync') ? meta.last_sync.completed_at_human : 'Никогда'}}
+                </small>
             </template>
             <spinner v-if="loading" size="large" message="Загрузка..."></spinner>
             <div v-else-if="!issues.length">
@@ -60,7 +64,8 @@
 
                     <template slot="actions" slot-scope="row">
                         <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
-                        <b-button v-if="row.item.is_tracked_by_current_user === true" variant="danger" @click.stop="removeIssue(row.item.id)">
+                        <b-button v-if="row.item.is_tracked_by_current_user === true" variant="danger"
+                                  @click.stop="removeIssue(row.item.id)">
                             <i class="fa fa-chain-broken"></i>
                         </b-button>
                         <b-button v-else variant="success" @click.stop="addIssue(row.item.id)">
@@ -169,7 +174,7 @@
             });
             setInterval(() => {
                 this.getIssues();
-            },300000);
+            }, 300000);
         },
         methods: {
             getIssues(query = this.$route.query) {
@@ -207,7 +212,7 @@
             },
             async removeIssue(id) {
                 try {
-                    await axios.delete(route('api.issues.untrack',{issue: id}));
+                    await axios.delete(route('api.issues.untrack', {issue: id}));
                     this.$snotify.success('Задача больше не остлеживается');
                 } catch (e) {
                     this.$snotify.error('Ошибка!');
