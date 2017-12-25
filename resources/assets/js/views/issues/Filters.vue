@@ -1,12 +1,12 @@
 <template>
-    <div class="row form-inline">
+    <div class="form-inline">
         <div class="col-auto">
             <label for="tracked-by">Кто отслеживает:</label>
-            <b-form-select id="tracked-by" v-model="filters.user.selected" :options="filters.user.options"></b-form-select>
+            <b-form-select size="sm" id="tracked-by" v-model="filters.user.selected" :options="filters.user.options"></b-form-select>
         </div>
         <div class="col-auto">
             <label for="status">Статус:</label>
-            <b-form-select id="status" v-model="filters.status.selected" :options="filters.status.options"></b-form-select>
+            <b-form-select size="sm" id="status" v-model="filters.status.selected" :options="filters.status.options"></b-form-select>
         </div>
     </div>
 </template>

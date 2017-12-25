@@ -1,24 +1,35 @@
 <template>
     <div class="animated fadeIn">
         <b-row class="row">
-            <b-col md="4">
-                <b-card header="Добавить задачу в отслеживаемые" class="pb-2">
+            <b-col md="3">
+                <b-card header="Добавить задачу в отслеживаемые" class="pb-1">
                     <div class="form-inline">
                         <b-input class="form-control-sm mr-2" type="text" placeholder="# Задачи" v-model="addIssueId"
                                  required></b-input>
-                        <b-button @click="addIssue()" variant="primary" size="sm" class="my-2" type="submit"><i class="fa fa-plus"></i>&nbsp;
+                        <b-button @click="addIssue()" variant="primary" size="sm" class="my-2"><i class="fa fa-plus"></i>&nbsp;
                             Отслеживать
                         </b-button>
+
                     </div>
                 </b-card>
             </b-col>
-            <b-col md="8">
+            <b-col md="2">
+                <b-card header="Синхронизация с Redmine" class="text-center pb-1">
+                    <b-button @click="syncIssues()" variant="primary" size="sm" class="my-2"><i class="fa fa-refresh"></i>&nbsp;
+                        Синхронизировать
+                    </b-button>
+                </b-card>
+            </b-col>
+            <b-col md="7">
                 <b-card header="Фильтры">
                     <filters @filters:changed="onFiltersChanged"></filters>
                 </b-card>
             </b-col>
         </b-row>
-        <b-card header="Отслеживаемые задачи">
+        <b-card>
+            <template slot="header">
+                Отслеживаемые задачи <small class="pull-right">Синхронизация с Redmine выполнена {{meta.last_sync.completed_at_human}}</small>
+            </template>
             <spinner v-if="loading" size="large" message="Загрузка..."></spinner>
             <div v-else-if="!issues.length">
                 Ничего не найдено
@@ -44,7 +55,7 @@
                          :current-page="pagination.currentPage"
                 >
                     <template slot="id" slot-scope="data">
-                        <a :href="`${redmineUri}/${data.value}`">{{data.value}}</a>
+                        <a :href="`${redmineUri}/issues/${data.value}`">{{data.value}}</a>
                     </template>
 
                     <template slot="actions" slot-scope="row">
@@ -156,6 +167,9 @@
             this.getIssues().then(() => {
                 this.pagination.currentPage = parseInt(this.$route.query.page) || 1
             });
+            setInterval(() => {
+                this.getIssues();
+            },300000);
         },
         methods: {
             getIssues(query = this.$route.query) {
@@ -183,7 +197,7 @@
             },
             async addIssue(issueId = this.addIssueId) {
                 try {
-                    await axios.post(route('issues.track'), {issue_id: issueId});
+                    await axios.post(route('api.issues.track'), {issue_id: issueId});
                     this.$snotify.success('Задача добавлена');
                 } catch (e) {
                     this.$snotify.error('Ошибка! Задача не добавлена');
@@ -216,6 +230,14 @@
                     }
                 });
                 this.getIssues();
+            },
+            syncIssues() {
+                axios.get(route('api.issues.sync')).then(() => {
+                    this.$snotify.success('Задание на синхронизацию добавлено в очередь');
+                    this.getIssues();
+                }).catch((e) => {
+                    this.$snotify.error('Ошибка при добавлении задания в очередь');
+                });
             }
 
         }

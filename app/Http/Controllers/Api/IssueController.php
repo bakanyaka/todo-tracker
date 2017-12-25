@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\FailedToRetrieveRedmineIssueException;
 use App\Http\Resources\IssueCollection;
+use App\Jobs\SyncIssues;
 use App\Models\Issue;
 use App\User;
 use function GuzzleHttp\Promise\all;
@@ -42,6 +44,12 @@ class IssueController extends Controller
         return new IssueCollection($issues);
     }
 
+    public function sync()
+    {
+        SyncIssues::dispatch();
+        return response()->json();
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -55,12 +63,22 @@ class IssueController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
+     * @throws Exception
      */
     public function store(Request $request)
     {
-        //
+        $request->validate(['issue_id' => 'required|int']);
+        $issue = Issue::firstOrNew(['id' => $request->issue_id]);
+        try {
+            $issue->updateFromRedmine();
+        } catch (FailedToRetrieveRedmineIssueException $exception) {
+            abort(404);
+        }
+        $issue->save();
+        $issue->track(auth()->user());
+        return response()->json([],201);
     }
 
     /**

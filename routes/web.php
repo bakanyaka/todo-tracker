@@ -16,10 +16,6 @@ Auth::routes();
 
 Route::middleware(['auth'])->group(function() {
 
-
-    Route::post('/issues/track', 'IssueController@store')->name('issues.track');
-    Route::get('/issues/update', 'IssueController@sync')->name('issues.update');
-
     Route::get('/services','ServiceController@index')->name('services');
     Route::post('/services','ServiceController@store');
     Route::get('/services/new','ServiceController@create')->name('services.new');
@@ -32,6 +28,10 @@ Route::middleware(['auth'])->group(function() {
 Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
     Route::get('/issues', 'Api\IssueController@index')->name('api.issues');
     Route::delete('/issues/{issue}/track', 'Api\IssueController@destroy')->name('api.issues.untrack');
+    Route::post('/issues/track', 'Api\IssueController@store')->name('api.issues.track');
+    Route::get('/issues/sync', 'Api\IssueController@sync')->name('api.issues.sync');
+
+    Route::get('/synchronizations/last', 'Api\RedmineSyncController@show')->name('api.synchronizations.last');
 });
 
 //All unregistered routes should be handled by frontend

@@ -3,7 +3,9 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Issue;
+use App\Models\Synchronization;
 use App\User;
+use Carbon\Carbon;
 use Tests\Feature\IssuesTestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -31,8 +33,23 @@ class GetIssuesTest extends IssuesTestCase
             'service' => $issue->service->name,
             'estimated_hours' => $issue->service->hours
         ]);
-/*
-        $response->assertSee((string)$created_on->addBusinessHours(333));*/
+    }
+
+    /** @test */
+    public function timestamp_of_last_sync_with_redmine_is_returned_with_issues()
+    {
+        $this->signIn();
+        $sync = Synchronization::create(['completed_at' => Carbon::now()]);
+
+        $response = $this->get(route('api.issues'));
+
+        $response->assertJsonFragment([
+           'last_sync' => [
+               'completed_at_human' => $sync->completed_at->diffForHumans(),
+               'completed_at' => $sync->completed_at->toDateTimeString(),
+           ]
+        ]);
+
     }
 
     /** @test */
