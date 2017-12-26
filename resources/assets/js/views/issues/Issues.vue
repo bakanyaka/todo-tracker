@@ -31,7 +31,7 @@
         <b-card>
             <template slot="header">
                 Отслеживаемые задачи
-                <small class="pull-right">Синхронизация с Redmine выполнена {{meta.hasOwnProperty('lastSync') ? meta.last_sync.completed_at_human : 'Никогда'}}
+                <small class="pull-right">Синхронизация с Redmine выполнена {{meta.hasOwnProperty('last_sync') ? meta.last_sync.completed_at_human : 'Никогда'}}
                 </small>
             </template>
             <spinner v-if="loading" size="large" message="Загрузка..."></spinner>
@@ -193,9 +193,10 @@
                         return issue;
                     });
                     this.pagination.totalRows = response.data.data.length;
-                    this.meta = response.data.meta;
+                    this.meta = response.data.meta || {};
                     this.loading = false;
                 }).catch((e) => {
+                    console.log(e);
                     this.$snotify.error('Ошибка при загрузке задач');
                     this.loading = false;
                 });
@@ -205,6 +206,7 @@
                     await axios.post(route('api.issues.track'), {issue_id: issueId});
                     this.$snotify.success('Задача добавлена');
                 } catch (e) {
+                    console.log(e);
                     this.$snotify.error('Ошибка! Задача не добавлена');
                 }
                 this.addIssueId = null;
@@ -215,6 +217,7 @@
                     await axios.delete(route('api.issues.untrack', {issue: id}));
                     this.$snotify.success('Задача больше не остлеживается');
                 } catch (e) {
+                    console.log(e);
                     this.$snotify.error('Ошибка!');
                 }
                 this.addIssueId = null;

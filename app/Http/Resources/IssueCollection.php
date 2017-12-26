@@ -19,9 +19,11 @@ class IssueCollection extends ResourceCollection
         $lastSync = Synchronization::whereNotNull('completed_at')->orderByDesc('completed_at')->first();
         return [
             'data' => $this->collection,
-            'meta' => [
-                'last_sync' => new SynchronizationResource($lastSync)
-            ]
+            $this->mergeWhen($lastSync !== null,[
+                'meta' => [
+                    'last_sync' => new SynchronizationResource($lastSync)
+                ]
+            ]),
         ];
     }
 }
