@@ -35,17 +35,12 @@ class SyncIssues implements ShouldQueue
     public function handle()
     {
         $lastSync = Synchronization::whereNotNull('completed_at')->orderByDesc('completed_at')->first();
-        $lastSyncDate = $lastSync ? $lastSync->completed_at : Carbon::now()->subWeek();
+        $lastSyncDate = $lastSync ? $lastSync->completed_at : Carbon::now()->subMonth();
         $issues = Redmine::getUpdatedIssues($lastSyncDate);
         foreach ($issues as $redmineIssue) {
             $issue = Issue::firstOrNew(['id' => $redmineIssue['id']]);
             $issue->updateFromRedmineIssue($redmineIssue);
             $issue->save();
-            if ($redmineIssue['control'] == 1) {
-                foreach (User::all() as $user) {
-                    $issue->track($user);
-                }
-            }
         }
         Synchronization::create([
             'completed_at' => Carbon::now(),

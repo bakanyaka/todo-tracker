@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Facades\Redmine;
+use App\Models\Issue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -33,6 +34,21 @@ class IssuesTestCase extends TestCase
 
         $this->signIn();
         $this->post(route('issues.track'), ['issue_id' => $issueId]);
+        return $issue;
+    }
+
+    /**
+     * @param \App\User $user
+     * @param array $attributes
+     * @param bool $open
+     * @return Issue
+     */
+    protected function createTrackedIssue($user = null, $attributes = [], $open = true)
+    {
+        $state = $open ? 'open' : 'closed';
+        $user = $user ? $user : create('App\User');
+        $issue = factory(Issue::class)->states($state)->create($attributes);
+        $issue->track($user);
         return $issue;
     }
 

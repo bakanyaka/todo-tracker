@@ -50,6 +50,15 @@ use Illuminate\Database\Eloquent\Model;
 class Issue extends Model
 {
     /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'id' => 'integer',
+    ];
+
+    /**
      * Don't auto-apply mass assignment protection.
      *
      * @var array
@@ -80,6 +89,29 @@ class Issue extends Model
     {
         return $query->whereNull('closed_on');
     }
+
+    /**
+     * Scope a query to only include complete issues.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeClosed($query)
+    {
+        return $query->whereNotNull('closed_on');
+    }
+
+    /**
+     * Scope a query to only include issues marked for control.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeMarkedForControl($query)
+    {
+        return $query->where(['control' => true]);
+    }
+
 
 
     /**
@@ -215,6 +247,7 @@ class Issue extends Model
         $this->assigned_to = $redmineIssue['assigned_to'];
         $this->created_on = $redmineIssue['created_on'];
         $this->closed_on = $redmineIssue['closed_on'];
+        $this->control = $redmineIssue['control'] == 1 ? true : false;
         $priority = Priority::find($redmineIssue['priority_id']);
         if (!is_null($priority)) {
             $this->priority_id = $priority->id;

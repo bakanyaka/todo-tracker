@@ -12,16 +12,18 @@ let webpack = require('webpack');
  |
  */
 
-mix.webpackConfig({
-    plugins: [
-            new webpack.ProvidePlugin({
-                $: 'jquery',
-                jQuery: 'jquery',
-                'window.jQuery': 'jquery',
-                Popper: ['popper.js', 'default']
-            })
-        ]
-});
 
-mix.js('resources/assets/js/app.js', 'public/js')
-   .sass('resources/assets/sass/app.scss', 'public/css');
+mix.js('resources/assets/js/main.js', 'public/js')
+    .extract(['vue','vue-router','axios','lodash','bootstrap-vue','chart.js','vue-chartjs','vue-snotify'])
+    .sass('resources/assets/sass/app.scss', 'public/css')
+    .sass('resources/assets/sass/vendor.scss', 'public/css')
+    .sourceMaps();
+
+if (mix.inProduction()) {
+    mix.version();
+}
+
+if (!mix.inProduction()) {
+    mix.browserSync('https://todo-tracker.test');
+}
+

@@ -98,7 +98,7 @@ class SyncIssuesJobTest extends TestCase
     }
 
     /** @test */
-    public function it_adds_issue_to_tracked_issues_of_every_user_if_issue_has_control_flag()
+    public function it_marks_issue_for_control_if_it_has_control_flag()
     {
         $user = create(User::class);
         $redmineIssue = $this->makeFakeIssueArray(['control' => 1]);
@@ -107,7 +107,7 @@ class SyncIssuesJobTest extends TestCase
         $syncJob = new SyncIssues();
         $syncJob->handle();
 
-        $this->assertNotNull($user->issues()->where(['id' => $redmineIssue['id']])->first());
+        $this->assertCount(1,Issue::markedForControl()->get());
 
     }
 

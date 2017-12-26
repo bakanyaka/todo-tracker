@@ -65,7 +65,7 @@ class IssueController extends Controller
         }
         $issue->save();
         $issue->track(auth()->user());
-        return redirect(route('issues'));
+        return response()->json([],201);
     }
 
 
@@ -84,7 +84,7 @@ class IssueController extends Controller
     public function sync()
     {
         SyncIssues::dispatch();
-        return redirect(route('issues'));
+        return response()->json();
     }
 
     /**
