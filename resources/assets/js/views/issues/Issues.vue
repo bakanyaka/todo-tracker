@@ -57,6 +57,7 @@
                          :filter="searchText"
                          :per-page="pagination.perPage"
                          :current-page="pagination.currentPage"
+                         @filtered="onFiltered"
                 >
                     <template slot="id" slot-scope="data">
                         <a :href="`${redmineUri}/issues/${data.value}`">{{data.value}}</a>
@@ -95,7 +96,7 @@
                 redmineUri: config.redmineUri,
                 loading: true,
                 addIssueId: null,
-                searchText: null,
+                searchText: '',
                 pagination: {
                     totalRows: null,
                     perPage: 20,
@@ -166,7 +167,7 @@
                 } else {
                     return this.pagination.totalRows - this.pagination.perPage * (this.pagination.currentPage - 1)
                 }
-            }
+            },
         },
         mounted() {
             this.getIssues().then(() => {
@@ -237,7 +238,12 @@
                         ...filters,
                     }
                 });
+                this.searchText = '';
                 this.getIssues();
+            },
+            onFiltered (filteredItems) {
+                this.pagination.currentPage = 1;
+                this.pagination.totalRows = filteredItems.length;
             },
             syncIssues() {
                 axios.get(route('api.issues.sync')).then(() => {
@@ -247,7 +253,6 @@
                     this.$snotify.error('Ошибка при добавлении задания в очередь');
                 });
             }
-
         }
     }
 </script>
