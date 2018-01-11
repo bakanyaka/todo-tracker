@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Api;
 
-use App\Facades\Redmine;
 use App\Jobs\SyncIssues;
 use Illuminate\Support\Facades\Bus;
+use Tests\Feature\IssuesTestCase;
 
 class CreateIssuesTest extends IssuesTestCase
 {
@@ -16,9 +16,12 @@ class CreateIssuesTest extends IssuesTestCase
         $issue = $this->makeIssueAndTrackIt(['closed_on' => null]);
 
         $this->assertDatabaseHas('issues', ['id' => $issue['id']]);
-        $response = $this->get(route('issues'));
-        $response->assertSee((string)$issue['id']);
-        $response->assertSee((string)$issue['subject']);
+
+        $response = $this->get(route('api.issues'));
+
+        $response->assertJsonFragment([
+            'id' => $issue['id']
+        ]);
     }
 
     /** @test */
@@ -32,10 +35,10 @@ class CreateIssuesTest extends IssuesTestCase
         $this->assertEquals($issue->id, $user->issues()->first()->id);
 
         //When we send a request to untrack it
-        $response = $this->delete(route('issues.untrack', ['id' => $issue['id']]));
-        $response->assertRedirect(route('issues'));
+        $response = $this->delete(route('api.issues.untrack', ['id' => $issue['id']]));
+        $response->assertStatus(200);
 
-        //It should be removed from his tracked issues
+        //Then it should be removed from his tracked issues
         $this->assertEquals(null, $user->issues()->first());
     }
 
@@ -44,7 +47,7 @@ class CreateIssuesTest extends IssuesTestCase
     {
         $this->withExceptionHandling();
         $this->signIn();
-        $response = $this->json('POST', route('issues.track'), ['issue_id' => '']);
+        $response = $this->json('POST', route('api.issues.track'), ['issue_id' => '']);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['issue_id']);
     }
@@ -55,7 +58,7 @@ class CreateIssuesTest extends IssuesTestCase
         Bus::fake();
         $this->signIn();
 
-        $this->get(route('issues.update'));
+        $this->get(route('api.issues.sync'));
 
         Bus::assertDispatched(SyncIssues::class);
 

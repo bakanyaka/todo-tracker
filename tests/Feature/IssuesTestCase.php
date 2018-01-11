@@ -33,7 +33,7 @@ class IssuesTestCase extends TestCase
             ->andReturn($issue);
 
         $this->signIn();
-        $this->post(route('issues.track'), ['issue_id' => $issueId]);
+        $this->post(route('api.issues.track'), ['issue_id' => $issueId]);
         return $issue;
     }
 
