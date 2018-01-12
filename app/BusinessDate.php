@@ -13,11 +13,14 @@ class BusinessDate extends Carbon
     const BUSINESS_DAY_END_HOUR = 16;
 
     /**
-     * @param int $hours
+     * @param float $hoursWithDecimalMinutes
      * @return static
      */
-    public function addBusinessHours(int $hours)
+    public function addBusinessHours(float $hoursWithDecimalMinutes)
     {
+        $hours = floor($hoursWithDecimalMinutes);
+        $minutes = ($hoursWithDecimalMinutes - $hours)*60;
+
         $minutesLeftThisDay = 0;
         if ($this->isBusinessDay()) {
             //If current hour is before business hours, start counting from the start of the business day
@@ -27,7 +30,7 @@ class BusinessDate extends Carbon
             }
 
             $dayEnd = $this->copy()->hour(static::BUSINESS_DAY_END_HOUR)->minute(0);
-            $result = $this->copy()->addHours($hours);
+            $result = $this->copy()->addHours($hours)->addMinutes($minutes);
             //Resulting date is within same forking day
             if ($result->lte($dayEnd)) {
                 $this->timestamp = $result->timestamp;
@@ -38,8 +41,8 @@ class BusinessDate extends Carbon
             }
         }
         $hoursInADay = static::BUSINESS_DAY_END_HOUR - static::BUSINESS_DAY_START_HOUR;
-        $minutesToAdd = ($hours * 60 - $minutesLeftThisDay) % ($hoursInADay * 60);
-        $daysToAdd = (int)(($hours * 60 - $minutesLeftThisDay) / 60 / $hoursInADay + 1);
+        $minutesToAdd = ($hours * 60 - $minutesLeftThisDay + $minutes) % ($hoursInADay * 60);
+        $daysToAdd = (int)(($hours * 60 - $minutesLeftThisDay + $minutes) / 60 / $hoursInADay + 1);
 
         // Reset hours and minutes to beginning of the business day
         $this->hour(static::BUSINESS_DAY_START_HOUR)->minute(0);

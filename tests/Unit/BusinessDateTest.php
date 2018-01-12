@@ -55,6 +55,28 @@ class BusinessDateTest extends TestCase
         $this->assertEquals($expectedDate,$date);
     }
 
+    /** @test */
+    public function it_adds_hours_with_decimal_minutes()
+    {
+        // Within same day
+        $date = BusinessDate::create(2017,12,4,12,45);
+        $expectedDate = BusinessDate::create(2017,12,4,15,15);
+        $date->addBusinessHours(2.5);
+        $this->assertEquals($expectedDate,$date);
+
+        // Date should be carried over to next day
+        $date = BusinessDate::create(2017,12,4,15,45);
+        $expectedDate = BusinessDate::create(2017,12,5,10,15);
+        $date->addBusinessHours(2.5);
+        $this->assertEquals($expectedDate,$date);
+
+        // Date should be carried over to next day. Minutes only
+        $date = BusinessDate::create(2017,12,4,15,45);
+        $expectedDate = BusinessDate::create(2017,12,5,8,15);
+        $date->addBusinessHours(0.5);
+        $this->assertEquals($expectedDate,$date);
+    }
+
 /*    public function it_subtracts_business_hours_from_date()
     {
         $date = BusinessDate::create(2017,12,6,18);

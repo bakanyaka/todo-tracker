@@ -140,7 +140,7 @@ class Issue extends Model
      */
     public function getDueDateAttribute($value)
     {
-        return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours) : null;
+        return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours)->addBusinessHours($this->on_feedback_hours) : null;
     }
 
     /**

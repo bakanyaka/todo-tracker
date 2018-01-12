@@ -33,7 +33,7 @@ class IssueModelTest extends TestCase
             'priority_id' => $priority->id
         ]);
 
-        $this->assertEquals('Высокий',$issue->priority->name);
+        $this->assertEquals('Высокий', $issue->priority->name);
     }
 
     /** @test */
@@ -48,14 +48,14 @@ class IssueModelTest extends TestCase
             ->andReturn($issueData);
 
         $issue->updateFromRedmine();
-        $this->assertEquals($issueData['subject'],$issue->subject);
-        $this->assertEquals($issueData['priority_id'],$issue->priority_id);
-        $this->assertEquals($issueData['department'],$issue->department);
-        $this->assertEquals($issueData['assigned_to'],$issue->assigned_to);
-        $this->assertEquals($issueData['created_on'],$issue->created_on);
-        $this->assertEquals($issueData['closed_on'],$issue->closed_on);
-        $this->assertEquals(true,$issue->control);
-        $this->assertEquals(24,$issue->estimatedHours);
+        $this->assertEquals($issueData['subject'], $issue->subject);
+        $this->assertEquals($issueData['priority_id'], $issue->priority_id);
+        $this->assertEquals($issueData['department'], $issue->department);
+        $this->assertEquals($issueData['assigned_to'], $issue->assigned_to);
+        $this->assertEquals($issueData['created_on'], $issue->created_on);
+        $this->assertEquals($issueData['closed_on'], $issue->closed_on);
+        $this->assertEquals(true, $issue->control);
+        $this->assertEquals(24, $issue->estimatedHours);
     }
 
     /** @test */
@@ -80,8 +80,8 @@ class IssueModelTest extends TestCase
         $issue = create('App\Models\Issue');
         $issue->track($user);
 
-        $this->assertEquals(true,$issue->isTrackedBy($user));
-        $this->assertEquals(false,$issue->isTrackedBy($anotherUser));
+        $this->assertEquals(true, $issue->isTrackedBy($user));
+        $this->assertEquals(false, $issue->isTrackedBy($anotherUser));
 
     }
 
@@ -92,17 +92,17 @@ class IssueModelTest extends TestCase
             'name' => 'Тестирование',
             'hours' => 2
         ]);
-        $issue = create('App\Models\Issue',[
+        $issue = create('App\Models\Issue', [
             'service_id' => $service->id,
             'created_on' => '2017-12-05 15:00:00'
         ]);
-        $this->assertEquals('2017-12-06 09:00:00',$issue->dueDate);
+        $this->assertEquals('2017-12-06 09:00:00', $issue->dueDate);
     }
 
     /** @test */
     public function it_calculates_time_left_to_solve_the_issue_or_overdue_time_while_issue_is_open()
     {
-        $now = Carbon::create(2017,12,07,12);
+        $now = Carbon::create(2017, 12, 07, 12);
         Carbon::setTestNow($now);
 
         // Overdue issue should return negative value
@@ -110,24 +110,24 @@ class IssueModelTest extends TestCase
             'name' => 'Тестирование',
             'hours' => 2
         ]);
-        $overDueIssue = create('App\Models\Issue',[
+        $overDueIssue = create('App\Models\Issue', [
             'service_id' => $service->id,
-            'created_on' => Carbon::create(2017,12,07,8)
+            'created_on' => Carbon::create(2017, 12, 07, 8)
         ]);
         $this->assertEquals(-2, $overDueIssue->time_left);
 
         // On time issue should return positive value
-        $onTimeIssue = create('App\Models\Issue',[
+        $onTimeIssue = create('App\Models\Issue', [
             'service_id' => $service->id,
-            'created_on' => Carbon::create(2017,12,07,11)
+            'created_on' => Carbon::create(2017, 12, 07, 11)
         ]);
         $this->assertEquals(1, $onTimeIssue->time_left);
 
         // Issue without due time should return null value
-        $issueWithoutDueDate = create('App\Models\Issue',[
+        $issueWithoutDueDate = create('App\Models\Issue', [
             'service_id' => null
         ]);
-        $this->assertEquals(null,$issueWithoutDueDate->time_left);
+        $this->assertEquals(null, $issueWithoutDueDate->time_left);
     }
 
     /** @test */
@@ -140,18 +140,18 @@ class IssueModelTest extends TestCase
         ]);
 
         // In time issue should return positive value
-        $closedInTimeIssue = create('App\Models\Issue',[
+        $closedInTimeIssue = create('App\Models\Issue', [
             'service_id' => $service->id,
-            'created_on' => Carbon::create(2017,12,07,11),
-            'closed_on' => Carbon::create(2017,12,07,12)
+            'created_on' => Carbon::create(2017, 12, 07, 11),
+            'closed_on' => Carbon::create(2017, 12, 07, 12)
         ]);
         $this->assertEquals(1, $closedInTimeIssue->time_left);
 
         // Overdue issue should return positive value
-        $closedInTimeIssue = create('App\Models\Issue',[
+        $closedInTimeIssue = create('App\Models\Issue', [
             'service_id' => $service->id,
-            'created_on' => Carbon::create(2017,12,07,11),
-            'closed_on' => Carbon::create(2017,12,07,15)
+            'created_on' => Carbon::create(2017, 12, 07, 11),
+            'closed_on' => Carbon::create(2017, 12, 07, 15)
         ]);
         $this->assertEquals(-2, $closedInTimeIssue->time_left);
     }
@@ -159,15 +159,15 @@ class IssueModelTest extends TestCase
     /** @test */
     public function it_calculates_actual_time_since_issue_was_created_till_it_was_closed()
     {
-        $issue = create('App\Models\Issue',[
-            'created_on' => Carbon::create(2017,12,07,11),
-            'closed_on' => Carbon::create(2017,12,07,15),
+        $issue = create('App\Models\Issue', [
+            'created_on' => Carbon::create(2017, 12, 07, 11),
+            'closed_on' => Carbon::create(2017, 12, 07, 15),
         ]);
         $this->assertEquals(4, $issue->actual_time);
 
-        //Issue that is not close should return null
-        $issue = create('App\Models\Issue',[
-            'created_on' => Carbon::create(2017,12,07,11)
+        //Issue that is not closed should return null
+        $issue = create('App\Models\Issue', [
+            'created_on' => Carbon::create(2017, 12, 07, 11)
         ]);
         $this->assertEquals(null, $issue->actual_time);
     }
@@ -181,13 +181,31 @@ class IssueModelTest extends TestCase
             'hours' => 4
         ]);
 
-        $now = Carbon::create(2017,12,07,12);
+        $now = Carbon::create(2017, 12, 07, 12);
         Carbon::setTestNow($now);
 
-        $closedInTimeIssue = create('App\Models\Issue',[
+        $closedInTimeIssue = create('App\Models\Issue', [
             'service_id' => $service->id,
-            'created_on' => Carbon::create(2017,12,07,10),
+            'created_on' => Carbon::create(2017, 12, 07, 10),
         ]);
         $this->assertEquals(50, $closedInTimeIssue->percent_of_time_left);
+    }
+
+    /** @test */
+    public function feedback_time_is_added_to_due_date()
+    {
+        //Given we have an issue with set feedback time
+        $service = Service::create([
+            'name' => 'Тестирование',
+            'hours' => 2
+        ]);
+        $issue = create('App\Models\Issue', [
+            'service_id' => $service->id,
+            'created_on' => '2017-12-05 15:00:00',
+            'on_feedback_hours' => 1.5
+        ]);
+        //When we retrieve due_date
+        //Then due_date should include feedback time
+        $this->assertEquals('2017-12-06 10:30:00', $issue->dueDate);
     }
 }
