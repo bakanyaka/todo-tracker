@@ -111,5 +111,4 @@ class SyncIssuesJobTest extends TestCase
 
     }
 
-
 }

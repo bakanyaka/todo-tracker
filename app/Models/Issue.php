@@ -7,6 +7,7 @@ use App\Exceptions\FailedToRetrieveRedmineIssueException;
 use App\Facades\Redmine;
 use App\User;
 use Cache;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -147,7 +148,7 @@ class Issue extends Model
      */
     public function getDueDateAttribute($value)
     {
-        return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours)->addBusinessHours($this->on_feedback_hours) : null;
+        return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours)->addBusinessHours($this->on_pause_hours) : null;
     }
 
     /**
@@ -240,6 +241,9 @@ class Issue extends Model
     {
         if (array_key_exists('status_id', $this->attributes) && $this->attributes['status_id'] == $value) {
             return;
+        }
+        if ($this->status && $this->status->is_paused) {
+            $this->on_pause_hours += $this->status_changed_on->diffInBusinessHours(now());
         }
         $this->attributes['status_id'] = $value;
         $this->status_changed_on = now();

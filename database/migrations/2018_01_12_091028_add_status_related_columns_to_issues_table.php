@@ -15,7 +15,7 @@ class AddStatusRelatedColumnsToIssuesTable extends Migration
     {
         Schema::table('issues', function (Blueprint $table) {
             $table->integer('status_id')->unsigned()->default(1);
-            $table->float('on_feedback_hours')->default(0);
+            $table->float('on_pause_hours')->default(0);
             $table->timestamp('status_changed_on')->nullable();
         });
     }
@@ -28,7 +28,7 @@ class AddStatusRelatedColumnsToIssuesTable extends Migration
     public function down()
     {
         Schema::table('issues', function (Blueprint $table) {
-            //
+            $table->dropColumn(['status_id','on_pause_hours','status_changed_on']);
         });
     }
 }

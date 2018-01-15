@@ -92,10 +92,8 @@ class IssueModelTest extends TestCase
         $anotherUser = create('App\User');
         $issue = create('App\Models\Issue');
         $issue->track($user);
-
         $this->assertEquals(true, $issue->isTrackedBy($user));
         $this->assertEquals(false, $issue->isTrackedBy($anotherUser));
-
     }
 
     /** @test */
@@ -215,7 +213,7 @@ class IssueModelTest extends TestCase
         $issue = create('App\Models\Issue', [
             'service_id' => $service->id,
             'created_on' => '2017-12-05 15:00:00',
-            'on_feedback_hours' => 1.5
+            'on_pause_hours' => 1.5
         ]);
         //When we retrieve due_date
         //Then due_date should include feedback time
@@ -283,5 +281,24 @@ class IssueModelTest extends TestCase
 
     }
 
+    /** @test */
+    public function when_status_changes_from_paused_to_active_time_passed_since_last_status_change_should_be_added_to_on_pause_hours()
+    {
+        $now = Carbon::create(2018, 1, 15, 12);
+        Carbon::setTestNow($now);
+
+        // Given we have an issue on one of the paused statuses
+        $issue = create(Issue::class, [
+            'status_id' => 4,
+            'status_changed_on' => '2018-01-15 10:00:00'
+        ]);
+
+        // When we set issue status to active status
+        $issue->status_id = 2;
+        $issue->save();
+        $issue = $issue->fresh();
+        // Then time passed (in hours) since previous status change should be added to om_pause_hours attribute
+        $this->assertEquals(2, $issue->on_pause_hours);
+    }
 
 }
