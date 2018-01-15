@@ -37,6 +37,18 @@ class IssueModelTest extends TestCase
     }
 
     /** @test */
+    public function can_get_issue_paused_status_using_attribute()
+    {
+        $issue = create(Issue::class, [
+            'status_id' => 4
+        ]);
+
+        $this->assertEquals(4,$issue->status->id);
+        $this->assertEquals(true, $issue->is_paused);
+
+    }
+
+    /** @test */
     public function it_updates_model_data_from_redmine()
     {
         $issueData = $this->makeFakeIssueArray();
@@ -50,6 +62,7 @@ class IssueModelTest extends TestCase
         $issue->updateFromRedmine();
         $this->assertEquals($issueData['subject'], $issue->subject);
         $this->assertEquals($issueData['priority_id'], $issue->priority_id);
+        $this->assertEquals($issueData['status_id'], $issue->status_id);
         $this->assertEquals($issueData['department'], $issue->department);
         $this->assertEquals($issueData['assigned_to'], $issue->assigned_to);
         $this->assertEquals($issueData['created_on'], $issue->created_on);
@@ -208,4 +221,67 @@ class IssueModelTest extends TestCase
         //Then due_date should include feedback time
         $this->assertEquals('2017-12-06 10:30:00', $issue->dueDate);
     }
+
+    /** @test */
+    public function when_issue_is_on_paused_status_time_left_is_calculated_based_on_last_status_change()
+    {
+        // Given we have an open issue that has paused status and status change timestamp
+        $service = Service::create([
+            'name' => 'Тестирование',
+            'hours' => 2
+        ]);
+        $issue = create('App\Models\Issue', [
+            'service_id' => $service->id,
+            'status_id' => 4,
+            'created_on' => '2017-12-05 15:00:00',
+            'status_changed_on' => '2017-12-05 16:00:00'
+        ]);
+        // When we retrieve issue time_left
+        // Then it should be calculated on last status change timestamp instead of current time
+        $this->assertEquals('1', $issue->time_left);
+    }
+
+    /** @test */
+    public function status_changed_on_timestamp_is_updated_when_status_id_changed()
+    {
+        $now = Carbon::create(2017, 1, 15, 9);
+        Carbon::setTestNow($now);
+
+        // Given we have an issue with old status_changed_on timestamp
+        $issue = create(Issue::class, [
+            'status_id' => 1,
+            'status_changed_on' => '2017-12-05 16:00:00'
+        ]);
+        $this->assertEquals('2017-12-05 16:00:00', (string)$issue->status_changed_on);
+        // When we change issue status
+        $issue->status_id = 4;
+        $issue->save();
+        $issue = $issue->fresh();
+        // Then status_changed_on timestamp should be equal current timestamp
+        $this->assertEquals(4,$issue->status_id);
+        $this->assertEquals($now, $issue->status_changed_on);
+    }
+
+    /** @test */
+    public function status_changed_on_timestamp_is_not_updated_when_new_status_id_is_the_same()
+    {
+        $now = Carbon::create(2017, 1, 15, 9);
+        Carbon::setTestNow($now);
+
+        // Given we have an issue with status_changed_on timestamp
+        $issue = create(Issue::class, [
+            'status_id' => 1,
+            'status_changed_on' => '2017-12-05 16:00:00'
+        ]);
+        $this->assertEquals('2017-12-05 16:00:00', (string)$issue->status_changed_on);
+        // When we change issue status to same status
+        $issue->status_id = 1;
+        $issue->save();
+        //Then status_changed_on timestamp should be the same as before
+        $issue = $issue->fresh();
+        $this->assertEquals('2017-12-05 16:00:00', (string)$issue->status_changed_on);
+
+    }
+
+
 }

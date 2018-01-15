@@ -31,7 +31,7 @@ abstract class TestCase extends BaseTestCase
     {
         $issue = array_merge([
             'id' =>  $this->faker->unique()->randomNumber(5),
-            'status' => 3,
+            'status_id' => 2,
             'priority_id' => 4,
             'author' => $this->faker->name,
             'assigned_to' => $this->faker->name,

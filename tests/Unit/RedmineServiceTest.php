@@ -28,7 +28,7 @@ class RedmineServiceTest extends TestCase
         $result = $redmine->getIssue(324);
         $this->assertEquals([
             'id' =>  $issueData['id'],
-            'status' => $issueData['status']['id'],
+            'status_id' => $issueData['status']['id'],
             'priority_id' => $issueData['priority']['id'],
             'author' => $issueData['author']['name'],
             'assigned_to' => $issueData['assigned_to']['name'],

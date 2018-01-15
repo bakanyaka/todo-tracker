@@ -14,7 +14,9 @@ class AddStatusRelatedColumnsToIssuesTable extends Migration
     public function up()
     {
         Schema::table('issues', function (Blueprint $table) {
-            $table->float('on_feedback_hours')->unsigned()->default(0);
+            $table->integer('status_id')->unsigned()->default(1);
+            $table->float('on_feedback_hours')->default(0);
+            $table->timestamp('status_changed_on')->nullable();
         });
     }
 

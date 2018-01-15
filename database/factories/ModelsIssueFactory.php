@@ -14,12 +14,14 @@ $factory->define(App\Models\Issue::class, function (Faker $faker) {
         'service_id' => function () {
             return factory(App\Models\Service::class)->create()->id;
         },
-        'priority_id' => rand(3,7)
+        'priority_id' => rand(3,7),
+        'status_id' => 2
     ];
 });
 
 $factory->state(App\Models\Issue::class, 'closed', function (Faker $faker) {
     return [
+        'status_id' => 5,
         'created_on' => $created_on = BusinessDate::instance($faker->dateTimeThisMonth),
         'closed_on' => $created_on->copy()->addHours($faker->numberBetween(1,48))
     ];
@@ -27,6 +29,7 @@ $factory->state(App\Models\Issue::class, 'closed', function (Faker $faker) {
 
 $factory->state(App\Models\Issue::class, 'open', function (Faker $faker) {
     return [
+        'status_id' => 2,
         'created_on' => $created_on = BusinessDate::instance($faker->dateTimeThisMonth),
         'closed_on' => null
     ];

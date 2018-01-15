@@ -14,7 +14,7 @@ class IssuesTestCase extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->artisan("db:Seed", ['--class' => 'PrioritiesTableSeeder']);
+        $this->artisan("db:Seed");
     }
 
 

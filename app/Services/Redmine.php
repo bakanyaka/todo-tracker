@@ -44,7 +44,7 @@ class Redmine
         $customFields = data_get($issue, 'custom_fields',[]);
         return [
             'id' =>  $issue['id'],
-            'status' => $issue['status']['id'],
+            'status_id' => $issue['status']['id'],
             'priority_id' => $issue['priority']['id'],
             'author' => $issue['author']['name'],
             'assigned_to' => data_get($issue,'assigned_to.name'),

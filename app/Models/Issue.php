@@ -70,7 +70,7 @@ class Issue extends Model
      *
      * @var array
      */
-    protected $with = ['service','priority'];
+    protected $with = ['service', 'priority', 'status'];
 
     /**
      * Don't auto increment id column
@@ -113,7 +113,6 @@ class Issue extends Model
     }
 
 
-
     /**
      * @param $value
      * @return BusinessDate
@@ -132,6 +131,14 @@ class Issue extends Model
         return $value ? BusinessDate::parse($value) : null;
     }
 
+    /**
+     * @param $value
+     * @return BusinessDate
+     */
+    public function getStatusChangedOnAttribute($value)
+    {
+        return BusinessDate::parse($value);
+    }
 
     /**
      * Calculates due date based on created on timestamp and estimated hours
@@ -168,6 +175,14 @@ class Issue extends Model
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function status()
+    {
+        return $this->belongsTo('App\Models\Status');
+    }
+
+    /**
      * @return int | null
      */
     public function getEstimatedHoursAttribute()
@@ -181,11 +196,18 @@ class Issue extends Model
      */
     public function getTimeLeftAttribute()
     {
-        if (is_null($this->due_date) ){
+        if (is_null($this->due_date)) {
             return null;
         }
 
-        $timestamp = is_null($this->closed_on) ? BusinessDate::now() : $this->closed_on;
+        if ($this->is_paused) {
+            $timestamp = $this->status_changed_on;
+        } elseif (is_null($this->closed_on)) {
+            $timestamp = BusinessDate::now();
+        } else {
+            $timestamp = $this->closed_on;
+        }
+
         $difference = $timestamp->diffInBusinessHours($this->due_date);
         if ($this->due_date->gte($timestamp)) {
             return $difference;
@@ -204,6 +226,25 @@ class Issue extends Model
         return is_null($this->closed_on) ? null : $this->created_on->diffInBusinessHours($this->closed_on);
     }
 
+    public function getIsPausedAttribute()
+    {
+        return $this->status->is_paused;
+    }
+
+    /**
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setStatusIdAttribute($value)
+    {
+        if (array_key_exists('status_id', $this->attributes) && $this->attributes['status_id'] == $value) {
+            return;
+        }
+        $this->attributes['status_id'] = $value;
+        $this->status_changed_on = now();
+    }
+
     public function isTrackedBy(User $user)
     {
         return $this->users()->find($user->id) !== null;
@@ -215,8 +256,7 @@ class Issue extends Model
      */
     public function track(User $user)
     {
-        if(!$this->users()->find($user->id))
-        {
+        if (!$this->users()->find($user->id)) {
             $this->users()->attach($user);
         }
     }
@@ -252,15 +292,20 @@ class Issue extends Model
         if (!is_null($priority)) {
             $this->priority_id = $priority->id;
         }
+        $status = Status::find($redmineIssue['status_id']);
+        if (!is_null($status)) {
+            $this->status_id = $status->id;
+        }
         $service = Service::where('name', $redmineIssue['service'])->first();
         $this->service()->associate($service);
         return $this;
     }
 
-    public static function defaultSort($a,$b){
+    public static function defaultSort($a, $b)
+    {
         if (is_null($a->time_left) && !is_null($b->time_left)) {
             return 1;
-        } elseif (is_null($b->time_left) && !is_null($a->time_left)){
+        } elseif (is_null($b->time_left) && !is_null($a->time_left)) {
             return -1;
         } elseif ($a->priority_id === $b->priority_id) {
             if ($a->time_left > $b->time_left) {
