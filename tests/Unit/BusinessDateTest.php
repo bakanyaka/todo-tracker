@@ -77,44 +77,6 @@ class BusinessDateTest extends TestCase
         $this->assertEquals($expectedDate,$date);
     }
 
-/*    public function it_subtracts_business_hours_from_date()
-    {
-        $date = BusinessDate::create(2017,12,6,18);
-        $expectedDate = BusinessDate::create(2017,12,6,15);
-        $date->addBusinessHours(-1);
-        $this->assertEquals($expectedDate,$date);
-
-        $date = BusinessDate::create(2017,12,6,6);
-        $expectedDate = BusinessDate::create(2017,12,5,15);
-        $date->addBusinessHours(-1);
-        $this->assertEquals($expectedDate,$date);
-
-        $date = BusinessDate::create(2017,12,6,16);
-        $expectedDate = BusinessDate::create(2017,12,5,15);
-        $date->addBusinessHours(-9);
-        $this->assertEquals($expectedDate,$date);
-
-        $date = BusinessDate::create(2017,12,9,12);
-        $expectedDate = BusinessDate::create(2017,12,8,14);
-        $date->addBusinessHours(-2);
-        $this->assertEquals($expectedDate,$date);
-
-        $date = BusinessDate::create(2017,12,4,07);
-        $expectedDate = BusinessDate::create(2017,12,1,14);
-        $date->addBusinessHours(-2);
-        $this->assertEquals($expectedDate,$date);
-
-        $date = BusinessDate::create(2017,12,6,16);
-        $expectedDate = BusinessDate::create(2017,12,6,8);
-        $date->addBusinessHours(-8);
-        $this->assertEquals($expectedDate,$date);
-
-        $date = BusinessDate::create(2017,12,7,10);
-        $expectedDate = BusinessDate::create(2017,12,6,14);
-        $date->addBusinessHours(-4);
-        $this->assertEquals($expectedDate,$date);
-    }*/
-
     /** @test */
     public function it_calculates_difference_in_business_hours()
     {
@@ -141,9 +103,13 @@ class BusinessDateTest extends TestCase
         $secondDate = BusinessDate::create(2017,12,11,15,45);
         $this->assertEquals(167.5, $date->diffInBusinessHours($secondDate));
 
-        $secondDate = BusinessDate::create(2017,12,15,15,49,11);
         $date = BusinessDate::create(2017,12,15,13,42);
+        $secondDate = BusinessDate::create(2017,12,15,15,49,11);
         $this->assertEquals(2.12, $date->diffInBusinessHours($secondDate));
+
+        $date = BusinessDate::parse('2018-01-16 10:55');
+        $secondDate =  BusinessDate::parse('2018-01-16 10:00');
+        $this->assertEquals(0.92, $date->diffInBusinessHours($secondDate));
     }
 
 }

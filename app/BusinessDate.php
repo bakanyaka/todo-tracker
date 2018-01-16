@@ -64,15 +64,16 @@ class BusinessDate extends Carbon
             $end = $dt->copy();
         }
 
+        $startMinute = $start->minute;
+        $endMinute = $end->minute;
+
         $start->minute(0)->second(0);
         $end->minute(0)->second(0);
-
-
 
         $hours = $start->diffFiltered(CarbonInterval::hours(), function (BusinessDate $date) {
             return $date->isBusinessHour();
         }, $end);
-        $minutes = $hours * 60 - $this->minute + $dt->minute;
+        $minutes = $hours * 60 - $startMinute + $endMinute;
         return round($minutes/60,2);
     }
 
