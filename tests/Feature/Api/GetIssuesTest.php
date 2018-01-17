@@ -141,4 +141,27 @@ class GetIssuesTest extends IssuesTestCase
         ]);
     }
 
+    /** @test */
+    public function user_can_get_issues_created_after_given_date()
+    {
+        //Given we have a user
+        $user = create('App\User');
+        $this->signIn($user);
+        //And some date
+        $date = Carbon::parse('2018-01-17 10:00:00');
+        //One tracked issue that was created before given date
+        $beforeIssue = $this->createTrackedIssue($user, ['created_on' => '2017-01-16 10:00:00']);
+        //And another tracked issue that was created after given date
+        $afterIssue = $this->createTrackedIssue($user, ['created_on' => '2017-01-18 10:00:00']);
+        //When user makes request to get issues created after given date
+        $response = $this->get(route('api.issues', ['user' => 'all', 'created_after' => $date->toDateTimeString()]));
+        //Then he can see only second issue
+        $response->assertJsonFragment([
+            'id' => $afterIssue->id
+        ]);
+        $response->assertJsonMissing([
+            'id' => $beforeIssue->id
+        ]);
+    }
+
 }
