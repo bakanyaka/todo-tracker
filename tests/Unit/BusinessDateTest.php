@@ -90,11 +90,12 @@ class BusinessDateTest extends TestCase
         $secondDate = BusinessDate::create(2017,12,5,9);
         $this->assertEquals(1.25, $date->diffInBusinessHours($secondDate));
 
-        //Second date is after a weekend. Should not count weekends
+        // Second date is after a weekend. Should not count weekends
         $date = BusinessDate::create(2017,12,1,15);
         $secondDate = BusinessDate::create(2017,12,4,15,15);
         $this->assertEquals(8.25, $date->diffInBusinessHours($secondDate));
 
+        // Random dates
         $date = BusinessDate::create(2017,12,11,13,15);
         $secondDate = BusinessDate::create(2017,12,11,15,45);
         $this->assertEquals(2.5, $date->diffInBusinessHours($secondDate));
@@ -107,6 +108,7 @@ class BusinessDateTest extends TestCase
         $secondDate = BusinessDate::create(2017,12,15,15,49,11);
         $this->assertEquals(2.12, $date->diffInBusinessHours($secondDate));
 
+        //Date
         $date = BusinessDate::parse('2018-01-16 10:55');
         $secondDate =  BusinessDate::parse('2018-01-16 10:00');
         $this->assertEquals(0.92, $date->diffInBusinessHours($secondDate));

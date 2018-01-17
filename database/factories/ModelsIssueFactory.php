@@ -15,7 +15,7 @@ $factory->define(App\Models\Issue::class, function (Faker $faker) {
             return factory(App\Models\Service::class)->create()->id;
         },
         'priority_id' => rand(3,7),
-        'status_id' => 2
+        'status_id' => 1
     ];
 });
 

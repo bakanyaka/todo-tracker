@@ -49,7 +49,7 @@ class IssueModelTest extends TestCase
     }
 
     /** @test */
-    public function it_updates_model_data_from_redmine()
+    public function it_retrieves_model_data_from_redmine_and_updates_it()
     {
         $issueData = $this->makeFakeIssueArray();
         $issue = new Issue(['id' => $issueData['id']]);
@@ -60,6 +60,23 @@ class IssueModelTest extends TestCase
             ->andReturn($issueData);
 
         $issue->updateFromRedmine();
+        $this->assertEquals($issueData['subject'], $issue->subject);
+        $this->assertEquals($issueData['priority_id'], $issue->priority_id);
+        $this->assertEquals($issueData['status_id'], $issue->status_id);
+        $this->assertEquals($issueData['department'], $issue->department);
+        $this->assertEquals($issueData['assigned_to'], $issue->assigned_to);
+        $this->assertEquals($issueData['created_on'], $issue->created_on);
+        $this->assertEquals($issueData['closed_on'], $issue->closed_on);
+        $this->assertEquals(true, $issue->control);
+        $this->assertEquals(24, $issue->estimatedHours);
+    }
+
+    /** @test */
+    public function it_updates_model_data_from_redmine_issue()
+    {
+        $issueData = $this->makeFakeIssueArray();
+        $issue = new Issue(['id' => $issueData['id']]);
+        $issue->updateFromRedmineIssue($issueData);
         $this->assertEquals($issueData['subject'], $issue->subject);
         $this->assertEquals($issueData['priority_id'], $issue->priority_id);
         $this->assertEquals($issueData['status_id'], $issue->status_id);
