@@ -5,9 +5,11 @@ namespace App\Models;
 use App\BusinessDate;
 use App\Exceptions\FailedToRetrieveRedmineIssueException;
 use App\Facades\Redmine;
+use App\Filters\IssueFilters;
 use App\User;
 use Cache;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -81,6 +83,17 @@ class Issue extends Model
     public $incrementing = false;
 
     /**
+     * Apply all relevant filters based on request
+     *
+     * @param Builder $query
+     * @param IssueFilters $filters
+     * @return Builder
+     */
+    public function scopeFilter(Builder $query, IssueFilters $filters) {
+        return $filters->apply($query);
+    }
+
+    /**
      * Scope a query to only include incomplete issues.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
@@ -113,6 +126,37 @@ class Issue extends Model
         return $query->where(['control' => true]);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function users()
+    {
+        return $this->belongsToMany('App\User');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function service()
+    {
+        return $this->belongsTo('App\Models\Service');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function priority()
+    {
+        return $this->belongsTo('App\Models\Priority');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function status()
+    {
+        return $this->belongsTo('App\Models\Status');
+    }
 
     /**
      * @param $value
@@ -149,38 +193,6 @@ class Issue extends Model
     public function getDueDateAttribute($value)
     {
         return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours)->addBusinessHours($this->on_pause_hours) : null;
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function users()
-    {
-        return $this->belongsToMany('App\User');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function service()
-    {
-        return $this->belongsTo('App\Models\Service');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function priority()
-    {
-        return $this->belongsTo('App\Models\Priority');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function status()
-    {
-        return $this->belongsTo('App\Models\Status');
     }
 
     /**

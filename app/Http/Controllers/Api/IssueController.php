@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\FailedToRetrieveRedmineIssueException;
+use App\Filters\IssueFilters;
 use App\Http\Resources\IssueCollection;
 use App\Jobs\SyncIssues;
 use App\Models\Issue;
@@ -16,30 +17,12 @@ class IssueController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param IssueFilters $filters
      * @return IssueCollection
      */
-    public function index()
+    public function index(IssueFilters $filters)
     {
-        if (request('user') === null) {
-            $issues = auth()->user()->issues();
-        } elseif (request('user') === 'all') {
-            $issues = Issue::has('users');
-        } elseif (request('user') === 'control') {
-            $issues = Issue::markedForControl();
-        } else {
-            $user = User::whereUsername(request('user'))->firstOrFail();
-            $issues = $user->issues;
-        }
-
-        switch (request('status')) {
-            case 'closed':
-                $issues->closed();
-                break;
-            case 'all':
-                break;
-            default:
-                $issues->open();
-        }
+        $issues = Issue::filter($filters);
         $issues = $issues->get()->sort([Issue::class, 'defaultSort'])->values();//->paginate(5);
         return new IssueCollection($issues);
     }
