@@ -16,13 +16,11 @@ class IssuesTableSeeder extends Seeder
         factory(App\Models\Issue::class, 10)->create()->each(function ($issue) use ($user) {
             $issue->track($user);
         });
-        factory(App\Models\Issue::class)->create([
-            'service_id' => 1,
-            'created_on' => Carbon::create(2017,12,07,11),
-            'closed_on' => Carbon::create(2017,12,07,14),
-        ])->each(function ($issue) use ($user) {
+        factory(App\Models\Issue::class, 5)->states('closed')->create()->each(function ($issue) use ($user) {
+            $issue->track($user);
+        });
+        factory(App\Models\Issue::class, 3)->states('paused')->create()->each(function ($issue) use ($user) {
             $issue->track($user);
         });
     }
-
 }

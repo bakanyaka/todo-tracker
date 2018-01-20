@@ -14,7 +14,7 @@
                 <div class="h2 text-muted  mb-2">
                     <i class="icon-like"></i>
                 </div>
-                <div class="h3 mb-0">{{stats.created_today}}</div>
+                <div class="h3 mb-0">{{stats.closed_today}}</div>
                 <span class="text-uppercase font-weight-bold">Выполнено сегодня</span>
             </b-card>
         </b-col>
