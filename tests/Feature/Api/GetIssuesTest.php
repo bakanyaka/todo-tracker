@@ -142,26 +142,38 @@ class GetIssuesTest extends IssuesTestCase
     }
 
     /** @test */
-    public function user_can_get_issues_created_after_given_date()
+    public function user_can_get_issues_created_within_given_date_interval()
     {
         //Given we have a user
         $user = create('App\User');
         $this->signIn($user);
-        //And some date
-        $date = Carbon::parse('2018-01-17 10:00:00');
-        //One tracked issue that was created before given date
-        $beforeIssue = $this->createTrackedIssue($user, ['created_on' => '2017-01-16 10:00:00']);
-        //And another tracked issue that was created after given date
-        $afterIssue = $this->createTrackedIssue($user, ['created_on' => '2017-01-18 10:00:00']);
-        //When user makes request to get issues created after given date
-        $response = $this->get(route('api.issues', ['user' => 'all', 'created_after' => $date->toDateTimeString()]));
-        //Then he can see only second issue
-        $response->assertJsonFragment([
-            'id' => $afterIssue->id
-        ]);
+        //And two dates
+        $dateOne = Carbon::parse('2018-01-17');
+        $dateTwo = Carbon::parse('2018-01-19');
+        //One tracked issue that was created before given interval
+        $beforeIssue = $this->createTrackedIssue($user, ['created_on' => '2018-01-16 10:00:00']);
+        //And another tracked issue that was created after interval
+        $afterIssue = $this->createTrackedIssue($user, ['created_on' => '2018-01-20 10:00:00']);
+        //And another tracked issue that was created within given interval
+        $withinIssue = $this->createTrackedIssue($user, ['created_on' => '2018-01-18 10:00:00']);
+        //When user makes request to get issues created within given interval
+        $response = $this->get(route('api.issues', [
+            'user' => 'all',
+            'created_after' => $dateOne->toDateString(),
+            'created_before' => $dateTwo->toDateString(),
+        ]));
+        //Then he can see only issue that was created within given interval
         $response->assertJsonMissing([
             'id' => $beforeIssue->id
         ]);
+        $response->assertJsonMissing([
+            'id' => $afterIssue->id
+        ]);
+        $response->assertJsonFragment([
+            'id' => $withinIssue->id
+        ]);
     }
+
+
 
 }
