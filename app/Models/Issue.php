@@ -101,7 +101,9 @@ class Issue extends Model
      */
     public function scopeOpen($query)
     {
-        return $query->whereNull('closed_on');
+        return $query->whereHas('status', function (Builder $q) {
+            $q->where('is_closed', false);
+        });
     }
 
     /**
@@ -112,7 +114,22 @@ class Issue extends Model
      */
     public function scopeClosed($query)
     {
-        return $query->whereNotNull('closed_on');
+        return $query->whereHas('status', function (Builder $q) {
+            $q->where('is_closed', true);
+        });
+    }
+
+    /**
+     * Scope a query to only include paused issues.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopePaused($query)
+    {
+        return $query->whereHas('status', function (Builder $q) {
+            $q->where('is_paused', true);
+        });
     }
 
     /**

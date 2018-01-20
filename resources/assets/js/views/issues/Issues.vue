@@ -1,5 +1,6 @@
 <template>
     <div class="animated fadeIn">
+        <quick-issue-stats></quick-issue-stats>
         <b-row class="row">
             <b-col md="3">
                 <b-card header="Добавить задачу в отслеживаемые" class="pb-1">
@@ -10,7 +11,6 @@
                                 class="fa fa-plus"></i>&nbsp;
                             Отслеживать
                         </b-button>
-
                     </div>
                 </b-card>
             </b-col>
@@ -89,6 +89,7 @@
 <script>
     import filters from './Filters'
     import Spinner from 'vue-simple-spinner'
+    import QuickIssueStats from "../components/QuickIssueStats";
 
     export default {
         data() {
@@ -157,6 +158,7 @@
             }
         },
         components: {
+            QuickIssueStats,
             filters,
             Spinner
         },

@@ -1,6 +1,7 @@
 <?php
 
 use App\BusinessDate;
+use Carbon\Carbon;
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\Issue::class, function (Faker $faker) {
@@ -10,7 +11,7 @@ $factory->define(App\Models\Issue::class, function (Faker $faker) {
         'subject' => $title,
         'department' => '147 отдел информационных технологий',
         'assigned_to' => $faker->name(),
-        'created_on' => BusinessDate::instance($faker->dateTimeThisMonth),
+        'created_on' => Carbon::now(),
         'service_id' => function () {
             return factory(App\Models\Service::class)->create()->id;
         },
@@ -27,10 +28,18 @@ $factory->state(App\Models\Issue::class, 'closed', function (Faker $faker) {
     ];
 });
 
-$factory->state(App\Models\Issue::class, 'open', function (Faker $faker) {
+$factory->state(App\Models\Issue::class, 'open', function () {
     return [
         'status_id' => 2,
-        'created_on' => $created_on = BusinessDate::instance($faker->dateTimeThisMonth),
         'closed_on' => null
     ];
 });
+
+$factory->state(App\Models\Issue::class, 'paused', function (Faker $faker) {
+    return [
+        'status_id' => 4,
+        'created_on' => Carbon::now(),
+        'status_changed_on' => Carbon::now()
+    ];
+});
+

@@ -31,6 +31,8 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
     Route::post('/issues/track', 'Api\IssueController@store')->name('api.issues.track');
     Route::get('/issues/sync', 'Api\IssueController@sync')->name('api.issues.sync');
 
+    Route::get('issues/stats', 'Api\IssueStatsController@index')->name('api.issues.stats');
+
     Route::get('/synchronizations/last', 'Api\RedmineSyncController@show')->name('api.synchronizations.last');
 });
 
