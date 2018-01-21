@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Synchronization whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Synchronization whereStartedAt($value)
  * @mixin \Eloquent
+ * @property int $updated_issues_count
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Synchronization whereUpdatedIssuesCount($value)
  */
 class Synchronization extends Model
 {

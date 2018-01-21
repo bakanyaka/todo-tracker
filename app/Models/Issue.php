@@ -49,6 +49,20 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $assigned_to
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue open()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereAssignedTo($value)
+ * @property int $control
+ * @property int $status_id
+ * @property float $on_pause_hours
+ * @property \BusinessDate $status_changed_on
+ * @property-read mixed $is_paused
+ * @property-read \App\Models\Status $status
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue closed()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue filter(\App\Filters\IssueFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue markedForControl()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue paused()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereControl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereOnPauseHours($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereStatusChangedOn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereStatusId($value)
  */
 class Issue extends Model
 {

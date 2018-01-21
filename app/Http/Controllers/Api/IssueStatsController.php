@@ -21,8 +21,11 @@ class IssueStatsController extends Controller
         $overDueIssuesCount = $openIssues->filter(function(Issue $issue) {
             return $issue->time_left < 0;
         })->count();
-        $dueTodayIssuesCount = $openIssues->filter(function (Issue $issue) {
-            return $issue->due_date->toDateString() === Carbon::now()->toDateString();
+        $dueSoonIssuesCount = $openIssues->filter(function (Issue $issue) {
+            if ($issue->due_date === null) {
+                return false;
+            }
+            return $issue->due_date->toDateString() === Carbon::now()->toDateString() && $issue->percent_of_time_left < 30;
         })->count();
         $createdTodayIssuesCount = Issue::where('created_on','>=', Carbon::today())->count();
         $closedTodayIssuesCount = Issue::where('closed_on','>=', Carbon::today())->count();
@@ -32,7 +35,7 @@ class IssueStatsController extends Controller
                 'open' => $openIssues->count(),
                 'paused' => $pausedIssuesCount,
                 'overdue' => $overDueIssuesCount,
-                'due_today' => $dueTodayIssuesCount,
+                'due_soon' => $dueSoonIssuesCount,
                 'created_today' => $createdTodayIssuesCount,
                 'closed_today' => $closedTodayIssuesCount
             ]

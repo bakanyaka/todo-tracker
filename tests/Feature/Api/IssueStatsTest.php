@@ -66,32 +66,38 @@ class IssueStatsTest extends IssuesTestCase
     }
 
     /** @test */
-    public function user_can_get_count_of_due_today_issues()
+    public function user_can_get_count_of_due_today_issues_that_have_less_than_30_percent_of_time_left()
     {
-        Carbon::setTestNow('2018-01-19 09:00:00');
-        //Due Today issues
-        $service = create(Service::class, [
+        Carbon::setTestNow('2018-01-19 10:00:00');
+
+        $twoHoursService = create(Service::class, [
             'name' => 'Тестирование',
             'hours' => 2
         ]);
-        factory(Issue::class,4)->create([
-            'created_on' => Carbon::now(),
-            'service_id' => $service->id
-        ]);
-        //Not Due Today Issues
-        $anotherService = create(Service::class, [
+        $twentyFourHoursService = create(Service::class, [
             'name' => 'Разработка',
             'hours' => 24
         ]);
+        //Due Today issues but have more than 30 percent of time left
+        factory(Issue::class,2)->create([
+            'created_on' => Carbon::now(),
+            'service_id' => $twoHoursService->id
+        ]);
+        //Due Today issues and have less 30 percent of time left
+        factory(Issue::class,4)->create([
+            'created_on' => '2018-01-19 08:10:00',
+            'service_id' => $twoHoursService->id
+        ]);
+        //Not Due Today Issues
         factory(Issue::class,3)->create([
             'created_on' => Carbon::now(),
-            'service_id' => $anotherService->id
+            'service_id' => $twentyFourHoursService->id
         ]);
 
         $this->signIn();
         $response = $this->get(route('api.issues.stats'));
         $response->assertJsonFragment([
-            'due_today' => 4
+            'due_soon' => 4
         ]);
     }
 

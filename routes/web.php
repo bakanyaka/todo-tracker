@@ -33,6 +33,8 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
 
     Route::get('issues/stats', 'Api\IssueStatsController@index')->name('api.issues.stats');
 
+    Route::get('issues/reports', 'Api\IssueReportController@index')->name('api.issues.reports');
+
     Route::get('/synchronizations/last', 'Api\RedmineSyncController@show')->name('api.synchronizations.last');
 });
 
