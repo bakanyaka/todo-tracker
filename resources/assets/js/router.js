@@ -10,7 +10,10 @@ let routes = [
     {
         path: '/',
         name: 'home',
-        redirect: '/issues',
+        redirect: {
+            path: '/issues',
+            query: {user: 'me'}
+        },
         component: Full,
         meta: {
             label: 'Главная'

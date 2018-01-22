@@ -28,13 +28,15 @@
             </b-card>
         </b-col>
         <b-col sm="6" md="2">
-            <b-card class="text-white text-center bg-secondary">
-                <div class="h2 text-muted  mb-2">
-                    <i class="icon-control-pause"></i>
-                </div>
-                <div class="h3 mb-0">{{stats.paused}}</div>
-                <span class="text-uppercase font-weight-bold">Обратная связь</span>
-            </b-card>
+            <router-link :to="{name: 'issues.index', query: {status: 'paused'}}">
+                <b-card class="text-white text-center bg-secondary">
+                    <div class="h2 text-muted  mb-2">
+                        <i class="icon-control-pause"></i>
+                    </div>
+                    <div class="h3 mb-0">{{stats.paused}}</div>
+                    <span class="text-uppercase font-weight-bold">Обратная связь</span>
+                </b-card>
+            </router-link>
         </b-col>
         <b-col sm="6" md="2">
             <b-card class="text-white text-center bg-warning">
@@ -46,13 +48,15 @@
             </b-card>
         </b-col>
         <b-col sm="6" md="2">
-            <b-card class="text-white text-center bg-danger">
-                <div class="h2 text-muted  mb-2">
-                    <i class="icon-fire"></i>
-                </div>
-                <div class="h3 mb-0">{{stats.overdue}}</div>
-                <span class="text-uppercase font-weight-bold">Просрочено</span>
-            </b-card>
+            <router-link :to="{name: 'issues.index', query: {overdue: 'yes'}}">
+                <b-card class="text-white text-center bg-danger">
+                    <div class="h2 text-muted  mb-2">
+                        <i class="icon-fire"></i>
+                    </div>
+                    <div class="h3 mb-0">{{stats.overdue}}</div>
+                    <span class="text-uppercase font-weight-bold">Просрочено</span>
+                </b-card>
+            </router-link>
         </b-col>
     </b-row>
 </template>
@@ -89,5 +93,7 @@
 </script>
 
 <style scoped>
-
+    a:hover {
+        text-decoration: none;
+    }
 </style>

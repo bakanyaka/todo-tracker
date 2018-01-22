@@ -8,6 +8,10 @@
             <label for="status">Статус:</label>
             <b-form-select size="sm" id="status" v-model="filters.status.selected" :options="filters.status.options"></b-form-select>
         </div>
+        <div class="col-auto">
+            <label for="overdue">Срок:</label>
+            <b-form-select size="sm" id="overdue" v-model="filters.overdue.selected" :options="filters.overdue.options"></b-form-select>
+        </div>
     </div>
 </template>
 
@@ -18,11 +22,12 @@
             return {
                 filters: {
                     user: {
-                        selected: null,
+                        selected: 'me',
                         options: [
-                            { value: null, text: 'Только я'},
-                            { value: 'all', text: 'Любой пользователь'},
-                            { value: 'control', text: 'Помеченные контроль'}
+                            { value: 'me', text: 'Только я'},
+                            { value: 'all', text: 'Какой-либо пользователь'},
+                            { value: 'control', text: 'Помеченные контроль'},
+                            { value: null, text: 'Неважно'}
                         ]
                     },
                     status: {
@@ -30,7 +35,16 @@
                         options: [
                             { value: null, text: 'Открытые'},
                             { value: 'all', text: 'Все'},
+                            { value: 'paused', text: 'Обратная связь'},
                             { value: 'closed', text: 'Закрытые'}
+                        ]
+                    },
+                    overdue: {
+                        selected: null,
+                        options: [
+                            { value: null, text: 'Все'},
+                            { value: 'yes', text: 'Просроченные'},
+                            { value: 'soon', text: 'Истекает срок'}
                         ]
                     }
                 }
@@ -48,12 +62,20 @@
                     this.$emit('filters:changed', selectedFilters);
                 },
                 deep: true
-            }
+            },
+            '$route'() {
+
+            },
         },
         mounted () {
-            for (let param in this.$route.query) {
-                if(this.filters.hasOwnProperty(param)) {
-                    this.filters[param].selected = this.$route.query[param]
+            this.updateFromQuery()
+        },
+        methods: {
+            updateFromQuery() {
+                for (let param in this.$route.query) {
+                    if(this.filters.hasOwnProperty(param)) {
+                        this.filters[param].selected = this.$route.query[param]
+                    }
                 }
             }
         }

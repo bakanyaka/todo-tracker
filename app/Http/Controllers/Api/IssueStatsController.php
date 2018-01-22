@@ -19,7 +19,7 @@ class IssueStatsController extends Controller
         $openIssues = Issue::open()->get();
         $pausedIssuesCount = Issue::paused()->count();
         $overDueIssuesCount = $openIssues->filter(function(Issue $issue) {
-            return $issue->time_left < 0;
+            return $issue->due_date !== null && $issue->time_left < 0;
         })->count();
         $dueSoonIssuesCount = $openIssues->filter(function (Issue $issue) {
             if ($issue->due_date === null) {

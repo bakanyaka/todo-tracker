@@ -17,7 +17,6 @@ class IssuesTestCase extends TestCase
         $this->artisan("db:Seed");
     }
 
-
     /**
      * @param array $attributes
      * @return array

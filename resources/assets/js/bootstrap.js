@@ -32,7 +32,7 @@ if (token) {
 axios.interceptors.response.use(response => {
     return response
 }, error => {
-    if (error.response.status === 401) {
+    if (error.hasOwnProperty('error') && error.response.status === 401) {
         window.location = route('login');
     }
     return Promise.reject(error)

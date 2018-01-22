@@ -22,8 +22,13 @@ class IssueController extends Controller
      */
     public function index(IssueFilters $filters)
     {
-        $issues = Issue::filter($filters);
-        $issues = $issues->get()->sort([Issue::class, 'defaultSort'])->values();//->paginate(5);
+        $issues = Issue::filter($filters)->get();
+        if (request()->overdue === 'yes') {
+            $issues = $issues->filter(function(Issue $issue) {
+                return $issue->due_date !== null && $issue->time_left < 0;
+            });
+        }
+        $issues = $issues->sort([Issue::class, 'defaultSort'])->values();//->paginate(5);
         return new IssueCollection($issues);
     }
 

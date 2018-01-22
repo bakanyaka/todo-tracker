@@ -25,6 +25,8 @@ class IssueFilters extends Filters
     public function user($username)
     {
         if ($username === null) {
+            return $this->builder;
+        } elseif ($username === 'me') {
             $user = auth()->user();
 /*            return $this->builder->whereHas('users', function ($query) use ($user) {
                 $query->where('id', $user->id);
@@ -54,6 +56,8 @@ class IssueFilters extends Filters
             return $this->builder;
         } elseif ($status === 'closed') {
             return $this->builder->closed();
+        } elseif ($status === 'paused') {
+            return $this->builder->paused();
         }
         return $this->builder->open();
     }

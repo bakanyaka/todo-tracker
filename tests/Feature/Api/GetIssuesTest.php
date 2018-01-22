@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Issue;
+use App\Models\Service;
 use App\Models\Synchronization;
 use App\User;
 use Carbon\Carbon;
@@ -18,6 +19,7 @@ class GetIssuesTest extends IssuesTestCase
     {
         $user = create(User::class);
         $issue = $this->createTrackedIssue($user,[],false);
+        $issue = $issue->fresh();
 
         $response = $this->signIn($user)->get(route('api.issues',['status' => 'all']));
 
@@ -31,7 +33,9 @@ class GetIssuesTest extends IssuesTestCase
             'created_on' => (string)$issue->created_on,
             'closed_on' => (string)$issue->closed_on,
             'service' => $issue->service->name,
-            'estimated_hours' => $issue->service->hours
+            'estimated_hours' => $issue->service->hours,
+            'is_paused' => $issue->status->is_paused,
+            'is_closed' => $issue->status->is_closed
         ]);
     }
 
@@ -53,7 +57,7 @@ class GetIssuesTest extends IssuesTestCase
     }
 
     /** @test */
-    public function user_gets_only_his_own_tracked_open_issues_by_default()
+    public function user_can_gets_his_own_tracked_open_issues()
     {
         //Given we have an open issue tracked by user
         $user = create('App\User');
@@ -65,7 +69,7 @@ class GetIssuesTest extends IssuesTestCase
         $otherIssue = $this->createTrackedIssue(create('App\User'));
 
         //When user makes request to get his issues,
-        $response = $this->signIn($user)->get(route('api.issues'));
+        $response = $this->signIn($user)->get(route('api.issues', ['user' => 'me']));
 
         //Response contains only his own tracked issues
         $response->assertStatus(200);
@@ -162,7 +166,7 @@ class GetIssuesTest extends IssuesTestCase
             'created_after' => $dateOne->toDateString(),
             'created_before' => $dateTwo->toDateString(),
         ]));
-        //Then he can see only issue that was created within given interval
+        //Then response only contains issue that was created within given interval
         $response->assertJsonMissing([
             'id' => $beforeIssue->id
         ]);
@@ -171,6 +175,52 @@ class GetIssuesTest extends IssuesTestCase
         ]);
         $response->assertJsonFragment([
             'id' => $withinIssue->id
+        ]);
+    }
+
+    /** @test */
+    public function user_can_get_all_paused_issues()
+    {
+        // Given we have paused issue
+        $pausedIssue = create(Issue::class, ['status_id' => 4]);
+        // And not paused issue
+        $notPausedIssue = create(Issue::class);
+        // When user makes request to get paused issues
+        $response = $this->signIn()->get(route('api.issues', ['status' => 'paused']));
+        // Then response only contains paused issue
+        $response->assertJsonMissing([
+            'id' => $notPausedIssue->id
+        ]);
+        $response->assertJsonFragment([
+            'id' => $pausedIssue->id
+        ]);
+    }
+
+    /** @test */
+    public function user_can_get_all_overdue_issues()
+    {
+        Carbon::setTestNow('2018-01-19 15:00:00');
+        // Given we have overdue issue
+        $service = create(Service::class, [
+            'name' => 'Тестирование',
+            'hours' => 2
+        ]);
+        $overdueIssue = factory(Issue::class)->create([
+            'created_on' => Carbon::parse('2018-01-19 09:00:00'),
+            'service_id' => $service->id
+        ]);
+        // And not overdue issue
+        $notOverdueIssue = create(Issue::class);
+
+        // When user makes request to get overdue issues
+        $this->signIn();
+        $response = $this->get(route('api.issues', ['overdue' => 'yes']));
+        // Then response only contains overdue issue
+        $response->assertJsonMissing([
+            'id' => $notOverdueIssue->id
+        ]);
+        $response->assertJsonFragment([
+            'id' => $overdueIssue->id
         ]);
     }
 

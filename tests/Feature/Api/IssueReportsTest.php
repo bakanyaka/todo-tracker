@@ -90,28 +90,4 @@ class IssueReportsTest extends IssuesTestCase
         ]);
     }
 
-    protected function createTestData(): void
-    {
-        // Beginning of the month
-        factory(Issue::class, 1)->states('open')->create([
-            'created_on' => '2018-01-09 10:00:00'
-        ]);
-        factory(Issue::class, 2)->states('closed')->create([
-            'created_on' => '2018-01-09 12:00:00'
-        ]);
-        // Week ago
-        factory(Issue::class, 2)->states('open')->create([
-            'created_on' => '2018-01-25 10:00:00'
-        ]);
-        factory(Issue::class, 3)->states('closed')->create([
-            'created_on' => '2018-01-25 12:00:00'
-        ]);
-        // This week
-        factory(Issue::class, 3)->states('open')->create([
-            'created_on' => '2018-01-31 10:00:00'
-        ]);
-        factory(Issue::class, 2)->states('closed')->create([
-            'created_on' => '2018-01-31 12:00:00'
-        ]);
-    }
 }

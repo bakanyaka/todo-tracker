@@ -51,7 +51,7 @@
                         <b-input size="sm" type="text" placeholder="Поиск" v-model="searchText" required></b-input>
                     </b-col>
                 </b-row>
-                <b-table striped outlined small
+                <b-table outlined small
                          :items="issues"
                          :fields="fields"
                          :filter="searchText"
@@ -79,7 +79,7 @@
                     </template>
                 </b-table>
                 <b-pagination size="md" :total-rows="pagination.totalRows" v-model="pagination.currentPage"
-                              :per-page="pagination.perPage" @input="pageChanged">
+                              :per-page="pagination.perPage">
                 </b-pagination>
             </template>
         </b-card>
@@ -171,13 +171,18 @@
                 }
             },
         },
-        mounted() {
+        created() {
             this.getIssues().then(() => {
                 this.pagination.currentPage = parseInt(this.$route.query.page) || 1
             });
             setInterval(() => {
                 this.getIssues();
             }, 300000);
+        },
+        watch: {
+            '$route'() {
+                this.getIssues();
+            }
         },
         methods: {
             getIssues(query = this.$route.query) {
@@ -188,7 +193,9 @@
                     }
                 }).then((response) => {
                     this.issues = response.data.data.map((issue) => {
-                        if (issue.time_left && issue.time_left < 0) {
+                        if (issue.is_paused === true) {
+                            issue._rowVariant = 'info'
+                        } else if (issue.time_left && issue.time_left < 0) {
                             issue._rowVariant = 'danger'
                         } else if (issue.estimated_hours && (issue.time_left / issue.estimated_hours < 0.3)) {
                             issue._rowVariant = 'warning'
@@ -226,14 +233,14 @@
                 this.addIssueId = null;
                 this.getIssues();
             },
-            pageChanged() {
+/*            pageChanged() {
                 this.$router.replace({
                     query: {
                         ...this.$route.query,
                         page: this.pagination.currentPage
                     }
                 })
-            },
+            },*/
             async onFiltersChanged(filters) {
                 await this.$router.replace({
                     query: {
@@ -241,7 +248,6 @@
                     }
                 });
                 this.searchText = '';
-                this.getIssues();
             },
             onFiltered (filteredItems) {
                 this.pagination.currentPage = 1;
