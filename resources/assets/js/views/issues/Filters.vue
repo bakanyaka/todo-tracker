@@ -15,6 +15,11 @@
             <b-form-select size="sm" id="overdue" v-model="filters.overdue.selected" :options="filters.overdue.options" @change="onFiltersChanged">
             </b-form-select>
         </div>
+        <div class="col-auto">
+            <label for="period">Период:</label>
+            <b-form-select size="sm" id="period" v-model="filters.period.selected" :options="filters.period.options" @change="onFiltersChanged">
+            </b-form-select>
+        </div>
     </div>
 </template>
 
@@ -30,7 +35,7 @@
                             { value: 'me', text: 'Только я'},
                             { value: 'all', text: 'Какой-либо пользователь'},
                             { value: 'control', text: 'Помеченные контроль'},
-                            { value: null, text: 'Неважно'}
+                            { value: null, text: 'Все задачи'}
                         ]
                     },
                     status: {
@@ -48,6 +53,16 @@
                             { value: null, text: 'Все'},
                             { value: 'yes', text: 'Просроченные'},
                             { value: 'soon', text: 'Истекает срок'}
+                        ]
+                    },
+                    period: {
+                        selected: null,
+                        options: [
+                            { value: null, text: 'Все время'},
+                            { value: 1, text: 'Сегодня'},
+                            { value: 7, text: 'За неделю'},
+                            { value: 14, text: 'За 14 дней'},
+                            { value: 30, text: 'За месяц'}
                         ]
                     }
                 }
@@ -72,6 +87,8 @@
                 }
             },
             onFiltersChanged() {
+                // $nextTick is workaround for event being triggered before v-model variable is updated
+                // Can't use watchers because need to react only on changes being made by user
                 this.$nextTick(() => {
                     const selectedFilters = {};
                     for (let key in this.filters) {
