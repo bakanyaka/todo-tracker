@@ -2,15 +2,18 @@
     <div class="form-inline">
         <div class="col-auto">
             <label for="tracked-by">Кто отслеживает:</label>
-            <b-form-select size="sm" id="tracked-by" v-model="filters.user.selected" :options="filters.user.options"></b-form-select>
+            <b-form-select size="sm" id="tracked-by" v-model="filters.user.selected" :options="filters.user.options" @change="onFiltersChanged">
+            </b-form-select>
         </div>
         <div class="col-auto">
             <label for="status">Статус:</label>
-            <b-form-select size="sm" id="status" v-model="filters.status.selected" :options="filters.status.options"></b-form-select>
+            <b-form-select size="sm" id="status" v-model="filters.status.selected" :options="filters.status.options" @change="onFiltersChanged">
+            </b-form-select>
         </div>
         <div class="col-auto">
             <label for="overdue">Срок:</label>
-            <b-form-select size="sm" id="overdue" v-model="filters.overdue.selected" :options="filters.overdue.options"></b-form-select>
+            <b-form-select size="sm" id="overdue" v-model="filters.overdue.selected" :options="filters.overdue.options" @change="onFiltersChanged">
+            </b-form-select>
         </div>
     </div>
 </template>
@@ -51,20 +54,8 @@
             }
         },
         watch: {
-            'filters': {
-                handler (filters) {
-                    const selectedFilters = {};
-                    for (let key in filters) {
-                        if(filters[key].selected !== null) {
-                            selectedFilters[key] = filters[key].selected
-                        }
-                    }
-                    this.$emit('filters:changed', selectedFilters);
-                },
-                deep: true
-            },
             '$route'() {
-
+                this.updateFromQuery()
             },
         },
         mounted () {
@@ -72,11 +63,24 @@
         },
         methods: {
             updateFromQuery() {
-                for (let param in this.$route.query) {
-                    if(this.filters.hasOwnProperty(param)) {
-                        this.filters[param].selected = this.$route.query[param]
+                for (let filter in this.filters) {
+                    if (this.$route.query.hasOwnProperty(filter)) {
+                        this.filters[filter].selected = this.$route.query[filter];
+                    } else {
+                        this.filters[filter].selected = null;
                     }
                 }
+            },
+            onFiltersChanged() {
+                this.$nextTick(() => {
+                    const selectedFilters = {};
+                    for (let key in this.filters) {
+                        if(this.filters[key].selected !== null) {
+                            selectedFilters[key] = this.filters[key].selected
+                        }
+                    }
+                    this.$emit('filters:changed', selectedFilters);
+                });
             }
         }
     }
