@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property string $subject
  * @property BusinessDate $created_on
+ * @property BusinessDate $updated_on
  * @property BusinessDate $due_date
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
@@ -52,7 +53,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $control
  * @property int $status_id
  * @property float $on_pause_hours
- * @property \BusinessDate $status_changed_on
+ * @property BusinessDate $status_changed_on
  * @property-read mixed $is_paused
  * @property-read \App\Models\Status $status
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue closed()
@@ -206,6 +207,16 @@ class Issue extends Model
     {
         return $value ? BusinessDate::parse($value) : null;
     }
+
+    /**
+     * @param $value
+     * @return BusinessDate
+     */
+    public function getUpdatedOnAttribute($value)
+    {
+        return $value ? BusinessDate::parse($value) : null;
+    }
+
 
     /**
      * @param $value

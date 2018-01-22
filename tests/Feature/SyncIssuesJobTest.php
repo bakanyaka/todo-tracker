@@ -87,7 +87,7 @@ class SyncIssuesJobTest extends TestCase
     }
 
     /** @test */
-    public function it_syncs_only_redmine_issues_updated_since_last_completed_sync()
+    public function it_retrieves_only_redmine_issues_updated_since_last_sync()
     {
         Synchronization::create(['completed_at' => Carbon::parse('2017-12-10')]);
         Synchronization::create(['completed_at' => Carbon::parse('2017-12-13')]);
@@ -99,6 +99,47 @@ class SyncIssuesJobTest extends TestCase
 
         $syncJob = new SyncIssues();
         $syncJob->handle();
+    }
+
+    /** @test */
+    public function it_only_updates_issues_that_were_modified()
+    {
+        Carbon::setTestNow('2018-01-22 15:00:00');
+        // Given we have an issue that wasn't modified
+        $notModifiedIssue = create(Issue::class, [
+            'created_on' => '2018-01-22 12:00:00',
+            'subject' => 'old subject',
+            'updated_on' => '2018-01-22 12:00:00'
+        ]);
+        $redmineIssues[] = $this->makeFakeIssueArray([
+            'id' => $notModifiedIssue->id,
+            'subject' => 'new subject',
+            'created_on' => Carbon::parse('2018-01-22 12:00:00'),
+            'updated_on' => Carbon::parse('2018-01-22 12:00:00')
+        ]);
+        // And Issue that was modified
+        $modifiedIssue = create(Issue::class, [
+            'created_on' => '2018-01-22 12:00:00',
+            'subject' => 'old subject',
+            'updated_on' => '2018-01-22 12:00:00'
+        ]);
+        $redmineIssues[] = $this->makeFakeIssueArray([
+            'id' => $modifiedIssue->id,
+            'subject' => 'new subject',
+            'created_on' => Carbon::parse('2018-01-22 12:00:00'),
+            'updated_on' => Carbon::parse('2018-01-22 13:00:00'),
+        ]);
+        // When sync issues job is called
+        Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect($redmineIssues));
+        $syncJob = new SyncIssues();
+        $syncJob->handle();
+        // Then only issue that was modified should be updated in database
+        $notModifiedIssue = $notModifiedIssue->fresh();
+        $modifiedIssue = $modifiedIssue->fresh();
+        $this->assertEquals('new subject', $modifiedIssue->subject);
+        $this->assertEquals('old subject', $notModifiedIssue->subject);
+
+
     }
 
     /** @test */
