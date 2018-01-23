@@ -27,6 +27,7 @@
     },
     "dependencies": {
         "font-awesome": "^4.7.0",
+        "moment": "^2.20.1",
         "simple-line-icons": "^2.4.1",
         "vue-simple-spinner": "^1.2.8",
         "vue-snotify": "^3.0.4"

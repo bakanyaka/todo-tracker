@@ -2,6 +2,7 @@ import lodash from 'lodash';
 import axios from 'axios';
 
 
+
 window._ = lodash;
 
 /**
@@ -37,6 +38,8 @@ axios.interceptors.response.use(response => {
     }
     return Promise.reject(error)
 });
+
+
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

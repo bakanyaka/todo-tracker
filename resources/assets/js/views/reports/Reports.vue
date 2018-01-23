@@ -13,6 +13,7 @@
                 </b-button-toolbar>
             </b-col>
         </b-row>
+        <issues-chart  :chart-data="datacollection" class="chart-wrapper" style="height:300px;margin-top:40px;" :height="300"></issues-chart>
         <b-row>
             <b-col sm="12">
                 <uL class="list-unstyled">
@@ -27,7 +28,21 @@
 </template>
 
 <script>
+    import IssuesChart from "./IssuesChart";
+
+    const brandSuccess = '#4dbd74';
+    const brandInfo = '#63c2de';
+    const brandDanger = '#f86c6b';
+    function convertHex (hex, opacity) {
+        hex = hex.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + opacity / 100 + ')'
+    }
+
     export default {
+        components: {IssuesChart},
         name: "reports",
         data () {
             return {
@@ -38,6 +53,50 @@
                         { text: '7 дней', value: 7},
                         { text: '14 дней', value: 14},
                         { text: '30 дней', value: 30}
+                    ]
+                },
+                datacollection: null
+            }
+        },
+        mounted() {
+            this.getReport();
+        },
+        methods: {
+            getReport($days = 7) {
+                return axios.get(route('api.issues.reports'), {params: {period: $days}}).then((response)=> {
+                    this.fillChartData(
+                        response.data.data.created.data,
+                        response.data.data.closed.data
+                    );
+                });
+            },
+            fillChartData(createdIssues,closedIssues) {
+                this.datacollection = {
+                    datasets: [
+                        {
+                            label: 'Поступило задач',
+                            backgroundColor: convertHex(brandInfo, 10),
+                            borderColor: brandInfo,
+                            pointHoverBackgroundColor: '#fff',
+                            borderWidth: 2,
+                            data: createdIssues
+                        },
+                        {
+                            label: 'Выполнено задач',
+                            backgroundColor: convertHex(brandSuccess, 20),
+                            borderColor: brandSuccess,
+                            pointHoverBackgroundColor: '#fff',
+                            borderWidth: 2,
+                            data: closedIssues
+                        },
+                        {
+                            label: 'Выполнено не в срок',
+                            backgroundColor: convertHex(brandDanger, 50),
+                            borderColor: brandDanger,
+                            pointHoverBackgroundColor: '#fff',
+                            borderWidth: 2,
+                            data: null
+                        }
                     ]
                 }
             }

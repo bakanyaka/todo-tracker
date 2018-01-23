@@ -35,17 +35,17 @@ class IssueReportsTest extends IssuesTestCase
         // Within month
         $response = $this->get(route('api.issues.reports', ['period' => 30]));
         $response->assertJsonFragment([
-            'created' => 6
+            'total' => 6
         ]);
         // Within 2 weeks
         $response = $this->get(route('api.issues.reports', ['period' => 14]));
         $response->assertJsonFragment([
-            'created' => 5
+            'total' => 5
         ]);
         // Within week
         $response = $this->get(route('api.issues.reports', ['period' => 7]));
         $response->assertJsonFragment([
-            'created' => 3
+            'total' => 3
         ]);
     }
 
@@ -76,17 +76,17 @@ class IssueReportsTest extends IssuesTestCase
         // Within month
         $response = $this->get(route('api.issues.reports', ['period' => 30]));
         $response->assertJsonFragment([
-            'closed' => 7
+            'total' => 7
         ]);
         // Within 2 weeks
         $response = $this->get(route('api.issues.reports', ['period' => 14]));
         $response->assertJsonFragment([
-            'closed' => 5
+            'total' => 5
         ]);
         // Within week
         $response = $this->get(route('api.issues.reports', ['period' => 7]));
         $response->assertJsonFragment([
-            'closed' => 2
+            'total' => 2
         ]);
     }
 
@@ -105,10 +105,22 @@ class IssueReportsTest extends IssuesTestCase
         $this->signIn();
         $response = $this->get(route('api.issues.reports', ['period' => 7]));
         $response->assertJsonFragment([
-            'labels' => [26,27,28,29,30,31,01,02],
             'created' => [
                 'total' => 6,
-                'data' => [2,0,0,0,0,0,3,1]
+                'data' => [
+                    [
+                        'x' => '2018-01-26',
+                        'y' => '2',
+                    ],
+                    [
+                        'x' => '2018-02-01',
+                        'y' => '3',
+                    ],
+                    [
+                        'x' => '2018-02-02',
+                        'y' => '1',
+                    ],
+                ]
             ]
         ]);
 

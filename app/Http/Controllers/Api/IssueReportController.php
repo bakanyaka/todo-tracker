@@ -14,28 +14,51 @@ class IssueReportController extends Controller
     {
         $periodDays = $request->period ? $request->period : 7;
         $periodStart = Carbon::now()->subDays($periodDays)->toDateString();
+
         $issuesCreated = Issue::where('created_on', '>', $periodStart)
             ->selectRaw('Date(created_on) as date, COUNT(*) as count')
             ->groupBy('date')
-            ->orderBy('date', 'asc')->get();
-        for ($d =1; $d <= $periodDays; $d++) {
-            $dates[] = Carbon::now()->subDays($d)->toDateString();
-        }
+            ->orderBy('date', 'asc')->get()
+            ->map(function ($item) {
+                return [
+                    'x' => $item->date,
+                    'y' => $item->count
+                ];
+            });
+
+
+        $issuesClosed = Issue::where('closed_on', '>', $periodStart)
+            ->selectRaw('Date(closed_on) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date', 'asc')->get()
+            ->map(function ($item) {
+                return [
+                    'x' => $item->date,
+                    'y' => $item->count
+                ];
+            });
+
+
         //$collection->firstWhere('age', '>=', 18);
         //$keyed = $collection->keyBy('product_id');
         //mapToGroups()
         //mapWithKeys()
-        dd($issuesCreated);
-
 
 
 /*        $issuesCreatedCount = Issue::where('created_on','>',$periodStart)->count();
         $issuesClosedCount = Issue::closed()->where('closed_on','>',$periodStart)->count();
+*/
         return response()->json([
            'data' => [
-               'created' => $issuesCreatedCount,
-               'closed' => $issuesClosedCount
+               'created' => [
+                   'total' => $issuesCreated->sum('y'),
+                   'data' => $issuesCreated
+               ],
+               'closed' => [
+                   'total' => $issuesClosed->sum('y'),
+                   'data' => $issuesClosed
+               ]
            ]
-        ]);*/
+        ]);
     }
 }
