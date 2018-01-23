@@ -27,6 +27,13 @@ class IssueController extends Controller
             $issues = $issues->filter(function(Issue $issue) {
                 return $issue->due_date !== null && $issue->time_left < 0;
             });
+        } elseif (request()->overdue === 'soon') {
+            $issues = $issues->filter(function (Issue $issue) {
+                if ($issue->due_date === null) {
+                    return false;
+                }
+                return $issue->due_date->toDateString() === now()->toDateString() && $issue->percent_of_time_left < 30;
+            });
         }
         $issues = $issues->sort([Issue::class, 'defaultSort'])->values();//->paginate(5);
         return new IssueCollection($issues);

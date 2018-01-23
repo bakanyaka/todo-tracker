@@ -14,7 +14,7 @@ class IssueFilters extends Filters
      *
      * @var array
      */
-    protected $filters = ['user', 'status','created_after','created_before'];
+    protected $filters = ['user', 'status','created_after','created_before','period'];
 
     /**
      * Filter issues by user who tracks it
@@ -90,5 +90,23 @@ class IssueFilters extends Filters
         }
         $dt = Carbon::parse($date);
         return $this->builder->where('created_on', '<=', $dt->toDateString());
+    }
+
+    /**
+     * Filter the issues according to those that were created or closed within given period
+     *
+     * @param int $days
+     * @return $this|\Illuminate\Database\Eloquent\Builder
+     */
+    public function period($days)
+    {
+        if($days === null) {
+            return $this->builder;
+        }
+        $date = now()->subDays($days-1)->toDateString();
+        if ($this->request->status === 'closed') {
+            return $this->builder->where('closed_on', '>', $date);
+        }
+        return $this->builder->where('created_on', '>', $date);
     }
 }

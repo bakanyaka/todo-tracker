@@ -20,6 +20,12 @@
             <b-form-select size="sm" id="period" v-model="filters.period.selected" :options="filters.period.options" @change="onFiltersChanged">
             </b-form-select>
         </div>
+        <div class="col-auto">
+            <label>&nbsp;</label>
+            <b-button :to="{name: 'issues.index', query: {user: 'me'}}" variant="primary" size="sm" active-class="" exact-active-class="">
+                Сбросить
+            </b-button>
+        </div>
     </div>
 </template>
 

@@ -1,31 +1,37 @@
 <template>
     <b-row>
         <b-col sm="6" md="2">
-            <b-card class="text-white text-center bg-primary">
-                <div class="h2 text-muted  mb-2">
-                    <i class="icon-clock"></i>
-                </div>
-                <div class="h3 mb-0">{{stats.open}}</div>
-                <span class="text-uppercase font-weight-bold">Открыто</span>
-            </b-card>
+            <router-link :to="{name: 'issues.index'}">
+                <b-card class="text-white text-center bg-primary">
+                    <div class="h2 text-muted  mb-2">
+                        <i class="icon-clock"></i>
+                    </div>
+                    <div class="h3 mb-0">{{stats.open}}</div>
+                    <span class="text-uppercase font-weight-bold">Открыто</span>
+                </b-card>
+            </router-link>
         </b-col>
         <b-col sm="6" md="2">
-            <b-card class="text-white text-center bg-success">
-                <div class="h2 text-muted  mb-2">
-                    <i class="icon-like"></i>
-                </div>
-                <div class="h3 mb-0">{{stats.closed_today}}</div>
-                <span class="text-uppercase font-weight-bold">Выполнено сегодня</span>
-            </b-card>
+            <router-link :to="{name: 'issues.index', query: {status: 'closed', period: 1}}">
+                <b-card class="text-white text-center bg-success">
+                    <div class="h2 text-muted  mb-2">
+                        <i class="icon-like"></i>
+                    </div>
+                    <div class="h3 mb-0">{{stats.closed_today}}</div>
+                    <span class="text-uppercase font-weight-bold">Выполнено сегодня</span>
+                </b-card>
+            </router-link>
         </b-col>
         <b-col sm="6" md="2">
-            <b-card class="text-white text-center bg-info">
-                <div class="h2 text-muted  mb-2">
-                    <i class="icon-call-in"></i>
-                </div>
-                <div class="h3 mb-0">{{stats.created_today}}</div>
-                <span class="text-uppercase font-weight-bold">Создано сегодня</span>
-            </b-card>
+            <router-link :to="{name: 'issues.index', query: {status: 'all', period: 1}}">
+                <b-card class="text-white text-center bg-info">
+                    <div class="h2 text-muted  mb-2">
+                        <i class="icon-call-in"></i>
+                    </div>
+                    <div class="h3 mb-0">{{stats.created_today}}</div>
+                    <span class="text-uppercase font-weight-bold">Создано сегодня</span>
+                </b-card>
+            </router-link>
         </b-col>
         <b-col sm="6" md="2">
             <router-link :to="{name: 'issues.index', query: {status: 'paused'}}">
@@ -39,13 +45,15 @@
             </router-link>
         </b-col>
         <b-col sm="6" md="2">
-            <b-card class="text-white text-center bg-warning">
-                <div class="h2 text-muted  mb-2">
-                    <i class="icon-hourglass"></i>
-                </div>
-                <div class="h3 mb-0">{{stats.due_soon}}</div>
-                <span class="text-uppercase font-weight-bold">Скоро крайний срок</span>
-            </b-card>
+            <router-link :to="{name: 'issues.index', query: {overdue: 'soon'}}">
+                <b-card class="text-white text-center bg-warning">
+                    <div class="h2 text-muted  mb-2">
+                        <i class="icon-hourglass"></i>
+                    </div>
+                    <div class="h3 mb-0">{{stats.due_soon}}</div>
+                    <span class="text-uppercase font-weight-bold">Скоро крайний срок</span>
+                </b-card>
+            </router-link>
         </b-col>
         <b-col sm="6" md="2">
             <router-link :to="{name: 'issues.index', query: {overdue: 'yes'}}">

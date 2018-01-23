@@ -224,6 +224,98 @@ class GetIssuesTest extends IssuesTestCase
         ]);
     }
 
+    /** @test */
+    public function user_can_get_all_issues_open_in_a_specified_period()
+    {
+        Carbon::setTestNow('2018-01-19 15:00:00');
+        // Given we have an issue created more than 7 days ag
+        $oldIssue = create(Issue::class, [
+            'created_on' => '2018-01-09 12:00:00'
+        ]);
+        // And an issue created within 7 days
+        $newIssue = create(Issue::class, [
+            'created_on' => '2018-01-13 10:00:00'
+        ]);
+        // When user makes request to get all open issues in 7 days
+        $this->signIn();
+        $response = $this->get(route('api.issues', ['period' => 7]));
+        // Then response only contains issue created within 7 days
+        $response->assertJsonMissing([
+            'id' => $oldIssue->id
+        ]);
+        $response->assertJsonFragment([
+            'id' => $newIssue->id
+        ]);
+    }
 
+    /** @test */
+    public function user_can_get_all_issues_closed_in_a_specified_period()
+    {
+        Carbon::setTestNow('2018-01-19 15:00:00');
+        // Given we have an issue closed more than 7 days ag
+        $oldIssue = create(Issue::class, [
+            'created_on' => '2018-01-09 12:00:00',
+            'closed_on' => '2018-01-09 13:00:00'
+        ]);
+        // And an issue closed within 7 days
+        $newIssue = factory(Issue::class)->states(['closed'])->create([
+            'created_on' => '2018-01-09 10:00:00',
+            'closed_on' => '2018-01-13 11:00:00'
+        ]);
+        // When user makes request to get all open issues in 7 days
+        $this->signIn();
+        $response = $this->get(route('api.issues', ['status' => 'closed', 'period' => 7]));
+        // Then response only contains issue created within 7 days
+        $response->assertJsonMissing([
+            'id' => $oldIssue->id
+        ]);
+        $response->assertJsonFragment([
+            'id' => $newIssue->id
+        ]);
+    }
 
+    /** @test */
+    public function user_can_get_due_today_issues_that_have_less_than_30_percent_of_time_left()
+    {
+        Carbon::setTestNow('2018-01-19 10:00:00');
+
+        $twoHoursService = create(Service::class, [
+            'name' => 'Тестирование',
+            'hours' => 2
+        ]);
+        $twentyFourHoursService = create(Service::class, [
+            'name' => 'Разработка',
+            'hours' => 24
+        ]);
+        //Due Today issue but have more than 30 percent of time left
+        $dueTodayIssueMoreTimeLeft = factory(Issue::class)->create([
+            'created_on' => Carbon::now(),
+            'service_id' => $twoHoursService->id
+        ]);
+        //Due Today issues and have less 30 percent of time left
+        $dueTodayIssueLessTimeLeft = factory(Issue::class)->create([
+            'created_on' => '2018-01-19 08:10:00',
+            'service_id' => $twoHoursService->id
+        ]);
+        //Not Due Today Issues
+        $notDueTodayIssue = factory(Issue::class)->create([
+            'created_on' => Carbon::now(),
+            'service_id' => $twentyFourHoursService->id
+        ]);
+
+        $this->signIn();
+        $response = $this->get(route('api.issues', ['overdue' => 'soon']));
+
+        $response->assertJsonFragment([
+            'id' => $dueTodayIssueLessTimeLeft->id
+        ]);
+
+        $response->assertJsonMissing([
+            'id' => $dueTodayIssueMoreTimeLeft->id
+        ]);
+
+        $response->assertJsonMissing([
+            'id' => $notDueTodayIssue->id
+        ]);
+    }
 }
