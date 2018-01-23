@@ -59,5 +59,11 @@ class StatusesTableSeeder extends Seeder
             'is_closed' => true,
             'is_paused' => false,
         ]);
+        DB::Table('statuses')->insert([
+            'id' => 9,
+            'name' => 'Выполнено (требует дополнения)',
+            'is_closed' => false,
+            'is_paused' => true,
+        ]);
     }
 }

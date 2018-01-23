@@ -10,10 +10,10 @@ export default {
             url: '/issues?user=me',
             icon: 'icon-check'
         },
-/*        {
+        {
             name: 'Отчеты',
             url: '/reports',
             icon: 'icon-chart'
-        }*/
+        }
     ]
 }

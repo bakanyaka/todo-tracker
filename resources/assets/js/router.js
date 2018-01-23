@@ -3,6 +3,7 @@ import Vue from 'vue';
 import Full from './layouts/Full'
 import Issues from './views/issues/Issues'
 import Dashboard from './views/dashboard/Dashboard'
+import Reports from './views/reports/Reports'
 
 Vue.use(Router);
 
@@ -33,6 +34,14 @@ let routes = [
                 component: Issues,
                 meta: {
                     label: 'Задачи'
+                }
+            },
+            {
+                path: '/reports',
+                name: 'reports',
+                component: Reports,
+                meta: {
+                    label: 'Отчеты'
                 }
             }
         ]

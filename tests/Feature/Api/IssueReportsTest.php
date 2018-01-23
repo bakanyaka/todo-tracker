@@ -90,4 +90,28 @@ class IssueReportsTest extends IssuesTestCase
         ]);
     }
 
+    /** @test */
+    public function user_can_get_number_of_issues_created_each_day_within_given_period()
+    {
+        factory(Issue::class, 1)->create([
+            'created_on' => '2018-02-02 10:00:00'
+        ]);
+        factory(Issue::class, 3)->create([
+            'created_on' => '2018-02-01 10:00:00'
+        ]);
+        factory(Issue::class, 2)->create([
+            'created_on' => '2018-01-26 10:00:00'
+        ]);
+        $this->signIn();
+        $response = $this->get(route('api.issues.reports', ['period' => 7]));
+        $response->assertJsonFragment([
+            'labels' => [26,27,28,29,30,31,01,02],
+            'created' => [
+                'total' => 6,
+                'data' => [2,0,0,0,0,0,3,1]
+            ]
+        ]);
+
+    }
+
 }

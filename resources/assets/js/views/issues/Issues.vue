@@ -48,7 +48,7 @@
                         </div>
                     </b-col>
                     <b-col sm="4" offset-md="2">
-                        <b-input size="sm" type="text" placeholder="Поиск" v-model="searchText" required></b-input>
+                        <b-input size="sm" type="text" placeholder="Поиск в результатах" v-model="searchText" required></b-input>
                     </b-col>
                 </b-row>
                 <b-table outlined small
