@@ -14,40 +14,44 @@ class IssueReportController extends Controller
     {
         $periodDays = $request->period ? $request->period : 7;
         $periodStart = Carbon::now()->subDays($periodDays)->toDateString();
+        $periodEnd = Carbon::now()->toDateString();
+
+        $zeroDates = collect();
+        for ($d = $periodDays; $d > 0; $d--) {
+            $date = now()->subDays($d)->toDateString();
+            $zeroDates[$date] = [
+                'x' => $date,
+                'y' => 0
+            ];
+        }
 
         $issuesCreated = Issue::where('created_on', '>', $periodStart)
+            ->where('created_on', '<', $periodEnd)
             ->selectRaw('Date(created_on) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date', 'asc')->get()
             ->map(function ($item) {
                 return [
                     'x' => $item->date,
-                    'y' => $item->count
+                    'y' => (int)$item->count
                 ];
-            });
-
+            })->keyBy('x');
 
         $issuesClosed = Issue::where('closed_on', '>', $periodStart)
+            ->where('closed_on', '<', $periodEnd)
             ->selectRaw('Date(closed_on) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date', 'asc')->get()
             ->map(function ($item) {
                 return [
                     'x' => $item->date,
-                    'y' => $item->count
+                    'y' => (int)$item->count
                 ];
-            });
+            })->keyBy('x');
 
+        $issuesCreated = $zeroDates->merge($issuesCreated)->values();
+        $issuesClosed = $zeroDates->merge($issuesClosed)->values();
 
-        //$collection->firstWhere('age', '>=', 18);
-        //$keyed = $collection->keyBy('product_id');
-        //mapToGroups()
-        //mapWithKeys()
-
-
-/*        $issuesCreatedCount = Issue::where('created_on','>',$periodStart)->count();
-        $issuesClosedCount = Issue::closed()->where('closed_on','>',$periodStart)->count();
-*/
         return response()->json([
            'data' => [
                'created' => [

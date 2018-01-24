@@ -106,24 +106,45 @@ class IssueReportsTest extends IssuesTestCase
         $response = $this->get(route('api.issues.reports', ['period' => 7]));
         $response->assertJsonFragment([
             'created' => [
-                'total' => 6,
+                'total' => 5,
                 'data' => [
                     [
                         'x' => '2018-01-26',
-                        'y' => '2',
+                        'y' => 2,
+                    ],
+                    [
+                        'x' => '2018-01-27',
+                        'y' => 0,
+                    ],
+                    [
+                        'x' => '2018-01-28',
+                        'y' => 0,
+                    ],
+                    [
+                        'x' => '2018-01-29',
+                        'y' => 0,
+                    ],
+                    [
+                        'x' => '2018-01-30',
+                        'y' => 0,
+                    ],
+                    [
+                        'x' => '2018-01-31',
+                        'y' => 0,
                     ],
                     [
                         'x' => '2018-02-01',
-                        'y' => '3',
-                    ],
-                    [
-                        'x' => '2018-02-02',
-                        'y' => '1',
+                        'y' => 3,
                     ],
                 ]
             ]
         ]);
-
+        //Current day should not be included
+        $response->assertJsonMissing(
+            [
+                'x' => '2018-02-02',
+                'y' => 1,
+            ]
+        );
     }
-
 }
