@@ -44,6 +44,8 @@
     const brandSuccess = '#4dbd74';
     const brandInfo = '#63c2de';
     const brandDanger = '#f86c6b';
+    const brandGray = '#c2cfd6';
+
     function convertHex (hex, opacity) {
         hex = hex.replace('#', '');
         const r = parseInt(hex.substring(0, 2), 16);
@@ -88,15 +90,17 @@
                 return axios.get(route('api.issues.reports'), {params: {period: $days}}).then((response)=> {
                     this.issueSummary.created = response.data.data.created.total;
                     this.issueSummary.closed = response.data.data.closed.total;
+                    this.issueSummary.closed_first_line = response.data.data.closed_first_line.total;
                     this.issueSummary.closed_overdue = response.data.data.closed_overdue.total;
                     this.fillChartData(
                         response.data.data.created.data,
                         response.data.data.closed.data,
-                        response.data.data.closed_overdue.data
+                        response.data.data.closed_overdue.data,
+                        response.data.data.closed_first_line.data
                     );
                 });
             },
-            fillChartData(createdIssues,closedIssues,closedOverdueIssues) {
+            fillChartData(createdIssues,closedIssues,closedOverdueIssues,closedFirstLineIssues) {
                 this.datacollection = {
                     datasets: [
                         {
@@ -122,7 +126,15 @@
                             pointHoverBackgroundColor: '#fff',
                             borderWidth: 2,
                             data: closedOverdueIssues
-                        }
+                        },
+                        {
+                            label: 'Выполнено на первой линии',
+                            backgroundColor: convertHex(brandGray, 50),
+                            borderColor: brandGray,
+                            pointHoverBackgroundColor: '#fff',
+                            borderWidth: 2,
+                            data: closedFirstLineIssues
+                        },
                     ]
                 }
             }

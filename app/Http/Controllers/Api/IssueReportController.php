@@ -49,6 +49,19 @@ class IssueReportController extends Controller
                 ];
             })->keyBy('x');
 
+        $issuesClosedFirstLine = Issue::where('closed_on', '>', $periodStart)
+            ->where('closed_on', '<', $periodEnd)
+            ->where('status_id',8)
+            ->selectRaw('Date(closed_on) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date', 'asc')->get()
+            ->map(function ($item) {
+                return [
+                    'x' => $item->date,
+                    'y' => (int)$item->count
+                ];
+            })->keyBy('x');
+
         $overDueIssues = Issue::where('closed_on', '>', $periodStart)
             ->where('closed_on', '<', $periodEnd)
             ->get()->filter(function (Issue $issue) {
@@ -67,6 +80,7 @@ class IssueReportController extends Controller
         $issuesCreated = $zeroDates->merge($issuesCreated)->values();
         $issuesClosed = $zeroDates->merge($issuesClosed)->values();
         $overDueIssues = $zeroDates->merge($overDueIssues)->values();
+        $issuesClosedFirstLine = $zeroDates->merge($issuesClosedFirstLine)->values();
 
         return response()->json([
            'data' => [
@@ -77,6 +91,10 @@ class IssueReportController extends Controller
                'closed' => [
                    'total' => $issuesClosed->sum('y'),
                    'data' => $issuesClosed
+               ],
+               'closed_first_line' => [
+                   'total' => $issuesClosedFirstLine->sum('y'),
+                   'data' =>  $issuesClosedFirstLine
                ],
                'closed_overdue' => [
                    'total' => $overDueIssues->sum('y'),

@@ -279,4 +279,68 @@ class IssueReportsTest extends IssuesTestCase
             ]
         );
     }
+
+    /** @test */
+    public function user_can_get_number_of_issues_closed_on_first_line_each_day_within_given_period()
+    {
+        factory(Issue::class, 1)->states('closed')->create([
+            'created_on' => '2018-01-01 10:00:00',
+            'closed_on' => '2018-01-27 10:00:00'
+        ]);
+        factory(Issue::class, 3)->states('closed')->create([
+            'status_id' => 8,
+            'created_on' => '2017-01-01 10:00:00',
+            'closed_on' => '2018-02-01 10:00:00'
+        ]);
+        factory(Issue::class, 2)->states('closed')->create([
+            'status_id' => 8,
+            'created_on' => '2017-01-01 10:00:00',
+            'closed_on' => '2018-01-26 10:00:00'
+        ]);
+
+        $this->signIn();
+        $response = $this->get(route('api.issues.reports', ['period' => 7]));
+        $response->assertJsonFragment([
+            'closed_first_line' => [
+                'total' => 5,
+                'data' => [
+                    [
+                        'x' => '2018-01-26',
+                        'y' => 2,
+                    ],
+                    [
+                        'x' => '2018-01-27',
+                        'y' => 0,
+                    ],
+                    [
+                        'x' => '2018-01-28',
+                        'y' => 0,
+                    ],
+                    [
+                        'x' => '2018-01-29',
+                        'y' => 0,
+                    ],
+                    [
+                        'x' => '2018-01-30',
+                        'y' => 0,
+                    ],
+                    [
+                        'x' => '2018-01-31',
+                        'y' => 0,
+                    ],
+                    [
+                        'x' => '2018-02-01',
+                        'y' => 3,
+                    ],
+                ]
+            ]
+        ]);
+        //Current day should not be included
+        $response->assertJsonMissing(
+            [
+                'x' => '2018-02-02'
+            ]
+        );
+
+    }
 }
