@@ -12,7 +12,7 @@
             </router-link>
         </b-col>
         <b-col sm="6" md="2">
-            <router-link :to="{name: 'issues.index', query: {status: 'closed', period: 1}}">
+            <router-link :to="{name: 'issues.index', query: {status: 'closed', period: 0}}">
                 <b-card class="text-white text-center bg-success">
                     <div class="h2 text-muted  mb-2">
                         <i class="icon-like"></i>
@@ -23,7 +23,7 @@
             </router-link>
         </b-col>
         <b-col sm="6" md="2">
-            <router-link :to="{name: 'issues.index', query: {status: 'all', period: 1}}">
+            <router-link :to="{name: 'issues.index', query: {status: 'all', period: 0}}">
                 <b-card class="text-white text-center bg-info">
                     <div class="h2 text-muted  mb-2">
                         <i class="icon-call-in"></i>

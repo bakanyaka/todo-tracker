@@ -62,7 +62,8 @@ class IssueReportController extends Controller
                 ];
             })->keyBy('x');
 
-        $overDueIssues = Issue::where('closed_on', '>', $periodStart)
+        $overDueIssues = Issue::Closed()
+            ->where('closed_on', '>', $periodStart)
             ->where('closed_on', '<', $periodEnd)
             ->get()->filter(function (Issue $issue) {
                 return $issue->due_date !== null && $issue->time_left < 0;
@@ -74,8 +75,6 @@ class IssueReportController extends Controller
                     'y' => $items->count()
                 ];
             });
-
-
 
         $issuesCreated = $zeroDates->merge($issuesCreated)->values();
         $issuesClosed = $zeroDates->merge($issuesClosed)->values();

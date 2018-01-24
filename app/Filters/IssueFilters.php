@@ -103,10 +103,15 @@ class IssueFilters extends Filters
         if($days === null) {
             return $this->builder;
         }
-        $date = now()->subDays($days-1)->toDateString();
+        $dateFrom = now()->subDays($days)->toDateString();
+        $dateTo = $days === "0" ? now() : now()->toDateString();
         if ($this->request->status === 'closed') {
-            return $this->builder->where('closed_on', '>', $date);
+            $this->builder->where('closed_on', '>', $dateFrom);
+            $this->builder->where('closed_on', '<', $dateTo);
+            return $this->builder;
         }
-        return $this->builder->where('created_on', '>', $date);
+        $this->builder->where('created_on', '<', $dateTo);
+        $this->builder->where('created_on', '>', $dateFrom);
+        return $this->builder;
     }
 }

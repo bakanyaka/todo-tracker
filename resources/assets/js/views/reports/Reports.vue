@@ -3,7 +3,7 @@
         <b-row>
             <b-col sm="5" class="mb-3">
                 <h4 class="card-title mb-0">Отчет за период</h4>
-                <div class="small text-muted">16.01.2018-23.01.2018</div>
+                <div class="small text-muted">{{periodStart}}-{{periodEnd}}</div>
             </b-col>
             <b-col sm="7" class="d-none d-md-block">
                 <b-button-toolbar class="float-right" aria-label="Toolbar with buttons group">
@@ -19,11 +19,15 @@
             <ul>
                 <li class="d-none d-md-table-cell">
                     <div class="text-muted">Поступило задач</div>
-                    <strong>{{issueSummary.created}}</strong>
+                    <router-link :to="{name: 'issues.index', query: {status: 'all', period: periodFilter.selected}}">
+                        <strong>{{issueSummary.created}}</strong>
+                    </router-link>
                 </li>
                 <li class="d-none d-md-table-cell">
                     <div class="text-muted">Выполнено задач</div>
-                    <strong>{{issueSummary.closed}}</strong>
+                    <router-link :to="{name: 'issues.index', query: {status: 'closed', period: periodFilter.selected}}">
+                        <strong>{{issueSummary.closed}}</strong>
+                    </router-link>
                 </li>
                 <li>
                     <div class="text-muted">Выполнено на первой линии</div>
@@ -31,7 +35,9 @@
                 </li>
                 <li class="d-none d-md-table-cell">
                     <div class="text-muted">Выполнено не в срок</div>
-                    <strong>{{issueSummary.closed_overdue}}</strong>
+                    <router-link :to="{name: 'issues.index', query: {status: 'closed', overdue: 'yes', period: periodFilter.selected}}">
+                        <strong>{{issueSummary.closed_overdue}}</strong>
+                    </router-link>
                 </li>
             </ul>
         </div>
@@ -40,6 +46,7 @@
 
 <script>
     import IssuesChart from "./IssuesChart";
+    import * as moment from 'moment';
 
     const brandSuccess = '#4dbd74';
     const brandInfo = '#63c2de';
@@ -83,6 +90,14 @@
         watch: {
             'periodFilter.selected'() {
                 this.getReport(this.periodFilter.selected);
+            }
+        },
+        computed: {
+            periodStart() {
+                return moment().subtract(this.periodFilter.selected,'days').format('DD.MM.YYYY')
+            },
+            periodEnd() {
+                return moment().subtract(1,'days').format('DD.MM.YYYY')
             }
         },
         methods: {
@@ -132,7 +147,7 @@
                             backgroundColor: convertHex(brandGray, 50),
                             borderColor: brandGray,
                             pointHoverBackgroundColor: '#fff',
-                            borderWidth: 2,
+                            borderWidth: 1,
                             data: closedFirstLineIssues
                         },
                     ]
