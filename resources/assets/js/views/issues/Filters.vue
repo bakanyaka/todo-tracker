@@ -65,7 +65,7 @@
                         selected: null,
                         options: [
                             { value: null, text: 'Все время'},
-                            { value: 1, text: 'Сегодня'},
+                            { value: 0, text: 'Сегодня'},
                             { value: 7, text: 'За неделю'},
                             { value: 14, text: 'За 14 дней'},
                             { value: 30, text: 'За месяц'}
