@@ -25,7 +25,7 @@ class IssueStatsController extends Controller
             if ($issue->due_date === null) {
                 return false;
             }
-            return $issue->due_date->toDateString() === Carbon::now()->toDateString() && $issue->percent_of_time_left < 30;
+            return $issue->due_date->toDateString() === Carbon::now()->toDateString() && $issue->percent_of_time_left < 30 && $issue->percent_of_time_left > 0;
         })->count();
         $createdTodayIssuesCount = Issue::where('created_on','>=', Carbon::today())->count();
         $closedTodayIssuesCount = Issue::where('closed_on','>=', Carbon::today())->count();
