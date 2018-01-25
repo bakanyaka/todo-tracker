@@ -8,7 +8,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class RedmineSyncTest extends TestCase
+class LastSyncInfoTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -24,8 +24,6 @@ class RedmineSyncTest extends TestCase
             'completed_at_human' => $sync->completed_at->diffForHumans(),
             'completed_at' => $sync->completed_at->toDateTimeString(),
         ]);
-
-
     }
 
 }

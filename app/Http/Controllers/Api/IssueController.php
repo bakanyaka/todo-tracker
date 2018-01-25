@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\FailedToRetrieveRedmineIssueException;
+use App\Exceptions\FailedToRetrieveRedmineDataException;
 use App\Filters\IssueFilters;
 use App\Http\Resources\IssueCollection;
 use App\Jobs\SyncIssues;
@@ -68,7 +68,7 @@ class IssueController extends Controller
         $issue = Issue::firstOrNew(['id' => $request->issue_id]);
         try {
             $issue->updateFromRedmine();
-        } catch (FailedToRetrieveRedmineIssueException $exception) {
+        } catch (FailedToRetrieveRedmineDataException $exception) {
             abort(404);
         }
         $issue->save();
