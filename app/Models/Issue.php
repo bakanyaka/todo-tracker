@@ -354,8 +354,8 @@ class Issue extends Model
         if (!is_null($status)) {
             $this->status_id = $status->id;
         }
-        $project = Status::find($redmineIssue['project_id']);
-        if (!is_null($status)) {
+        $project = Project::find($redmineIssue['project_id']);
+        if (!is_null($project)) {
             $this->project_id = $project->id;
         }
         $service = Service::where('name', $redmineIssue['service'])->first();
