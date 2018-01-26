@@ -53,7 +53,7 @@ class Redmine
      */
     public function getProjects()
     {
-        $data = $this->getPaginatedDataFromRedmine("project.json",'projects');
+        $data = $this->getPaginatedDataFromRedmine("projects.json",'projects');
         return $data->map([__CLASS__,'parseRedmineProjectData']);
     }
 
@@ -67,6 +67,7 @@ class Redmine
         try {
             $response = $this->client->get($uri);
         } catch (ClientException $exception) {
+            dd($exception);
             throw new FailedToRetrieveRedmineDataException();
         }
         return json_decode($response->getBody(), true);
@@ -80,6 +81,9 @@ class Redmine
      */
     protected function getPaginatedDataFromRedmine($url, $dataProperty)
     {
+        if(strpos($url,'?') === false) {
+            $url .= '?';
+        }
         $data = $this->getJsonDataFromRedmine($url);
         $total_count = $data['total_count'];
         $limit = $data['limit'];
@@ -100,6 +104,7 @@ class Redmine
         $customFields = data_get($issue, 'custom_fields',[]);
         return [
             'id' =>  $issue['id'],
+            'project_id' => $issue['project']['id'],
             'status_id' => $issue['status']['id'],
             'priority_id' => $issue['priority']['id'],
             'author' => $issue['author']['name'],

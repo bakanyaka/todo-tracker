@@ -13,13 +13,11 @@ class ProjectController extends Controller
     {
         $redmineProjects = Redmine::getProjects();
         foreach ($redmineProjects as $redmineProject) {
-            Project::create([
-                'id' => $redmineProject['id'],
-                'name' => $redmineProject['name'],
-                'description' => $redmineProject['description'],
-                'identifier' => $redmineProject['identifier']
-            ]);
+            $project = Project::firstOrNew(['id' => $redmineProject['id']]);
+            $project->name = $redmineProject['name'];
+            $project->description = $redmineProject['description'];
+            $project->identifier = $redmineProject['identifier'];
+            $project->save();
         }
-
     }
 }

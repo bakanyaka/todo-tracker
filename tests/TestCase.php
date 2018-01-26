@@ -33,6 +33,7 @@ abstract class TestCase extends BaseTestCase
             'id' =>  $this->faker->unique()->randomNumber(5),
             'status_id' => 2,
             'priority_id' => 4,
+            'project_id' => 2,
             'author' => $this->faker->name,
             'assigned_to' => $this->faker->name,
             'subject' => $this->faker->name . ' : ' . $this->faker->realText(60),
