@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Issue;
+use App\Models\Project;
 use App\Models\Service;
 use Carbon\Carbon;
 use Tests\Feature\IssuesTestCase;
@@ -342,5 +343,42 @@ class IssueReportsTest extends IssuesTestCase
             ]
         );
 
+    }
+
+    /** @test */
+    public function user_can_get_issues_report_grouped_by_project()
+    {
+        $projectOne = create(Project::class);
+        $projectTwo = create(Project::class);
+        factory(Issue::class, 2)->states('closed')->create([
+            'created_on' => '2018-01-27 10:00:00',
+            'closed_on' => '2018-01-27 10:00:00',
+            'project_id' => $projectOne->id
+        ]);
+        factory(Issue::class, 1)->states('open')->create([
+            'created_on' => '2018-01-27 10:00:00',
+            'project_id' => $projectOne->id
+        ]);
+        factory(Issue::class, 3)->states('closed')->create([
+            'created_on' => '2018-01-27 10:00:00',
+            'closed_on' => '2018-01-27 10:00:00',
+            'project_id' => $projectTwo->id
+        ]);
+        factory(Issue::class, 2)->states('open')->create([
+            'created_on' => '2018-01-27 10:00:00',
+            'project_id' => $projectTwo->id
+        ]);
+        $this->signIn();
+        $response = $this->get(route('api.issues.reports.projects'));
+        $response->assertJsonFragment([
+            $projectOne->name => [
+                'open' => 1,
+                'closed' => 2
+            ],
+            $projectTwo->name => [
+                'open' => 2,
+                'closed' => 3
+            ]
+        ]);
     }
 }

@@ -102,4 +102,32 @@ class IssueReportController extends Controller
            ]
         ]);
     }
+
+    public function byProject(Request $request)
+    {
+        $periodDays = $request->period ? $request->period : 7;
+        $periodStart = Carbon::now()->subDays($periodDays)->toDateString();
+        $periodEnd = Carbon::now()->toDateString();
+
+        $issuesOpen = Issue::open()
+            ->where('created_on', '>', $periodStart)
+            ->where('created_on', '<', $periodEnd)
+            ->join('projects','issues.project_id','=','projects.id')
+            ->selectRaw('projects.name as project, COUNT(*) as count')
+            ->groupBy('project')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item['project'] => [
+                    'open' => $item['count']]
+                ];
+            });
+
+        ;
+
+        dd($issuesOpen->toArray());
+
+        return response()->json([
+            'data' => []
+        ]);
+    }
 }
