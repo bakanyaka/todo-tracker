@@ -5,11 +5,15 @@ namespace Tests\Feature;
 use App\Facades\Redmine;
 use App\Jobs\SyncIssues;
 use App\Models\Issue;
+use App\Models\Project;
+use App\Models\Service;
 use App\Models\Synchronization;
 use App\Services\Sync;
 use App\User;
 use Carbon\Carbon;
+use Faker\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use function Sodium\crypto_aead_aes256gcm_decrypt;
 use Tests\TestCase;
 
 class SyncIssuesJobTest extends TestCase
@@ -25,8 +29,9 @@ class SyncIssuesJobTest extends TestCase
     /** @test */
     public function it_creates_new_issue_if_it_does_not_exist()
     {
-        $service = create('App\Models\Service');
-        $redmineIssue = $this->makeFakeIssueArray(['service' => $service->name]);
+        $service = create(Service::class);
+        create(Project::class,['id' => 2]);
+        $redmineIssue = $this->makeFakeIssueArray(['service' => $service->name, 'project_id' => 2]);
         Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
 
         $syncJob = new SyncIssues();
@@ -51,9 +56,11 @@ class SyncIssuesJobTest extends TestCase
     {
         $issue = create('App\Models\Issue');
         $service = create('App\Models\Service');
+        create(Project::class,['id' => 2]);
         $redmineIssue = $this->makeFakeIssueArray([
             'id' => $issue->id,
             'service' => $service->name,
+            'project_id' => 2,
             'status_id' => 4
         ]);
 
@@ -100,6 +107,17 @@ class SyncIssuesJobTest extends TestCase
         }))->andReturn(collect([]));
 
         $syncJob = new SyncIssues();
+        $syncJob->handle();
+    }
+
+    /** @test */
+    public function it_retrieves_redmine_issues_updated_since_date_specified()
+    {
+        $date = Carbon::parse('2017-12-15 10:00');
+        Redmine::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($date) {
+            return $dt == $date;
+        }))->andReturn(collect([]));
+        $syncJob = new SyncIssues($date);
         $syncJob->handle();
     }
 
