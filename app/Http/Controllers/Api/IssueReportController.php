@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Issue;
+use App\Models\Project;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 
 class IssueReportController extends Controller
 {
@@ -51,7 +51,7 @@ class IssueReportController extends Controller
 
         $issuesClosedFirstLine = Issue::where('closed_on', '>', $periodStart)
             ->where('closed_on', '<', $periodEnd)
-            ->where('status_id',8)
+            ->where('status_id', 8)
             ->selectRaw('Date(closed_on) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date', 'asc')->get()
@@ -69,7 +69,7 @@ class IssueReportController extends Controller
                 return $issue->due_date !== null && $issue->time_left < 0;
             })->groupBy(function (Issue $issue) {
                 return $issue->closed_on->toDateString();
-            })->map(function ($items, $key){
+            })->map(function ($items, $key) {
                 return [
                     'x' => $key,
                     'y' => $items->count()
@@ -82,24 +82,24 @@ class IssueReportController extends Controller
         $issuesClosedFirstLine = $zeroDates->merge($issuesClosedFirstLine)->values();
 
         return response()->json([
-           'data' => [
-               'created' => [
-                   'total' => $issuesCreated->sum('y'),
-                   'data' => $issuesCreated
-               ],
-               'closed' => [
-                   'total' => $issuesClosed->sum('y'),
-                   'data' => $issuesClosed
-               ],
-               'closed_first_line' => [
-                   'total' => $issuesClosedFirstLine->sum('y'),
-                   'data' =>  $issuesClosedFirstLine
-               ],
-               'closed_overdue' => [
-                   'total' => $overDueIssues->sum('y'),
-                   'data' => $overDueIssues
-               ]
-           ]
+            'data' => [
+                'created' => [
+                    'total' => $issuesCreated->sum('y'),
+                    'data' => $issuesCreated
+                ],
+                'closed' => [
+                    'total' => $issuesClosed->sum('y'),
+                    'data' => $issuesClosed
+                ],
+                'closed_first_line' => [
+                    'total' => $issuesClosedFirstLine->sum('y'),
+                    'data' => $issuesClosedFirstLine
+                ],
+                'closed_overdue' => [
+                    'total' => $overDueIssues->sum('y'),
+                    'data' => $overDueIssues
+                ]
+            ]
         ]);
     }
 
@@ -109,25 +109,41 @@ class IssueReportController extends Controller
         $periodStart = Carbon::now()->subDays($periodDays)->toDateString();
         $periodEnd = Carbon::now()->toDateString();
 
-        $issuesOpen = Issue::open()
-            ->where('created_on', '>', $periodStart)
+        $issuesOpen = Issue::where('created_on', '>', $periodStart)
             ->where('created_on', '<', $periodEnd)
-            ->join('projects','issues.project_id','=','projects.id')
+            ->join('projects', 'issues.project_id', '=', 'projects.id')
             ->selectRaw('projects.name as project, COUNT(*) as count')
             ->groupBy('project')
             ->get()
             ->mapWithKeys(function ($item) {
-                return [$item['project'] => [
-                    'open' => $item['count']]
+                return [$item['project'] => (int)$item['count']];
+            });
+
+        $issuesClosed = Issue::closed()
+            ->where('closed_on', '>', $periodStart)
+            ->where('closed_on', '<', $periodEnd)
+            ->join('projects', 'issues.project_id', '=', 'projects.id')
+            ->selectRaw('projects.name as project, COUNT(*) as count')
+            ->groupBy('project')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item['project'] => (int)$item['count']];
+            });
+
+        $issues = Project::all()
+            ->pluck('name')
+            ->unique()
+            ->mapWithKeys(function ($project) use ($issuesOpen, $issuesClosed) {
+                return [
+                    $project => [
+                        'created' => $issuesOpen->get($project, 0),
+                        'closed' => $issuesClosed->get($project, 0)
+                    ]
                 ];
             });
 
-        ;
-
-        dd($issuesOpen->toArray());
-
         return response()->json([
-            'data' => []
+            'data' => $issues
         ]);
     }
 }
