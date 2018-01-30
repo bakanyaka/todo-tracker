@@ -39,6 +39,7 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
     Route::get('/synchronizations/last', 'Api\RedmineSyncController@show')->name('api.synchronizations.last');
 
     Route::get('/projects/sync', 'Api\ProjectController@sync')->name('api.projects.sync');
+    Route::get('/projects', 'Api\ProjectController@index')->name('api.projects');
 });
 
 //All unregistered routes should be handled by frontend

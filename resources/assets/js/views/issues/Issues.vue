@@ -14,15 +14,7 @@
                     </div>
                 </b-card>
             </b-col>
-            <b-col md="2">
-                <b-card header="Синхронизация с Redmine" class="text-center pb-1">
-                    <b-button @click="syncIssues()" variant="primary" size="sm" class="my-2"><i
-                            class="fa fa-refresh"></i>&nbsp;
-                        Синхронизировать
-                    </b-button>
-                </b-card>
-            </b-col>
-            <b-col md="7">
+            <b-col md="9">
                 <b-card header="Фильтры">
                     <filters @filters:changed="onFiltersChanged"></filters>
                 </b-card>
@@ -32,6 +24,9 @@
             <template slot="header">
                 Отслеживаемые задачи
                 <small class="pull-right">Синхронизация с Redmine выполнена {{meta.hasOwnProperty('last_sync') ? meta.last_sync.completed_at_human : 'Никогда'}}
+                    <b-button @click="getIssues()" variant="primary" size="sm" class="my-2 ml-2"><i
+                            class="fa fa-refresh"></i>&nbsp;
+                    </b-button>
                 </small>
             </template>
             <spinner v-if="loading" size="large" message="Загрузка..."></spinner>
