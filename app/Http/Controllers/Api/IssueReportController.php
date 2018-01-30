@@ -76,10 +76,25 @@ class IssueReportController extends Controller
                 ];
             });
 
+        $closedInTimeIssues = Issue::Closed()
+            ->where('closed_on', '>', $periodStart)
+            ->where('closed_on', '<', $periodEnd)
+            ->get()->filter(function (Issue $issue) {
+                return $issue->due_date !== null && $issue->time_left >= 0;
+            })->groupBy(function (Issue $issue) {
+                return $issue->closed_on->toDateString();
+            })->map(function ($items, $key) {
+                return [
+                    'x' => $key,
+                    'y' => $items->count()
+                ];
+            });
+
         $issuesCreated = $zeroDates->merge($issuesCreated)->values();
         $issuesClosed = $zeroDates->merge($issuesClosed)->values();
-        $overDueIssues = $zeroDates->merge($overDueIssues)->values();
         $issuesClosedFirstLine = $zeroDates->merge($issuesClosedFirstLine)->values();
+        $overDueIssues = $zeroDates->merge($overDueIssues)->values();
+        $closedInTimeIssues = $zeroDates->merge($closedInTimeIssues)->values();
 
         return response()->json([
             'data' => [
@@ -98,6 +113,10 @@ class IssueReportController extends Controller
                 'closed_overdue' => [
                     'total' => $overDueIssues->sum('y'),
                     'data' => $overDueIssues
+                ],
+                'closed_in_time' => [
+                    'total' => $closedInTimeIssues->sum('y'),
+                    'data' => $closedInTimeIssues
                 ]
             ]
         ]);

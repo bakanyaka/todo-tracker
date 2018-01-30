@@ -34,6 +34,12 @@
                     <strong>{{issueSummary.closed_first_line}}</strong>
                 </li>
                 <li class="d-none d-md-table-cell">
+                    <div class="text-muted">Выполнено в срок</div>
+                    <router-link :to="{name: 'issues.index', query: {status: 'closed', overdue: 'no', period: periodFilter.selected}}">
+                        <strong>{{issueSummary.closed_in_time}}</strong>
+                    </router-link>
+                </li>
+                <li class="d-none d-md-table-cell">
                     <div class="text-muted">Выполнено не в срок</div>
                     <router-link :to="{name: 'issues.index', query: {status: 'closed', overdue: 'yes', period: periodFilter.selected}}">
                         <strong>{{issueSummary.closed_overdue}}</strong>
@@ -52,6 +58,8 @@
     const brandInfo = '#63c2de';
     const brandDanger = '#f86c6b';
     const brandGray = '#c2cfd6';
+    const brandTeal = '#42f4bf';
+    const brandPurple = '#ba69e5';
 
     function convertHex (hex, opacity) {
         hex = hex.replace('#', '');
@@ -81,6 +89,7 @@
                     closed: 0,
                     closed_first_line: 0,
                     closed_overdue: 0,
+                    closed_in_time: 0
                 }
             }
         },
@@ -107,15 +116,17 @@
                     this.issueSummary.closed = response.data.data.closed.total;
                     this.issueSummary.closed_first_line = response.data.data.closed_first_line.total;
                     this.issueSummary.closed_overdue = response.data.data.closed_overdue.total;
+                    this.issueSummary.closed_in_time = response.data.data.closed_in_time.total;
                     this.fillChartData(
                         response.data.data.created.data,
                         response.data.data.closed.data,
                         response.data.data.closed_overdue.data,
-                        response.data.data.closed_first_line.data
+                        response.data.data.closed_first_line.data,
+                        response.data.data.closed_in_time.data
                     );
                 });
             },
-            fillChartData(createdIssues,closedIssues,closedOverdueIssues,closedFirstLineIssues) {
+            fillChartData(createdIssues,closedIssues,closedOverdueIssues,closedFirstLineIssues,closedInTimeIssues) {
                 this.datacollection = {
                     datasets: [
                         {
@@ -144,11 +155,21 @@
                         },
                         {
                             label: 'Выполнено на первой линии',
-                            backgroundColor: convertHex(brandGray, 50),
-                            borderColor: brandGray,
+                            backgroundColor: convertHex(brandPurple, 20),
+                            borderColor: brandPurple,
                             pointHoverBackgroundColor: '#fff',
                             borderWidth: 1,
+                            hidden: true,
                             data: closedFirstLineIssues
+                        },
+                        {
+                            label: 'Выполнено в срок',
+                            backgroundColor: convertHex(brandTeal, 20),
+                            borderColor: brandTeal,
+                            pointHoverBackgroundColor: '#fff',
+                            borderWidth: 1,
+                            hidden: true,
+                            data: closedInTimeIssues
                         },
                     ]
                 }

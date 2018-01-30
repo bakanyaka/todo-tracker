@@ -226,6 +226,37 @@ class GetIssuesTest extends IssuesTestCase
     }
 
     /** @test */
+    public function user_can_get_all_issues_with_associated_service_that_are_not_overdue()
+    {
+        Carbon::setTestNow('2018-01-19 15:00:00');
+        // Given we have overdue issue
+        $service = create(Service::class, [
+            'name' => 'Тестирование',
+            'hours' => 2
+        ]);
+        $overdueIssue = factory(Issue::class)->create([
+            'created_on' => Carbon::parse('2018-01-19 09:00:00'),
+            'service_id' => $service->id
+        ]);
+        // And not overdue issue
+        $notOverdueIssue = create(Issue::class, [
+            'created_on' => '2018-01-19 14:00:00',
+            'service_id' => $service->id
+        ]);
+
+        // When user makes request to get non overdue issues
+        $this->signIn();
+        $response = $this->get(route('api.issues', ['overdue' => 'no']));
+        // Then response only contains overdue issue
+        $response->assertJsonMissing([
+            'id' => $overdueIssue->id
+        ]);
+        $response->assertJsonFragment([
+            'id' => $notOverdueIssue->id
+        ]);
+    }
+
+    /** @test */
     public function user_can_get_all_issues_open_in_a_specified_period()
     {
         Carbon::setTestNow('2018-01-19 15:00:00');

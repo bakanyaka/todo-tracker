@@ -1,5 +1,5 @@
 <template>
-    <div class="form-inline">
+    <div class="form-row form-inline">
         <div class="col-auto">
             <label for="tracked-by">Кто отслеживает:</label>
             <b-form-select size="sm" id="tracked-by" v-model="filters.user.selected" :options="filters.user.options"
@@ -69,6 +69,7 @@
                         options: [
                             {value: null, text: 'Все'},
                             {value: 'yes', text: 'Просроченные'},
+                            {value: 'no', text: 'Не просроченные'},
                             {value: 'soon', text: 'Истекает срок'}
                         ]
                     },
