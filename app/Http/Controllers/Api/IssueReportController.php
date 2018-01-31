@@ -149,14 +149,40 @@ class IssueReportController extends Controller
                 return [$item['project'] => (int)$item['count']];
             });
 
+        $issuesClosedInTime = Issue::closed()
+            ->where('closed_on', '>', $periodStart)
+            ->where('closed_on', '<', $periodEnd)
+            ->with('project')
+            ->get()
+            ->filter(function (Issue $issue) {
+                return $issue->due_date !== null && $issue->time_left >= 0;
+            })->groupBy(function(Issue $issue) {
+                return $issue->project->name;
+            })->map->count();
+
+        $issuesClosedOverdue = Issue::closed()
+            ->where('closed_on', '>', $periodStart)
+            ->where('closed_on', '<', $periodEnd)
+            ->with('project')
+            ->get()
+            ->filter(function (Issue $issue) {
+                return $issue->due_date !== null && $issue->time_left < 0;
+            })->groupBy(function(Issue $issue) {
+                return $issue->project->name;
+            })->map->count();
+
+
+
         $issues = Project::all()
             ->pluck('name')
             ->unique()
-            ->map(function ($project) use ($issuesOpen, $issuesClosed) {
+            ->map(function ($project) use ($issuesOpen, $issuesClosed, $issuesClosedInTime, $issuesClosedOverdue) {
                 return [
                     'project' => $project,
                     'created' => $issuesOpen->get($project, 0),
-                    'closed' => $issuesClosed->get($project, 0)
+                    'closed' => $issuesClosed->get($project, 0),
+                    'closed_in_time' => $issuesClosedInTime->get($project, 0),
+                    'closed_overdue' => $issuesClosedOverdue->get($project, 0)
                 ];
             })
             ->sortByDesc('created')

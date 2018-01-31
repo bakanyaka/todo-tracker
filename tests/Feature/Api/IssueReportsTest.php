@@ -13,6 +13,7 @@ class IssueReportsTest extends IssuesTestCase
     protected function setUp()
     {
         parent::setUp();
+        $this->signIn();
         Carbon::setTestNow('2018-02-02 15:00:00');
     }
 
@@ -32,8 +33,6 @@ class IssueReportsTest extends IssuesTestCase
             'created_on' => '2018-01-31 10:00:00'
         ]);
 
-
-        $this->signIn();
         // Within month
         $response = $this->get(route('api.issues.reports', ['period' => 30]));
         $response->assertJsonFragment([
@@ -74,7 +73,6 @@ class IssueReportsTest extends IssuesTestCase
             'created_on' => '2018-01-31 12:00:00'
         ]);
 
-        $this->signIn();
         // Within month
         $response = $this->get(route('api.issues.reports', ['period' => 30]));
         $response->assertJsonFragment([
@@ -104,7 +102,6 @@ class IssueReportsTest extends IssuesTestCase
         factory(Issue::class, 2)->create([
             'created_on' => '2018-01-26 10:00:00'
         ]);
-        $this->signIn();
         $response = $this->get(route('api.issues.reports', ['period' => 7]));
         $response->assertJsonFragment([
             'created' => [
@@ -165,7 +162,6 @@ class IssueReportsTest extends IssuesTestCase
             'created_on' => '2017-01-01 10:00:00',
             'closed_on' => '2018-01-26 10:00:00'
         ]);
-        $this->signIn();
         $response = $this->get(route('api.issues.reports', ['period' => 7]));
         $response->assertJsonFragment([
             'closed' => [
@@ -244,7 +240,6 @@ class IssueReportsTest extends IssuesTestCase
             'closed_on' => '2018-01-01 11:00:00'
         ]);
 
-        $this->signIn();
         $response = $this->get(route('api.issues.reports', ['period' => 7]));
         $response->assertJsonFragment([
             'closed_overdue' => [
@@ -318,7 +313,6 @@ class IssueReportsTest extends IssuesTestCase
             'closed_on' => '2018-02-01 11:00:00'
         ]);
 
-        $this->signIn();
         $response = $this->get(route('api.issues.reports', ['period' => 7]));
         $response->assertJsonFragment([
             'closed_in_time' => [
@@ -382,7 +376,6 @@ class IssueReportsTest extends IssuesTestCase
             'closed_on' => '2018-01-26 10:00:00'
         ]);
 
-        $this->signIn();
         $response = $this->get(route('api.issues.reports', ['period' => 7]));
         $response->assertJsonFragment([
             'closed_first_line' => [
@@ -431,39 +424,44 @@ class IssueReportsTest extends IssuesTestCase
     /** @test */
     public function user_can_get_issues_report_grouped_by_project()
     {
+        $service = create(Service::class, ['hours' => 1]);
         $projectOne = create(Project::class);
         $projectTwo = create(Project::class);
         factory(Issue::class, 2)->states('closed')->create([
-            'created_on' => '2018-01-27 10:00:00',
-            'closed_on' => '2018-01-27 10:00:00',
-            'project_id' => $projectOne->id
+            'created_on' => '2018-01-26 10:00:00',
+            'closed_on' => '2018-01-26 10:00:00',
+            'project_id' => $projectOne->id,
+            'service_id' => $service->id
         ]);
         factory(Issue::class, 1)->states('open')->create([
             'created_on' => '2018-01-27 10:00:00',
             'project_id' => $projectOne->id
         ]);
         factory(Issue::class, 3)->states('closed')->create([
-            'created_on' => '2018-01-27 10:00:00',
-            'closed_on' => '2018-01-27 10:00:00',
-            'project_id' => $projectTwo->id
+            'created_on' => '2018-01-26 10:00:00',
+            'closed_on' => '2018-01-26 13:00:00',
+            'project_id' => $projectTwo->id,
+            'service_id' => $service->id
         ]);
         factory(Issue::class, 2)->states('open')->create([
-            'created_on' => '2018-01-27 10:00:00',
+            'created_on' => '2018-01-26 10:00:00',
             'project_id' => $projectTwo->id
         ]);
-        $this->signIn();
         $response = $this->get(route('api.issues.reports.projects'));
         $response->assertJsonFragment([
-            [
-                'project' => $projectOne->name,
-                'created' => 3,
-                'closed' => 2
-            ],
-            [
-                'project' => $projectTwo->name,
-                'created' => 5,
-                'closed' => 3
-            ]
+            'project' => $projectOne->name,
+            'created' => 3,
+            'closed' => 2,
+            'closed_in_time' => 2,
+            'closed_overdue' => 0
+        ]);
+        $response->assertJsonFragment([
+            'project' => $projectTwo->name,
+            'created' => 5,
+            'closed' => 3,
+            'closed_in_time' => 0,
+            'closed_overdue' => 3
         ]);
     }
+
 }

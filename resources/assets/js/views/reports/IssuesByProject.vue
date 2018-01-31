@@ -32,6 +32,14 @@
                         key: 'closed',
                         label: 'Выполнено'
                     },
+                    {
+                        key: 'closed_in_time',
+                        label: 'Выполнено в срок'
+                    },
+                    {
+                        key: 'closed_overdue',
+                        label: 'Выполнено не в срок'
+                    },
                 ],
                 issues: []
             }
