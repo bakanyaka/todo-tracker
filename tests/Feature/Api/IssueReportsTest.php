@@ -454,11 +454,13 @@ class IssueReportsTest extends IssuesTestCase
         $this->signIn();
         $response = $this->get(route('api.issues.reports.projects'));
         $response->assertJsonFragment([
-            $projectOne->name => [
+            [
+                'project' => $projectOne->name,
                 'created' => 3,
                 'closed' => 2
             ],
-            $projectTwo->name => [
+            [
+                'project' => $projectTwo->name,
                 'created' => 5,
                 'closed' => 3
             ]

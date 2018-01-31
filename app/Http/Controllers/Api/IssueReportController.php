@@ -152,14 +152,15 @@ class IssueReportController extends Controller
         $issues = Project::all()
             ->pluck('name')
             ->unique()
-            ->mapWithKeys(function ($project) use ($issuesOpen, $issuesClosed) {
+            ->map(function ($project) use ($issuesOpen, $issuesClosed) {
                 return [
-                    $project => [
-                        'created' => $issuesOpen->get($project, 0),
-                        'closed' => $issuesClosed->get($project, 0)
-                    ]
+                    'project' => $project,
+                    'created' => $issuesOpen->get($project, 0),
+                    'closed' => $issuesClosed->get($project, 0)
                 ];
-            });
+            })
+            ->sortByDesc('created')
+            ->values();
 
         return response()->json([
             'data' => $issues
