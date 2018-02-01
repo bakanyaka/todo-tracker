@@ -157,7 +157,7 @@ class IssueReportController extends Controller
             ->filter(function (Issue $issue) {
                 return $issue->due_date !== null && $issue->time_left >= 0;
             })->groupBy(function(Issue $issue) {
-                return $issue->project->name;
+                return optional($issue->project)->name;
             })->map->count();
 
         $issuesClosedOverdue = Issue::closed()
@@ -168,7 +168,7 @@ class IssueReportController extends Controller
             ->filter(function (Issue $issue) {
                 return $issue->due_date !== null && $issue->time_left < 0;
             })->groupBy(function(Issue $issue) {
-                return $issue->project->name;
+                return optional($issue->project)->name;
             })->map->count();
 
 

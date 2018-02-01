@@ -58,7 +58,6 @@
                         period: this.period
                     }
                 }).then((response) => {
-                    console.log(response.data.data);
                     this.issues = response.data.data;
                 })
             }
