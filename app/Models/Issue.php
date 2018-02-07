@@ -148,6 +148,37 @@ class Issue extends Model
     }
 
     /**
+     * Scope a query to only include issues created between given dates
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param $startDate
+     * @param $endDate
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeCreatedWithin($query, $startDate, $endDate)
+    {
+        $query->where('created_on', '>', $startDate);
+        $query->where('created_on', '<', $endDate);
+        return $query;
+    }
+
+    /**
+     * Scope a query to only include issues closed between given dates
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param $startDate
+     * @param $endDate
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeClosedWithin($query, $startDate, $endDate)
+    {
+        $query->where('closed_on', '>', $startDate);
+        $query->where('closed_on', '<', $endDate);
+        return $query;
+    }
+
+
+    /**
      * Scope a query to only include issues marked for control.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
