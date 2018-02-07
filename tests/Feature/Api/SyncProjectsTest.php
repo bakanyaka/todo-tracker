@@ -67,7 +67,8 @@ class SyncProjectsTest extends TestCase
                 'id' => $this->faker->unique()->randomNumber(3),
                 'name' => $this->faker->unique()->sentence,
                 'description' => $this->faker->realText(30),
-                'identifier' => $this->faker->unique()->word
+                'identifier' => $this->faker->unique()->word,
+                'parent_id' => $this->faker->randomNumber(3)
             ],$attributes);
         }
         return collect($projects);

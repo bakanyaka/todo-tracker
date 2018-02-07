@@ -44,7 +44,7 @@ class Redmine
     {
         $url = "issues.json?updated_on=>={$dt->format('Y-m-d')}&status_id=*";
         $issues = $this->getPaginatedDataFromRedmine($url,'issues');
-        return $issues->map([__CLASS__,'parseRedmineIssueData']);
+        return $issues->map([$this,'parseRedmineIssueData']);
     }
 
     /**
@@ -54,7 +54,7 @@ class Redmine
     public function getProjects()
     {
         $data = $this->getPaginatedDataFromRedmine("projects.json",'projects');
-        return $data->map([__CLASS__,'parseRedmineProjectData']);
+        return $data->map([$this,'parseRedmineProjectData']);
     }
 
     /**
@@ -99,7 +99,7 @@ class Redmine
      * @param  array $issue
      * @return array
      */
-    static function parseRedmineIssueData($issue)
+    public function parseRedmineIssueData($issue)
     {
         $customFields = data_get($issue, 'custom_fields',[]);
         return [
@@ -111,25 +111,26 @@ class Redmine
             'assigned_to' => data_get($issue,'assigned_to.name'),
             'subject' => $issue['subject'],
             'description' => $issue['description'],
-            'department' => self::getCustomFieldValue($customFields,1),
-            'service' => self::getCustomFieldValue($customFields,65),
-            'control' => self::getCustomFieldValue($customFields,66),
+            'department' => $this->getCustomFieldValue($customFields,1),
+            'service' => $this->getCustomFieldValue($customFields,65),
+            'control' => $this->getCustomFieldValue($customFields,66),
             'created_on' => Carbon::parse($issue['created_on'])->timezone('Europe/Moscow'),
             'updated_on' => Carbon::parse($issue['updated_on'])->timezone('Europe/Moscow'),
             'closed_on' => array_has($issue,'closed_on') ? Carbon::parse($issue['closed_on'])->timezone('Europe/Moscow') : null
         ];
     }
-    static function parseRedmineProjectData($project)
+    public function parseRedmineProjectData($project)
     {
         return [
             'id' => $project['id'],
             'name' => $project['name'],
             'identifier' => $project['identifier'],
-            'description' => $project['description']
+            'description' => $project['description'],
+            'parent_id' => data_get($project,'parent.id')
         ];
     }
 
-    static function getCustomFieldValue($customFields,$id)
+    public function getCustomFieldValue($customFields,$id)
     {
         return data_get(array_collapse(array_where($customFields, function($value) use ($id) {
             return $value['id'] == $id;
