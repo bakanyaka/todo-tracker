@@ -51,6 +51,7 @@ class SyncProjectsTest extends TestCase
         $this->assertEquals($projectsRM[0]['name'], $projectInDB->name);
         $this->assertEquals($projectsRM[0]['identifier'], $projectInDB->identifier);
         $this->assertEquals($projectsRM[0]['description'], $projectInDB->description);
+        $this->assertEquals($projectsRM[0]['parent_id'], $projectInDB->parent_id);
     }
 
 

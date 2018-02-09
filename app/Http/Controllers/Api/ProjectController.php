@@ -23,6 +23,7 @@ class ProjectController extends Controller
             $project->name = $redmineProject['name'];
             $project->description = $redmineProject['description'];
             $project->identifier = $redmineProject['identifier'];
+            $project->parent_id = $redmineProject['parent_id'];
             $project->save();
         }
     }
