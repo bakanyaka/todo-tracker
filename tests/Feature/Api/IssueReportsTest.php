@@ -427,6 +427,8 @@ class IssueReportsTest extends IssuesTestCase
         $service = create(Service::class, ['hours' => 1]);
         $projectOne = create(Project::class);
         $projectTwo = create(Project::class);
+        $subProjectOfProjectTwo = create(Project::class, ['parent_id' => $projectTwo->id]);
+        $subProjectOfSubbrojectOfProjectTwo = create(Project::class, ['parent_id' => $subProjectOfProjectTwo->id]);
         factory(Issue::class, 2)->states('closed')->create([
             'created_on' => '2018-01-26 10:00:00',
             'closed_on' => '2018-01-26 10:00:00',
@@ -447,21 +449,57 @@ class IssueReportsTest extends IssuesTestCase
             'created_on' => '2018-01-26 10:00:00',
             'project_id' => $projectTwo->id
         ]);
-        $response = $this->get(route('api.issues.reports.projects'));
-        $response->assertJsonFragment([
-            'project' => $projectOne->name,
-            'created' => 3,
-            'closed' => 2,
-            'closed_in_time' => 2,
-            'closed_overdue' => 0
+        factory(Issue::class, 1)->states('open')->create([
+            'created_on' => '2018-01-26 10:00:00',
+            'project_id' => $subProjectOfProjectTwo->id
         ]);
-        $response->assertJsonFragment([
-            'project' => $projectTwo->name,
-            'created' => 5,
-            'closed' => 3,
-            'closed_in_time' => 0,
-            'closed_overdue' => 3
+        factory(Issue::class, 1)->states('closed')->create([
+            'created_on' => '2018-01-26 10:00:00',
+            'closed_on' => '2018-01-26 13:00:00',
+            'service_id' => $service->id,
+            'project_id' => $subProjectOfProjectTwo->id
+        ]);
+        factory(Issue::class, 1)->states('open')->create([
+            'created_on' => '2018-01-26 10:00:00',
+            'project_id' => $subProjectOfSubbrojectOfProjectTwo->id
+        ]);
+
+        $response = $this->get(route('api.issues.reports.projects'));
+
+        $response->assertJson([
+            'data' => [
+                [
+                    'project' => $projectTwo->name,
+                    'project_id' => $projectTwo->id,
+                    'parent_project_id' => $projectTwo->parent_id,
+                    'children' => [
+                        [
+                            'project' => $subProjectOfProjectTwo->name,
+                            'project_id' => $subProjectOfProjectTwo->id,
+                            'parent_project_id' => $subProjectOfProjectTwo->parent_id,
+                            'children' => [],
+                            'created' => 2,
+                            'closed' => 1,
+                            'closed_in_time' => 0,
+                            'closed_overdue' => 1
+                        ]
+                    ],
+                    'created' => 7,
+                    'closed' => 4,
+                    'closed_in_time' => 0,
+                    'closed_overdue' => 4
+                ],
+                [
+                    'project' => $projectOne->name,
+                    'project_id' => $projectOne->id,
+                    'parent_project_id' => $projectOne->parent_id,
+                    'children' => [],
+                    'created' => 3,
+                    'closed' => 2,
+                    'closed_in_time' => 2,
+                    'closed_overdue' => 0
+                ],
+            ]
         ]);
     }
-
 }

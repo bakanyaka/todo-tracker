@@ -124,22 +124,27 @@ class IssueStatsService
         $issuesClosedInTime = $this->getCountOfIssuesInStatusPerProject('closed_in_time', $startDate, $endDate);
         $issuesClosedOverdue = $this->getCountOfIssuesInStatusPerProject('closed_overdue', $startDate, $endDate);
 
-        $issues = Project::all()
-            ->pluck('name')
-            ->unique()
+        $projects = Project::all()
             ->map(function ($project) use ($issuesCreated, $issuesClosed, $issuesClosedInTime, $issuesClosedOverdue) {
                 return [
-                    'project' => $project,
-                    'created' => $issuesCreated->get($project, 0),
-                    'closed' => $issuesClosed->get($project, 0),
-                    'closed_in_time' => $issuesClosedInTime->get($project, 0),
-                    'closed_overdue' => $issuesClosedOverdue->get($project, 0)
+                    'project' => $project->name,
+                    'project_id' => $project->id,
+                    'parent_project_id' => $project->parent_id,
+                    'children' => collect(),
+                    'created' => $issuesCreated->get($project->name, 0),
+                    'closed' => $issuesClosed->get($project->name, 0),
+                    'closed_in_time' => $issuesClosedInTime->get($project->name, 0),
+                    'closed_overdue' => $issuesClosedOverdue->get($project->name, 0)
                 ];
-            })
-            ->sortByDesc('created')
-            ->values();
+            });
 
-        return $issues;
+        $projectsTree = $projects->filter(function ($project) {
+            return $project['parent_project_id'] === null;
+        })->map(function ($project) use ($projects) {
+            return $this->addChildProjectIssuesRecursive($project, $projects);
+        });
+
+        return $projectsTree->sortByDesc('created')->values();
     }
 
     public function getCountOfIssuesInStatusPerProject($status, $startDate, $endDate)
@@ -183,6 +188,20 @@ class IssueStatsService
                 })->map->count();
         }
         return $issues;
+    }
+
+    private function addChildProjectIssuesRecursive($project, $projects)
+    {
+        $childProjects = $projects->where('parent_project_id',$project['project_id']);
+        foreach ($childProjects as $childProject) {
+            $childProject = $this->addChildProjectIssuesRecursive($childProject, $projects);
+            $project['created'] += $childProject['created'];
+            $project['closed'] += $childProject['closed'];
+            $project['closed_in_time' ] += $childProject['closed_in_time' ];
+            $project['closed_overdue'] += $childProject['closed_overdue'];
+            $project['children'][] = $childProject;
+        }
+        return $project;
     }
 
 }
