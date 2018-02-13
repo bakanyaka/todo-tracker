@@ -197,7 +197,7 @@ class IssueStatsService
             $childProject = $this->addChildProjectIssuesRecursive($childProject, $projects);
             $project['created'] += $childProject['created'];
             $project['closed'] += $childProject['closed'];
-            $project['closed_in_time' ] += $childProject['closed_in_time' ];
+            $project['closed_in_time'] += $childProject['closed_in_time' ];
             $project['closed_overdue'] += $childProject['closed_overdue'];
             $project['children'][] = $childProject;
         }
