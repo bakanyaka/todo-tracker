@@ -5,11 +5,15 @@ namespace Tests\Feature;
 use App\Facades\Redmine;
 use App\Jobs\SyncIssues;
 use App\Models\Issue;
+use App\Models\Project;
+use App\Models\Service;
 use App\Models\Synchronization;
 use App\Services\Sync;
 use App\User;
 use Carbon\Carbon;
+use Faker\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use function Sodium\crypto_aead_aes256gcm_decrypt;
 use Tests\TestCase;
 
 class SyncIssuesJobTest extends TestCase
@@ -25,8 +29,9 @@ class SyncIssuesJobTest extends TestCase
     /** @test */
     public function it_creates_new_issue_if_it_does_not_exist()
     {
-        $service = create('App\Models\Service');
-        $redmineIssue = $this->makeFakeIssueArray(['service' => $service->name]);
+        $service = create(Service::class);
+        create(Project::class,['id' => 2]);
+        $redmineIssue = $this->makeFakeIssueArray(['service' => $service->name, 'project_id' => 2]);
         Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
 
         $syncJob = new SyncIssues();
@@ -40,6 +45,7 @@ class SyncIssuesJobTest extends TestCase
         $this->assertEquals($redmineIssue['assigned_to'], $issue->assigned_to);
         $this->assertEquals($redmineIssue['service'], $issue->service->name);
         $this->assertEquals($redmineIssue['priority_id'], $issue->priority_id);
+        $this->assertEquals($redmineIssue['project_id'], $issue->project_id);
         $this->assertEquals($redmineIssue['status_id'], $issue->status_id);
         $this->assertEquals($redmineIssue['created_on'], $issue->created_on);
         $this->assertEquals($redmineIssue['closed_on'], $issue->closed_on);
@@ -50,9 +56,11 @@ class SyncIssuesJobTest extends TestCase
     {
         $issue = create('App\Models\Issue');
         $service = create('App\Models\Service');
+        create(Project::class,['id' => 2]);
         $redmineIssue = $this->makeFakeIssueArray([
             'id' => $issue->id,
             'service' => $service->name,
+            'project_id' => 2,
             'status_id' => 4
         ]);
 
@@ -67,6 +75,7 @@ class SyncIssuesJobTest extends TestCase
         $this->assertEquals($redmineIssue['assigned_to'], $updatedIssue->assigned_to);
         $this->assertEquals($redmineIssue['service'], $updatedIssue->service->name);
         $this->assertEquals($redmineIssue['priority_id'], $updatedIssue->priority_id);
+        $this->assertEquals($redmineIssue['project_id'], $updatedIssue->project_id);
         $this->assertEquals($redmineIssue['status_id'], $updatedIssue->status_id);
         $this->assertEquals($redmineIssue['created_on'], $updatedIssue->created_on);
         $this->assertEquals($redmineIssue['closed_on'], $updatedIssue->closed_on);
@@ -98,6 +107,17 @@ class SyncIssuesJobTest extends TestCase
         }))->andReturn(collect([]));
 
         $syncJob = new SyncIssues();
+        $syncJob->handle();
+    }
+
+    /** @test */
+    public function it_retrieves_redmine_issues_updated_since_date_specified()
+    {
+        $date = Carbon::parse('2017-12-15 10:00');
+        Redmine::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($date) {
+            return $dt == $date;
+        }))->andReturn(collect([]));
+        $syncJob = new SyncIssues($date);
         $syncJob->handle();
     }
 

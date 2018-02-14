@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\FailedToRetrieveRedmineIssueException;
+use App\Exceptions\FailedToRetrieveRedmineDataException;
 use App\Filters\IssueFilters;
 use App\Http\Resources\IssueCollection;
 use App\Jobs\SyncIssues;
 use App\Models\Issue;
 use App\User;
+use Carbon\Carbon;
 use function GuzzleHttp\Promise\all;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -27,6 +28,10 @@ class IssueController extends Controller
             $issues = $issues->filter(function(Issue $issue) {
                 return $issue->due_date !== null && $issue->time_left < 0;
             });
+        } elseif (request()->overdue === 'no') {
+            $issues = $issues->filter(function(Issue $issue) {
+                return $issue->due_date !== null && $issue->time_left >= 0;
+            });
         } elseif (request()->overdue === 'soon') {
             $issues = $issues->filter(function (Issue $issue) {
                 if ($issue->due_date === null) {
@@ -41,7 +46,12 @@ class IssueController extends Controller
 
     public function sync()
     {
-        SyncIssues::dispatch();
+        if(request('updated_since')) {
+            SyncIssues::dispatch(Carbon::parse(request('updated_since')));
+        } else {
+            SyncIssues::dispatch();
+        }
+
         return response()->json();
     }
 
@@ -68,7 +78,7 @@ class IssueController extends Controller
         $issue = Issue::firstOrNew(['id' => $request->issue_id]);
         try {
             $issue->updateFromRedmine();
-        } catch (FailedToRetrieveRedmineIssueException $exception) {
+        } catch (FailedToRetrieveRedmineDataException $exception) {
             abort(404);
         }
         $issue->save();

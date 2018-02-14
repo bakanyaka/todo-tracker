@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\BusinessDate;
-use App\Exceptions\FailedToRetrieveRedmineIssueException;
+use App\Exceptions\FailedToRetrieveRedmineDataException;
 use App\Facades\Redmine;
 use App\Filters\IssueFilters;
 use App\User;
@@ -148,6 +148,37 @@ class Issue extends Model
     }
 
     /**
+     * Scope a query to only include issues created between given dates
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param $startDate
+     * @param $endDate
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeCreatedWithin($query, $startDate, $endDate)
+    {
+        $query->where('created_on', '>', $startDate);
+        $query->where('created_on', '<', $endDate);
+        return $query;
+    }
+
+    /**
+     * Scope a query to only include issues closed between given dates
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param $startDate
+     * @param $endDate
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeClosedWithin($query, $startDate, $endDate)
+    {
+        $query->where('closed_on', '>', $startDate);
+        $query->where('closed_on', '<', $endDate);
+        return $query;
+    }
+
+
+    /**
      * Scope a query to only include issues marked for control.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
@@ -181,6 +212,15 @@ class Issue extends Model
     {
         return $this->belongsTo('App\Models\Priority');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function project()
+    {
+        return $this->belongsTo('App\Models\Project');
+    }
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -353,6 +393,10 @@ class Issue extends Model
         $status = Status::find($redmineIssue['status_id']);
         if (!is_null($status)) {
             $this->status_id = $status->id;
+        }
+        $project = Project::find($redmineIssue['project_id']);
+        if (!is_null($project)) {
+            $this->project_id = $project->id;
         }
         $service = Service::where('name', $redmineIssue['service'])->first();
         $this->service()->associate($service);

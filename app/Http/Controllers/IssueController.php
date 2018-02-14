@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\FailedToRetrieveRedmineIssueException;
+use App\Exceptions\FailedToRetrieveRedmineDataException;
 use App\Facades\Sync;
 use App\Jobs\SyncIssues;
 use App\Models\Issue;
@@ -60,7 +60,7 @@ class IssueController extends Controller
         $issue = Issue::firstOrNew(['id' => $request->issue_id]);
         try {
             $issue->updateFromRedmine();
-        } catch (FailedToRetrieveRedmineIssueException $exception) {
+        } catch (FailedToRetrieveRedmineDataException $exception) {
             abort(404);
         }
         $issue->save();
@@ -75,7 +75,7 @@ class IssueController extends Controller
             Issue::open()->each(function ($issue) {
                 $issue->updateFromRedmine()->save();
             });
-        } catch (FailedToRetrieveRedmineIssueException $exception) {
+        } catch (FailedToRetrieveRedmineDataException $exception) {
             // TODO: Log error
         }
         return redirect(route('issues'));

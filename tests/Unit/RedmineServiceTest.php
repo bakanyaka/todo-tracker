@@ -28,6 +28,7 @@ class RedmineServiceTest extends TestCase
         $result = $redmine->getIssue(324);
         $this->assertEquals([
             'id' =>  $issueData['id'],
+            'project_id' => $issueData['project']['id'],
             'status_id' => $issueData['status']['id'],
             'priority_id' => $issueData['priority']['id'],
             'author' => $issueData['author']['name'],
@@ -54,8 +55,25 @@ class RedmineServiceTest extends TestCase
         $client = new Client(['handler' => $handler]);
         $redmine = new Redmine($client);
 
-        $result =  $redmine->getUpdatedIssues(Carbon::parse('2017-12-13'));
+        $result = $redmine->getUpdatedIssues(Carbon::parse('2017-12-13'));
+
         $this->assertCount(49,$result);
+    }
+
+    /** @test */
+    public function it_retrieves_all_projects()
+    {
+        $mock = new MockHandler([
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],file_get_contents(__DIR__.'/../blobs/projects_page_1.json')),
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],file_get_contents(__DIR__.'/../blobs/projects_page_2.json'))
+        ]);
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $redmine = new Redmine($client);
+
+        $result = $redmine->getProjects();
+
+        $this->assertCount(36, $result);
     }
 
 

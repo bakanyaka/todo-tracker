@@ -14,7 +14,7 @@ class IssueFilters extends Filters
      *
      * @var array
      */
-    protected $filters = ['user', 'status','created_after','created_before','period'];
+    protected $filters = ['user', 'status','created_after','created_before','period','project'];
 
     /**
      * Filter issues by user who tracks it
@@ -113,5 +113,13 @@ class IssueFilters extends Filters
         $this->builder->where('created_on', '<', $dateTo);
         $this->builder->where('created_on', '>', $dateFrom);
         return $this->builder;
+    }
+
+    public function project($projectId)
+    {
+        if ($projectId === null) {
+            return $this->builder;
+        }
+        return $this->builder->where('project_id',$projectId);
     }
 }

@@ -33,9 +33,13 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
 
     Route::get('issues/stats', 'Api\IssueStatsController@index')->name('api.issues.stats');
 
+    Route::get('issues/reports/projects', 'Api\IssueReportController@byProject')->name('api.issues.reports.projects');
     Route::get('issues/reports', 'Api\IssueReportController@index')->name('api.issues.reports');
 
     Route::get('/synchronizations/last', 'Api\RedmineSyncController@show')->name('api.synchronizations.last');
+
+    Route::get('/projects/sync', 'Api\ProjectController@sync')->name('api.projects.sync');
+    Route::get('/projects', 'Api\ProjectController@index')->name('api.projects');
 });
 
 //All unregistered routes should be handled by frontend

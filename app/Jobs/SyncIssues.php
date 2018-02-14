@@ -16,15 +16,16 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class SyncIssues implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    public $date;
 
     /**
      * Create a new job instance.
      *
-     * @return void
+     * @param null $date
      */
-    public function __construct()
+    public function __construct($date = null)
     {
-        //
+        $this->date = $date;
     }
 
     /**
@@ -34,8 +35,12 @@ class SyncIssues implements ShouldQueue
      */
     public function handle()
     {
-        $lastSync = Synchronization::whereNotNull('completed_at')->orderByDesc('completed_at')->first();
-        $lastSyncDate = $lastSync ? $lastSync->completed_at : Carbon::now()->subMonth();
+        if ($this->date === null) {
+            $lastSync = Synchronization::whereNotNull('completed_at')->orderByDesc('completed_at')->first();
+            $lastSyncDate = $lastSync ? $lastSync->completed_at : Carbon::now()->subMonth();
+        } else {
+            $lastSyncDate = $this->date;
+        }
         $issues = Redmine::getUpdatedIssues($lastSyncDate);
         foreach ($issues as $redmineIssue) {
             $issue = Issue::firstOrNew(['id' => $redmineIssue['id']]);
