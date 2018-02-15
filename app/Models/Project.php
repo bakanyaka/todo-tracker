@@ -19,4 +19,14 @@ class Project extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * Get the child projects of project.
+     */
+    public function children()
+    {
+        return $this->hasMany(Project::class, 'parent_id');
+    }
+
+
 }

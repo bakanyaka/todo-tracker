@@ -1,41 +1,46 @@
 <template>
-    <div class="form-row form-inline">
-        <div class="col-auto">
-            <label for="tracked-by">Кто отслеживает:</label>
-            <b-form-select size="sm" id="tracked-by" v-model="filters.user.selected" :options="filters.user.options"
-                           @change="onFiltersChanged">
-            </b-form-select>
-        </div>
-        <div class="col-auto">
-            <label for="status">Статус:</label>
-            <b-form-select size="sm" id="status" v-model="filters.status.selected" :options="filters.status.options"
-                           @change="onFiltersChanged">
-            </b-form-select>
-        </div>
-        <div class="col-auto">
-            <label for="overdue">Срок:</label>
-            <b-form-select size="sm" id="overdue" v-model="filters.overdue.selected" :options="filters.overdue.options"
-                           @change="onFiltersChanged">
-            </b-form-select>
-        </div>
-        <div class="col-auto">
-            <label for="period">Период:</label>
-            <b-form-select size="sm" id="period" v-model="filters.period.selected" :options="filters.period.options"
-                           @change="onFiltersChanged">
-            </b-form-select>
-        </div>
-        <div class="col-auto">
-            <label for="project">Проект:</label>
-            <b-form-select size="sm" id="project" v-model="filters.project.selected" :options="filters.project.options"
-                           @change="onFiltersChanged">
-            </b-form-select>
-        </div>
-        <div class="col-auto">
-            <label>&nbsp;</label>
-            <b-button :to="{name: 'issues.index', query: {user: 'me'}}" variant="primary" size="sm" active-class=""
-                      exact-active-class="">
-                Сбросить
-            </b-button>
+    <div>
+        <div class="form-row form-inline align-items-start">
+            <div class="col-auto">
+                <label for="tracked-by">Кто отслеживает:</label>
+                <b-form-select size="sm" id="tracked-by" v-model="filters.user.selected" :options="filters.user.options"
+                               @change="onFiltersChanged">
+                </b-form-select>
+            </div>
+            <div class="col-auto">
+                <label for="status">Статус:</label>
+                <b-form-select size="sm" id="status" v-model="filters.status.selected" :options="filters.status.options"
+                               @change="onFiltersChanged">
+                </b-form-select>
+            </div>
+            <div class="col-auto">
+                <label for="overdue">Срок:</label>
+                <b-form-select size="sm" id="overdue" v-model="filters.overdue.selected" :options="filters.overdue.options"
+                               @change="onFiltersChanged">
+                </b-form-select>
+            </div>
+            <div class="col-auto">
+                <label for="period">Период:</label>
+                <b-form-select size="sm" id="period" v-model="filters.period.selected" :options="filters.period.options"
+                               @change="onFiltersChanged">
+                </b-form-select>
+            </div>
+            <div class="col-auto">
+                <label for="project">Проект:</label>
+                <b-form-select size="sm" id="project" v-model="filters.project.selected" :options="filters.project.options"
+                               @change="onFiltersChanged">
+                </b-form-select>
+                <b-form-checkbox :plain="true" v-model="filters.include_subprojects.selected" value="yes" :unchecked-value="null" @change="onFiltersChanged">
+                    Включая подпроекты
+                </b-form-checkbox>
+            </div>
+            <div class="col-auto">
+                <label>&nbsp;</label>
+                <b-button :to="{name: 'issues.index', query: {user: 'me'}}" variant="primary" size="sm" active-class=""
+                          exact-active-class="">
+                    Сбросить
+                </b-button>
+            </div>
         </div>
     </div>
 </template>
@@ -88,6 +93,9 @@
                         options: [
                             {value: null, text: 'Все проекты'},
                         ]
+                    },
+                    include_subprojects: {
+                        selected: null,
                     }
                 }
             }

@@ -24,22 +24,27 @@ class IssueController extends Controller
     public function index(IssueFilters $filters)
     {
         $issues = Issue::filter($filters)->get();
-        if (request()->overdue === 'yes') {
-            $issues = $issues->filter(function(Issue $issue) {
-                return $issue->due_date !== null && $issue->time_left < 0;
-            });
-        } elseif (request()->overdue === 'no') {
-            $issues = $issues->filter(function(Issue $issue) {
-                return $issue->due_date !== null && $issue->time_left >= 0;
-            });
-        } elseif (request()->overdue === 'soon') {
-            $issues = $issues->filter(function (Issue $issue) {
-                if ($issue->due_date === null) {
-                    return false;
-                }
-                return $issue->due_date->toDateString() === now()->toDateString() && $issue->percent_of_time_left < 30 && $issue->percent_of_time_left > 0;
-            });
+        switch (request()->overdue) {
+            case 'yes':
+                $issues = $issues->filter(function(Issue $issue) {
+                    return $issue->due_date !== null && $issue->time_left < 0;
+                });
+                break;
+            case 'no':
+                $issues = $issues->filter(function(Issue $issue) {
+                    return $issue->due_date !== null && $issue->time_left >= 0;
+                });
+                break;
+            case 'soon':
+                $issues = $issues->filter(function (Issue $issue) {
+                    if ($issue->due_date === null) {
+                        return false;
+                    }
+                    return $issue->due_date->toDateString() === now()->toDateString() && $issue->percent_of_time_left < 30 && $issue->percent_of_time_left > 0;
+                });
+                break;
         }
+
         $issues = $issues->sort([Issue::class, 'defaultSort'])->values();//->paginate(5);
         return new IssueCollection($issues);
     }

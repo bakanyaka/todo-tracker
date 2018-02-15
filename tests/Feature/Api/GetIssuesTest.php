@@ -375,4 +375,38 @@ class GetIssuesTest extends IssuesTestCase
             'id' => $issueTwo->id
         ]);
     }
+
+    /** @test */
+    public function user_can_filter_issues_by_project_including_sub_projects()
+    {
+        // Given we have a project
+        $projectOne = create(Project::class);
+        // And project that is subproject of project one
+        $projectTwo = create(Project::class, ['parent_id' => $projectOne->id]);
+        // And another non related project
+        $projectThree = create(Project::class);
+        // Issue in project one
+        $issueOne = create(Issue::class, ['project_id' => $projectOne->id]);
+        // And issue in project two
+        $issueTwo = create(Issue::class, ['project_id' => $projectTwo->id]);
+        // And issue in project three
+        $issueThree = create(Issue::class, ['project_id' => $projectThree->id]);
+
+        // When authenticated user makes request to get all issues in project one including subprojects
+        $this->signIn();
+        $response = $this->get(route('api.issues', ['project' => $projectOne->id, 'include_subprojects' => 'yes']));
+
+        // Then response only contains issues in project one
+        $response->assertJsonFragment([
+            'id' => $issueOne->id
+        ]);
+        // And contains issues in project two
+        $response->assertJsonFragment([
+            'id' => $issueTwo->id
+        ]);
+        // And doesn't contain issues in project three
+        $response->assertJsonMissing([
+            'id' => $issueThree->id
+        ]);
+    }
 }
