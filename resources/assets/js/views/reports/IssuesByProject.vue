@@ -5,7 +5,7 @@
         </div>
         <div>
             <b-form-checkbox :plain="true" v-model="filters.include_subprojects" :value="true" :unchecked-value="false" >
-                Включая подпроекты
+                Отображать подпроекты
             </b-form-checkbox>
         </div>
         <b-table class="mt-3" striped bordered small
