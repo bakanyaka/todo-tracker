@@ -26,5 +26,5 @@ class Service extends Model
      *
      * @var array
      */
-    protected $guarded = [];
+    protected $fillable = ['name', 'hours'];
 }

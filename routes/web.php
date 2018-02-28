@@ -26,20 +26,29 @@ Route::middleware(['auth'])->group(function() {
 });
 
 Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
-    Route::get('/issues', 'Api\IssueController@index')->name('api.issues');
-    Route::delete('/issues/{issue}/track', 'Api\IssueController@destroy')->name('api.issues.untrack');
-    Route::post('/issues/track', 'Api\IssueController@store')->name('api.issues.track');
-    Route::get('/issues/sync', 'Api\IssueController@sync')->name('api.issues.sync');
 
-    Route::get('issues/stats', 'Api\IssueStatsController@index')->name('api.issues.stats');
+    Route::group(['prefix' => 'issues'], function() {
+        Route::get('/', 'Api\IssueController@index')->name('api.issues');
+        Route::post('/track', 'Api\IssueController@store')->name('api.issues.track');
+        Route::get('/sync', 'Api\IssueController@sync')->name('api.issues.sync');
+        Route::get('/stats', 'Api\IssueStatsController@index')->name('api.issues.stats');
+        Route::delete('/{issue}/track', 'Api\IssueController@destroy')->name('api.issues.untrack');
+        Route::get('/reports/projects', 'Api\IssueReportController@byProject')->name('api.issues.reports.projects');
+        Route::get('/reports', 'Api\IssueReportController@index')->name('api.issues.reports');
+    });
 
-    Route::get('issues/reports/projects', 'Api\IssueReportController@byProject')->name('api.issues.reports.projects');
-    Route::get('issues/reports', 'Api\IssueReportController@index')->name('api.issues.reports');
+    Route::group(['prefix' => 'projects'], function() {
+        Route::get('/', 'Api\ProjectController@index')->name('api.projects');
+        Route::get('/sync', 'Api\ProjectController@sync')->name('api.projects.sync');
+    });
+
+    Route::group(['prefix' => 'services'], function() {
+        Route::get('/', 'Api\ServiceController@index')->name('api.services');
+        Route::post('/', 'Api\ServiceController@store')->name('api.services.store');
+    });
+
 
     Route::get('/synchronizations/last', 'Api\RedmineSyncController@show')->name('api.synchronizations.last');
-
-    Route::get('/projects/sync', 'Api\ProjectController@sync')->name('api.projects.sync');
-    Route::get('/projects', 'Api\ProjectController@index')->name('api.projects');
 });
 
 //All unregistered routes should be handled by frontend
