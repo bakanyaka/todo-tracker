@@ -42,9 +42,11 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
         Route::get('/sync', 'Api\ProjectController@sync')->name('api.projects.sync');
     });
 
-    Route::group(['prefix' => 'services'], function() {
+    Route::group(['prefix' => 'services', 'middleware' => ['can:touch,' . \App\Models\Service::class]], function() {
         Route::get('/', 'Api\ServiceController@index')->name('api.services');
         Route::post('/', 'Api\ServiceController@store')->name('api.services.store');
+        Route::patch('/{service}', 'Api\ServiceController@update')->name('api.services.update');
+        Route::delete('/{service}', 'Api\ServiceController@destroy')->name('api.services.destroy');
     });
 
 

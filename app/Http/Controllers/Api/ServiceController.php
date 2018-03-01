@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 
-use App\Http\Resources\Service as ServiceCollection;
+use App\Http\Requests\StoreService as StoreServiceRequest;
+use App\Http\Resources\Service as ServiceResource;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -17,19 +18,19 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        return ServiceCollection::collection(Service::all());
+        return ServiceResource::collection(Service::all());
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreServiceRequest $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(StoreServiceRequest $request)
     {
         $service = Service::create($request->only('name','hours'));
-        return response()->json([],200);
+        return (new ServiceResource($service))->response()->setStatusCode(201);
     }
 
     /**
@@ -46,23 +47,28 @@ class ServiceController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
+     * @return ServiceResource
      */
     public function update(Request $request, $id)
     {
-        //
+        $service = Service::findOrFail($id);
+        $service->update($request->only('name','hours'));
+        return new ServiceResource($service);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
     public function destroy($id)
     {
-        //
+        $service = Service::findOrFail($id);
+        $service->delete();
+        return response()->json([],204);
     }
 }
