@@ -13,18 +13,6 @@
 
 Auth::routes();
 
-
-Route::middleware(['auth'])->group(function() {
-
-    Route::get('/services','ServiceController@index')->name('services');
-    Route::post('/services','ServiceController@store');
-    Route::get('/services/new','ServiceController@create')->name('services.new');
-    Route::get('/services/{service}/edit','ServiceController@edit')->name('services.edit');
-    Route::patch('/services/{service}','ServiceController@update')->name('services.update');
-    Route::delete('/services/{service}','ServiceController@destroy')->name('services.delete');
-
-});
-
 Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
 
     Route::group(['prefix' => 'issues'], function() {
