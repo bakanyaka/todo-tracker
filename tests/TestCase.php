@@ -5,6 +5,7 @@ namespace Tests;
 use Carbon\Carbon;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\DB;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -16,6 +17,11 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        if(config('database.default') == 'sqlite'){
+            $db = app()->make('db');
+            $db->connection()->getPdo()->exec("PRAGMA foreign_keys = ON");
+        }
+
         $this->withoutExceptionHandling();
         $this->faker = Factory::create('ru_RU');
     }
@@ -23,6 +29,13 @@ abstract class TestCase extends BaseTestCase
     protected function signIn($user = null)
     {
         $user = $user ?: create('App\User');
+        $this->actingAs($user);
+        return $this;
+    }
+
+    protected function signInAsAdmin()
+    {
+        $user =create('App\User', ['is_admin' => true]);
         $this->actingAs($user);
         return $this;
     }

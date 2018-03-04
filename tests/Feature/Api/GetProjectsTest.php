@@ -22,7 +22,8 @@ class GetProjectsTest extends TestCase
                 'id' => $project->id,
                 'name' => $project->name,
                 'identifier' => $project->identifier,
-                'description' => $project->description
+                'description' => $project->description,
+                'parent_id' => $project->parent_id
             ]
         ]);
     }

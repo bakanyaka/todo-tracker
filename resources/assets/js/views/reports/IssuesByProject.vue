@@ -3,12 +3,41 @@
         <div class="clearfix">
             <period-filter :period="period" @change="onPeriodFilterChanged"></period-filter>
         </div>
+        <div>
+            <b-form-checkbox :plain="true" v-model="filters.include_subprojects" :value="true" :unchecked-value="false" >
+                Отображать подпроекты
+            </b-form-checkbox>
+        </div>
         <b-table class="mt-3" striped bordered small
-                 :items="projects"
+                 :items="filteredProjects"
                  :fields="fields"
         >
             <template slot="project" slot-scope="data">
-                <span :style="{'margin-left': data.item.level + 'rem'}">{{data.value}}</span>
+                <span :class="{'font-weight-bold': data.item.level === 0}" :style="{'margin-left': data.item.level + 'rem'}">{{data.value}}</span>
+            </template>
+            <template slot="created" slot-scope="data">
+                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'all', project: data.item.project_id, period: period, include_subprojects: 'yes'}}">
+                    {{data.value}}
+                </router-link>
+                <span v-else>{{data.value}}</span>
+            </template>
+            <template slot="closed" slot-scope="data">
+                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'closed', project: data.item.project_id, period: period, include_subprojects: 'yes'}}">
+                    {{data.value}}
+                </router-link>
+                <span v-else>{{data.value}}</span>
+            </template>
+            <template slot="closed_in_time" slot-scope="data">
+                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'closed', overdue: 'no', project: data.item.project_id, period: period, include_subprojects: 'yes'}}">
+                    {{data.value}}
+                </router-link>
+                <span v-else>{{data.value}}</span>
+            </template>
+            <template slot="closed_overdue" slot-scope="data">
+                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'closed', overdue: 'yes', project: data.item.project_id, period: period, include_subprojects: 'yes'}}">
+                    {{data.value}}
+                </router-link>
+                <span v-else>{{data.value}}</span>
             </template>
         </b-table>
     </b-card>
@@ -32,7 +61,7 @@
                     },
                     {
                         key: 'created',
-                        label: 'Создано'
+                        label: 'Поступило'
                     },
                     {
                         key: 'closed',
@@ -47,7 +76,21 @@
                         label: 'Выполнено не в срок'
                     },
                 ],
-                projects: []
+                projects: [],
+                filters: {
+                    include_subprojects: false
+                }
+
+            }
+        },
+        computed: {
+            filteredProjects() {
+                if (this.filters.include_subprojects === false) {
+                    return this.projects.filter((project) => {
+                        return project.level === 0;
+                    });
+                }
+                return this.projects;
             }
         },
         created() {

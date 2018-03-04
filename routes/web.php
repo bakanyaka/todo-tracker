@@ -13,33 +13,32 @@
 
 Auth::routes();
 
-
-Route::middleware(['auth'])->group(function() {
-
-    Route::get('/services','ServiceController@index')->name('services');
-    Route::post('/services','ServiceController@store');
-    Route::get('/services/new','ServiceController@create')->name('services.new');
-    Route::get('/services/{service}/edit','ServiceController@edit')->name('services.edit');
-    Route::patch('/services/{service}','ServiceController@update')->name('services.update');
-    Route::delete('/services/{service}','ServiceController@destroy')->name('services.delete');
-
-});
-
 Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
-    Route::get('/issues', 'Api\IssueController@index')->name('api.issues');
-    Route::delete('/issues/{issue}/track', 'Api\IssueController@destroy')->name('api.issues.untrack');
-    Route::post('/issues/track', 'Api\IssueController@store')->name('api.issues.track');
-    Route::get('/issues/sync', 'Api\IssueController@sync')->name('api.issues.sync');
 
-    Route::get('issues/stats', 'Api\IssueStatsController@index')->name('api.issues.stats');
+    Route::group(['prefix' => 'issues'], function() {
+        Route::get('/', 'Api\IssueController@index')->name('api.issues');
+        Route::post('/track', 'Api\IssueController@store')->name('api.issues.track');
+        Route::get('/sync', 'Api\IssueController@sync')->name('api.issues.sync');
+        Route::get('/stats', 'Api\IssueStatsController@index')->name('api.issues.stats');
+        Route::delete('/{issue}/track', 'Api\IssueController@destroy')->name('api.issues.untrack');
+        Route::get('/reports/projects', 'Api\IssueReportController@byProject')->name('api.issues.reports.projects');
+        Route::get('/reports', 'Api\IssueReportController@index')->name('api.issues.reports');
+    });
 
-    Route::get('issues/reports/projects', 'Api\IssueReportController@byProject')->name('api.issues.reports.projects');
-    Route::get('issues/reports', 'Api\IssueReportController@index')->name('api.issues.reports');
+    Route::group(['prefix' => 'projects'], function() {
+        Route::get('/', 'Api\ProjectController@index')->name('api.projects');
+        Route::get('/sync', 'Api\ProjectController@sync')->name('api.projects.sync');
+    });
+
+    Route::group(['prefix' => 'services', 'middleware' => ['can:touch,' . \App\Models\Service::class]], function() {
+        Route::get('/', 'Api\ServiceController@index')->name('api.services');
+        Route::post('/', 'Api\ServiceController@store')->name('api.services.store');
+        Route::patch('/{service}', 'Api\ServiceController@update')->name('api.services.update');
+        Route::delete('/{service}', 'Api\ServiceController@destroy')->name('api.services.destroy');
+    });
+
 
     Route::get('/synchronizations/last', 'Api\RedmineSyncController@show')->name('api.synchronizations.last');
-
-    Route::get('/projects/sync', 'Api\ProjectController@sync')->name('api.projects.sync');
-    Route::get('/projects', 'Api\ProjectController@index')->name('api.projects');
 });
 
 //All unregistered routes should be handled by frontend

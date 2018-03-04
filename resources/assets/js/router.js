@@ -4,6 +4,7 @@ import Full from './layouts/Full'
 import Issues from './views/issues/Issues'
 import Dashboard from './views/dashboard/Dashboard'
 import Reports from './views/reports/Reports'
+import Services from './views/services/Services'
 
 Vue.use(Router);
 
@@ -43,13 +44,34 @@ let routes = [
                 meta: {
                     label: 'Отчеты'
                 }
+            },
+            {
+                path: '/services',
+                name: 'services',
+                component: Services,
+                meta: {
+                    label: 'Сервисы',
+                    roles: ['admin']
+                }
             }
         ]
     }
 ];
 
-export default new Router({
+const router = new Router({
     mode: 'history',
     linkActiveClass: 'open active',
     routes
-})
+});
+
+router.beforeEach((to, from, next) => {
+    if (to.meta.roles && to.meta.roles.includes('admin')) {
+        if (config && config.user && config.user.is_admin) {
+            next()
+        }
+    } else {
+        next()
+    }
+});
+
+export default router;

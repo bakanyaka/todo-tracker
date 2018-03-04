@@ -4,6 +4,7 @@
 namespace App\Filters;
 
 
+use App\Models\Project;
 use App\User;
 use Carbon\Carbon;
 
@@ -120,6 +121,11 @@ class IssueFilters extends Filters
         if ($projectId === null) {
             return $this->builder;
         }
-        return $this->builder->where('project_id',$projectId);
+        if ($this->request->include_subprojects === 'yes') {
+            $projects = Project::with(['children','children.children'])->where('id',$projectId)->get()->recursivePluck('id')->toArray();
+            return $this->builder->whereIn('project_id',$projects);
+        } else {
+            return $this->builder->where('project_id',$projectId);
+        }
     }
 }

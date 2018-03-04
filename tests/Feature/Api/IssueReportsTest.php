@@ -478,13 +478,13 @@ class IssueReportsTest extends IssuesTestCase
                             'project_id' => $subProjectOfProjectTwo->id,
                             'parent_project_id' => $subProjectOfProjectTwo->parent_id,
                             'children' => [],
-                            'created' => 2,
+                            'created' => 3,
                             'closed' => 1,
                             'closed_in_time' => 0,
                             'closed_overdue' => 1
                         ]
                     ],
-                    'created' => 7,
+                    'created' => 8,
                     'closed' => 4,
                     'closed_in_time' => 0,
                     'closed_overdue' => 4
