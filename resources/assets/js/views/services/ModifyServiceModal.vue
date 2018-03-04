@@ -42,20 +42,25 @@
             handleOk(e) {
                 e.preventDefault();
                 if (!this.service.name || !this.service.hours) {
-                    alert('Введите данные')
+                    this.$snotify.error('Введите данные')
                 } else {
                     this.handleSubmit()
                 }
             },
             handleSubmit() {
+                let result;
                 if (this.modalType === 'edit') {
-                    axios.patch(route('api.services.update', this.service.id),this.service).then(() => {
-                        this.$snotify.success('Сервис изменен');
-                    }).catch((e) => {
-                        console.log(e);
-                        this.$snotify.error('Ошибка при изменении сервиса!');
-                    });
+                    result = axios.patch(route('api.services.update', this.service.id),this.service)
+                } else {
+                    result = axios.post(route('api.services.store'),this.service)
                 }
+                result.then(() => {
+                    this.$snotify.success('Сервис изменен');
+                    this.$emit('modified');
+                }).catch((e) => {
+                    console.log(e);
+                    this.$snotify.error('Ошибка при изменении сервиса!');
+                });
                 this.displayed = false;
             }
         }

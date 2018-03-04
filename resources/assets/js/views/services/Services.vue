@@ -63,8 +63,8 @@
                 </b-pagination>
             </template>
         </b-card>
-        <modify-service-modal ref="addServiceModal" modal-type="create"></modify-service-modal>
-        <modify-service-modal ref="editServiceModal" modal-type="edit"></modify-service-modal>
+        <modify-service-modal ref="addServiceModal" modal-type="create" @modified="getServices()"></modify-service-modal>
+        <modify-service-modal ref="editServiceModal" modal-type="edit" @modified="getServices()"></modify-service-modal>
     </div>
 </template>
 
@@ -127,6 +127,7 @@
         },
         methods: {
             getServices() {
+                console.log('getting services');
                 this.loading = true;
                 return axios.get(route('api.services')).then((response) => {
                     this.services = response.data.data;
@@ -153,7 +154,7 @@
                 this.getServices();
             },
             editService(service) {
-                this.$refs.editServiceModal.show(service)
+                this.$refs.editServiceModal.show(Object.assign({},service))
             },
             saveServiceChanges() {
                 axios.patch(route('api.services.update', this.modals.editService.data.id),this.modals.editService.data).then(() => {
