@@ -27,6 +27,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Issue[] $issues
  * @property string $username
  * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereUsername($value)
+ * @property bool $is_admin
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereIsAdmin($value)
  */
 class User extends Authenticatable
 {

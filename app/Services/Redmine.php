@@ -57,6 +57,29 @@ class Redmine
         return $data->map([$this,'parseRedmineProjectData']);
     }
 
+
+    /**
+     * @return \Illuminate\Support\Collection
+     * @throws FailedToRetrieveRedmineDataException
+     */
+    public function getUsers()
+    {
+        $data = $this->getPaginatedDataFromRedmine('users.json','users');
+        return $data->map([$this, 'parseRedmineUserData']);
+    }
+
+    /**
+     * @param Carbon $dt
+     * @return \Illuminate\Support\Collection
+     * @throws FailedToRetrieveRedmineDataException
+     */
+    public function getTimeEntries(Carbon $dt)
+    {
+        $url = "time_entries.json?spent_on=>={$dt->format('Y-m-d')}";
+        $data = $this->getPaginatedDataFromRedmine($url,'time_entries');
+        return $data->map([$this, 'parseRedmineTimeEntryData']);
+    }
+
     /**
      * @param string $uri
      * @return array
@@ -109,6 +132,7 @@ class Redmine
             'priority_id' => $issue['priority']['id'],
             'author' => $issue['author']['name'],
             'assigned_to' => data_get($issue,'assigned_to.name'),
+            'assigned_to_id' => data_get($issue,'assigned_to.id'),
             'subject' => $issue['subject'],
             'description' => $issue['description'],
             'department' => $this->getCustomFieldValue($customFields,1),
@@ -127,6 +151,30 @@ class Redmine
             'identifier' => $project['identifier'],
             'description' => $project['description'],
             'parent_id' => data_get($project,'parent.id')
+        ];
+    }
+
+    public function parseRedmineUserData($user)
+    {
+        return [
+            'id' => $user['id'],
+            'login' => $user['login'],
+            'firstname' => $user['firstname'],
+            'lastname' => $user['lastname'],
+            'mail' => $user['mail'],
+        ];
+    }
+
+    public function parseRedmineTimeEntryData($timeEntry)
+    {
+        return [
+            'id' => $timeEntry['id'],
+            'assignee_id' => array_get($timeEntry, 'user.id'),
+            'project_id' => array_get($timeEntry, 'project.id'),
+            'issue_id' => array_get($timeEntry, 'issue.id'),
+            'hours' => $timeEntry['hours'],
+            'comments' => $timeEntry['comments'],
+            'spent_on' => Carbon::parse($timeEntry['spent_on'])->timezone('Europe/Moscow'),
         ];
     }
 

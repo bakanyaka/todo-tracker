@@ -1,5 +1,8 @@
 <template>
     <div>
+<!--        <div class="form-row period-filter">
+            <period-filter></period-filter>
+        </div>-->
         <div class="form-row form-inline align-items-start">
             <div class="col-auto">
                 <label for="tracked-by">Кто отслеживает:</label>
@@ -46,7 +49,10 @@
 </template>
 
 <script>
+    import PeriodFilter from "../components/PeriodFilter";
+
     export default {
+        components: {PeriodFilter},
         name: "filters",
         data() {
             return {
@@ -151,5 +157,7 @@
 </script>
 
 <style scoped>
-
+    .period-filter {
+        justify-content: flex-end;
+    }
 </style>

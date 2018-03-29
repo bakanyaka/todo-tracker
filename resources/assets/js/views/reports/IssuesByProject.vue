@@ -1,7 +1,7 @@
 <template>
     <b-card header="Задачи по проектам">
         <div class="clearfix">
-            <period-filter :period="period" @change="onPeriodFilterChanged"></period-filter>
+            <period-filter period="7" @change="onDateRangeChanged"></period-filter>
         </div>
         <div>
             <b-form-checkbox :plain="true" v-model="filters.include_subprojects" :value="true" :unchecked-value="false" >
@@ -16,25 +16,25 @@
                 <span :class="{'font-weight-bold': data.item.level === 0}" :style="{'margin-left': data.item.level + 'rem'}">{{data.value}}</span>
             </template>
             <template slot="created" slot-scope="data">
-                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'all', project: data.item.project_id, period: period, include_subprojects: 'yes'}}">
+                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'all', project: data.item.project_id, period_from_date: period.startDate, period_to_date: period.endDate, include_subprojects: 'yes'}}">
                     {{data.value}}
                 </router-link>
                 <span v-else>{{data.value}}</span>
             </template>
             <template slot="closed" slot-scope="data">
-                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'closed', project: data.item.project_id, period: period, include_subprojects: 'yes'}}">
+                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'closed', project: data.item.project_id, period_from_date: period.startDate, period_to_date: period.endDate, include_subprojects: 'yes'}}">
                     {{data.value}}
                 </router-link>
                 <span v-else>{{data.value}}</span>
             </template>
             <template slot="closed_in_time" slot-scope="data">
-                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'closed', overdue: 'no', project: data.item.project_id, period: period, include_subprojects: 'yes'}}">
+                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'closed', overdue: 'no', project: data.item.project_id, period_from_date: period.startDate, period_to_date: period.endDate, include_subprojects: 'yes'}}">
                     {{data.value}}
                 </router-link>
                 <span v-else>{{data.value}}</span>
             </template>
             <template slot="closed_overdue" slot-scope="data">
-                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'closed', overdue: 'yes', project: data.item.project_id, period: period, include_subprojects: 'yes'}}">
+                <router-link v-if="data.value !== 0" :to="{name: 'issues.index', query: {status: 'closed', overdue: 'yes', project: data.item.project_id, period_from_date: period.startDate, period_to_date: period.endDate, include_subprojects: 'yes'}}">
                     {{data.value}}
                 </router-link>
                 <span v-else>{{data.value}}</span>
@@ -44,16 +44,21 @@
 </template>
 
 <script>
-    import PeriodFilter from './PeriodFilter';
+    import moment from 'moment';
+    import PeriodFilter from '../components/PeriodFilter';
     import ProjectTree from "./ProjectTree";
     export default {
         name: "issues-by-project",
         components: {
             ProjectTree,
-            PeriodFilter},
+            PeriodFilter
+        },
         data() {
             return {
-                period: 7,
+                period: {
+                    startDate: moment().subtract(7,'days').format('YYYY-MM-DD'),
+                    endDate: moment().subtract(1, 'days').format('YYYY-MM-DD')
+                },
                 fields: [
                     {
                         key: 'project',
@@ -97,8 +102,8 @@
             this.getData();
         },
         methods: {
-            onPeriodFilterChanged($period) {
-                this.period = $period;
+            onDateRangeChanged(range) {
+                this.period = range;
                 this.getData();
             },
             flattenRecursiveProjectArray(projects, data, level = 0) {
@@ -112,7 +117,8 @@
             getData() {
                 return axios.get(route('api.issues.reports.projects'), {
                     params: {
-                        period: this.period
+                        period_from_date: this.period.startDate,
+                        period_to_date: this.period.endDate,
                     }
                 }).then((response) => {
                     let projects = [];

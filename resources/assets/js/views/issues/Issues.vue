@@ -95,7 +95,7 @@
                 searchText: '',
                 pagination: {
                     totalRows: null,
-                    perPage: 20,
+                    perPage: 50,
                     currentPage: 1,
                 },
                 fields: [

@@ -37,8 +37,19 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
         Route::delete('/{service}', 'Api\ServiceController@destroy')->name('api.services.destroy');
     });
 
+    Route::group(['prefix' => 'assignees'], function() {
+        Route::get('/', 'Api\AssigneeController@index')->name('api.assignees');
+        Route::get('/sync', 'Api\AssigneeController@sync')->name('api.assignees.sync');
+        Route::get('/report', 'Api\AssigneeReportController@index')->name('api.assignees.report.index');
+        Route::get('/report/{assignee}', 'Api\AssigneeReportController@show')->name('api.assignees.report.show');
+    });
 
-    Route::get('/synchronizations/last', 'Api\RedmineSyncController@show')->name('api.synchronizations.last');
+    Route::group(['prefix' => 'time-entries'], function() {
+        Route::get('/sync', 'Api\TimeEntryController@sync')->name('api.time-entries.sync');
+    });
+
+
+    Route::get('/synchronizations/last', 'Api\RedmineSyncController@index')->name('api.synchronizations.index');
 });
 
 //All unregistered routes should be handled by frontend

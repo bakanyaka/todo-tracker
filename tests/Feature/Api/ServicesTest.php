@@ -46,7 +46,7 @@ class ServicesTest extends TestCase
     }
 
     /** @test */
-    public function nom_admins_cant_create_a_service()
+    public function non_admins_cant_create_a_service()
     {
         $this->withExceptionHandling();
         $this->signIn();

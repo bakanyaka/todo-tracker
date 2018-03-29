@@ -8,7 +8,7 @@
                 <b>Внимание! Для правильной синхронизации сервисов в задачах, наименования сервисов должны в точности
                     соответствовать значениям поля Сервис в Redmine.</b>
             </p>
-            <b-button variant="primary"
+            <b-button class="mb-3" variant="primary"
                       size="sm"
                       title="Добавить сервис"
                       @click.stop="showAddServiceModal()">
@@ -26,10 +26,6 @@
                             <b-form-select size="sm" id="resultsPerPage" v-model="pagination.perPage"
                                            :options="[10,20,50,100]"></b-form-select>
                         </div>
-                    </b-col>
-                    <b-col sm="4" offset-md="2">
-                        <b-input size="sm" type="text" placeholder="Поиск в результатах" v-model="searchText"
-                                 required></b-input>
                     </b-col>
                 </b-row>
                 <b-table outlined small
@@ -127,7 +123,6 @@
         },
         methods: {
             getServices() {
-                console.log('getting services');
                 this.loading = true;
                 return axios.get(route('api.services')).then((response) => {
                     this.services = response.data.data;

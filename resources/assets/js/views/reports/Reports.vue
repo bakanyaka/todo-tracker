@@ -2,6 +2,7 @@
     <div>
         <issues-summary></issues-summary>
         <issues-by-project></issues-by-project>
+        <issues-by-assignee></issues-by-assignee>
     </div>
 </template>
 
@@ -10,9 +11,14 @@
 
     import IssuesSummary from "./IssuesSummary";
     import IssuesByProject from "./IssuesByProject";
+    import IssuesByAssignee from "./IssuesByAssignee";
 
     export default {
-        components: {IssuesSummary, IssuesByProject},
+        components: {
+            IssuesByAssignee,
+            IssuesSummary,
+            IssuesByProject
+        },
         name: "reports",
     }
 

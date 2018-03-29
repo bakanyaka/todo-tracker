@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Facades\Redmine;
 use App\Models\Project;
+use Carbon\Carbon;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,7 +21,7 @@ class SyncProjectsTest extends TestCase
         Redmine::shouldReceive('getProjects')->once()->andReturn($projects);
 
         // When administrator makes request to synchronize projects with Redmine
-        $this->signIn();
+        $this->signInAsAdmin();
         $response = $this->get(route('api.projects.sync'));
         $response->assertStatus(200);
 
@@ -52,6 +53,21 @@ class SyncProjectsTest extends TestCase
         $this->assertEquals($projectsRM[0]['identifier'], $projectInDB->identifier);
         $this->assertEquals($projectsRM[0]['description'], $projectInDB->description);
         $this->assertEquals($projectsRM[0]['parent_id'], $projectInDB->parent_id);
+    }
+
+    /** @test */
+    public function it_saves_sync_timestamp_to_database()
+    {
+        $now = Carbon::create(2017,12,9,5);
+        Carbon::setTestNow($now);
+        Redmine::shouldReceive('getProjects')->once()->andReturn(collect());
+
+        $this->signInAsAdmin();
+        $response = $this->get(route('api.projects.sync'));
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('synchronizations',['completed_at' => $now, 'type' => 'projects']);
+
     }
 
 

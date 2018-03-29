@@ -43,6 +43,7 @@ class SyncIssuesJobTest extends TestCase
         $this->assertEquals($redmineIssue['subject'], $issue->subject);
         $this->assertEquals($redmineIssue['department'], $issue->department);
         $this->assertEquals($redmineIssue['assigned_to'], $issue->assigned_to);
+        $this->assertEquals($redmineIssue['assigned_to_id'], $issue->assigned_to_id);
         $this->assertEquals($redmineIssue['service'], $issue->service->name);
         $this->assertEquals($redmineIssue['priority_id'], $issue->priority_id);
         $this->assertEquals($redmineIssue['project_id'], $issue->project_id);
@@ -73,6 +74,7 @@ class SyncIssuesJobTest extends TestCase
         $this->assertEquals($redmineIssue['subject'], $updatedIssue->subject);
         $this->assertEquals($redmineIssue['department'], $updatedIssue->department);
         $this->assertEquals($redmineIssue['assigned_to'], $updatedIssue->assigned_to);
+        $this->assertEquals($redmineIssue['assigned_to_id'], $updatedIssue->assigned_to_id);
         $this->assertEquals($redmineIssue['service'], $updatedIssue->service->name);
         $this->assertEquals($redmineIssue['priority_id'], $updatedIssue->priority_id);
         $this->assertEquals($redmineIssue['project_id'], $updatedIssue->project_id);
@@ -90,18 +92,19 @@ class SyncIssuesJobTest extends TestCase
 
         $syncJob = new SyncIssues();
         $syncJob->handle();
-        $sync = Synchronization::first();
+        $sync = Synchronization::where('type', 'issues')->first();
 
+        $this->assertNotNull($sync);
         $this->assertEquals($now,$sync->completed_at);
     }
 
     /** @test */
     public function it_retrieves_only_redmine_issues_updated_since_last_sync()
     {
-        Synchronization::create(['completed_at' => Carbon::parse('2017-12-10')]);
-        Synchronization::create(['completed_at' => Carbon::parse('2017-12-13')]);
+        Synchronization::create(['completed_at' => Carbon::parse('2017-12-10'), 'type' => 'issues']);
+        Synchronization::create(['completed_at' => Carbon::parse('2017-12-13'), 'type' => 'issues']);
         $completedAt = Carbon::parse('2017-12-15 10:00');
-        Synchronization::create(['completed_at' => $completedAt]);
+        Synchronization::create(['completed_at' => $completedAt, 'type' => 'issues']);
         Redmine::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($completedAt) {
             return $dt == $completedAt;
         }))->andReturn(collect([]));

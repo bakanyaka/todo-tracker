@@ -42,17 +42,20 @@ class SyncIssues implements ShouldQueue
             $lastSyncDate = $this->date;
         }
         $issues = Redmine::getUpdatedIssues($lastSyncDate);
+        $updatedIssuesCount = 0;
         foreach ($issues as $redmineIssue) {
-            $issue = Issue::firstOrNew(['id' => $redmineIssue['id']]);
+            $issue = Issue::setEagerLoads([])->firstOrNew(['id' => $redmineIssue['id']]);
             // Only update issue if it was updated in redmine
             if ($issue->updated_on === null || $issue->updated_on->lt($redmineIssue['updated_on']) ) {
                 $issue->updateFromRedmineIssue($redmineIssue);
                 $issue->save();
+                $updatedIssuesCount++;
             }
         }
         Synchronization::create([
             'completed_at' => Carbon::now(),
-            'updated_issues_count' => $issues->count()
+            'type' => 'issues',
+            'updated_items_count' => $updatedIssuesCount
         ]);
     }
 }

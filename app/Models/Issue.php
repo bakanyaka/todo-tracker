@@ -64,6 +64,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereOnPauseHours($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereStatusChangedOn($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereStatusId($value)
+ * @property int $project_id
+ * @property-read \App\Models\Project $project
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue closedWithin($startDate, $endDate)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue createdWithin($startDate, $endDate)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereUpdatedOn($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\TimeEntry[] $time_entries
  */
 class Issue extends Model
 {
@@ -74,6 +81,20 @@ class Issue extends Model
      */
     protected $casts = [
         'id' => 'integer',
+        'control' => 'boolean'
+    ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'created_on',
+        'closed_on',
+        'updated_on'
     ];
 
     /**
@@ -147,6 +168,22 @@ class Issue extends Model
         });
     }
 
+
+    /**
+     * Scope a query to only include active issues.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
+    {
+        return $query->whereHas('status', function (Builder $q) {
+            $q->where('is_paused', false);
+            $q->where('is_closed', false);
+        });
+    }
+
+
     /**
      * Scope a query to only include issues created between given dates
      *
@@ -157,8 +194,8 @@ class Issue extends Model
      */
     public function scopeCreatedWithin($query, $startDate, $endDate)
     {
-        $query->where('created_on', '>', $startDate);
-        $query->where('created_on', '<', $endDate);
+        $query->whereDate('created_on', '>=', $startDate);
+        $query->whereDate('created_on', '<=', $endDate);
         return $query;
     }
 
@@ -172,8 +209,8 @@ class Issue extends Model
      */
     public function scopeClosedWithin($query, $startDate, $endDate)
     {
-        $query->where('closed_on', '>', $startDate);
-        $query->where('closed_on', '<', $endDate);
+        $query->whereDate('closed_on', '>=', $startDate);
+        $query->whereDate('closed_on', '<=', $endDate);
         return $query;
     }
 
@@ -228,6 +265,11 @@ class Issue extends Model
     public function status()
     {
         return $this->belongsTo('App\Models\Status');
+    }
+
+    public function time_entries()
+    {
+        return $this->hasMany(TimeEntry::class);
     }
 
     /**
@@ -343,6 +385,11 @@ class Issue extends Model
         $this->status_changed_on = now();
     }
 
+    public function getIsTrackedAttribute()
+    {
+        return $this->users()->where('id', auth()->id())->exists();
+    }
+
     public function isTrackedBy(User $user)
     {
         return $this->users()->find($user->id) !== null;
@@ -383,8 +430,10 @@ class Issue extends Model
         $this->subject = $redmineIssue['subject'];
         $this->department = $redmineIssue['department'];
         $this->assigned_to = $redmineIssue['assigned_to'];
+        $this->assigned_to_id = $redmineIssue['assigned_to_id'];
         $this->created_on = $redmineIssue['created_on'];
         $this->closed_on = $redmineIssue['closed_on'];
+        $this->updated_on = $redmineIssue['updated_on'];
         $this->control = $redmineIssue['control'] == 1 ? true : false;
         $priority = Priority::find($redmineIssue['priority_id']);
         if (!is_null($priority)) {

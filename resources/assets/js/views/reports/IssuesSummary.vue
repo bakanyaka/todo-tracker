@@ -3,10 +3,10 @@
         <b-row>
             <b-col sm="5" class="mb-3">
                 <h4 class="card-title mb-0">Общий отчет за период</h4>
-                <div class="small text-muted">{{periodStart}}-{{periodEnd}}</div>
+                <div class="small text-muted">{{period.startDate}} - {{period.endDate}}</div>
             </b-col>
             <b-col sm="7" class="d-none d-md-block">
-                <period-filter :period="period" @change="onPeriodFilterChanged"></period-filter>
+                <period-filter :period="7" @change="onDateRangeChanged"></period-filter>
             </b-col>
         </b-row>
         <issues-chart  :chart-data="datacollection" class="chart-wrapper" style="height:300px;margin-top:40px;" :height="300"></issues-chart>
@@ -49,7 +49,7 @@
 <script>
     import IssuesChart from "./IssuesChart";
     import * as moment from 'moment';
-    import PeriodFilter from "./PeriodFilter";
+    import PeriodFilter from "../components/PeriodFilter";
 
     const brandSuccess = '#4dbd74';
     const brandInfo = '#63c2de';
@@ -73,7 +73,10 @@
         name: "issues-summary",
         data () {
             return {
-                period: 7,
+                period: {
+                    startDate: moment().subtract(7,'days').format('YYYY-MM-DD'),
+                    endDate: moment().subtract(1, 'days').format('YYYY-MM-DD')
+                },
                 datacollection: null,
                 issueSummary: {
                     created: 0,
@@ -87,25 +90,18 @@
         mounted() {
             this.getReport(this.period);
         },
-        watch: {
-            'period'() {
-                this.getReport(this.period);
-            }
-        },
-        computed: {
-            periodStart() {
-                return moment().subtract(this.period,'days').format('DD.MM.YYYY')
-            },
-            periodEnd() {
-                return moment().subtract(1,'days').format('DD.MM.YYYY')
-            }
-        },
         methods: {
-            onPeriodFilterChanged($period) {
-                this.period = $period;
+            onDateRangeChanged(range) {
+                this.period = range;
+                this.getReport();
             },
-            getReport($days = 30) {
-                return axios.get(route('api.issues.reports'), {params: {period: $days}}).then((response)=> {
+            getReport() {
+                return axios.get(route('api.issues.reports'), {
+                    params: {
+                        period_from_date: this.period.startDate,
+                        period_to_date: this.period.endDate,
+                    }
+                }).then((response)=> {
                     this.issueSummary.created = response.data.data.created.total;
                     this.issueSummary.closed = response.data.data.closed.total;
                     this.issueSummary.closed_first_line = response.data.data.closed_first_line.total;

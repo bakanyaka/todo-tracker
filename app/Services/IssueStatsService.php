@@ -20,7 +20,7 @@ class IssueStatsService
         }
 
         $zeroDates = collect();
-        for ($d = $endDateCarbon->copy()->subDays(1); $d->gte($startDateCarbon); $d->subDays(1)) {
+        for ($d = $endDateCarbon->copy(); $d->gte($startDateCarbon); $d->subDays(1)) {
             $date = $d->toDateString();
             $zeroDates[$date] = [
                 'x' => $date,
@@ -28,22 +28,22 @@ class IssueStatsService
             ];
         }
 
-        $issuesCreated = Issue::where('created_on', '>', $startDate)
-            ->where('created_on', '<', $endDate)
+        $issuesCreated = Issue::whereDate('created_on', '>=', $startDate)
+            ->whereDate('created_on', '<=', $endDate)
             ->selectRaw('Date(created_on) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date', 'asc')->get()
             ->map([$this, "mapToChartData"])->keyBy('x');
 
-        $issuesClosed = Issue::where('closed_on', '>', $startDate)
-            ->where('closed_on', '<', $endDate)
+        $issuesClosed = Issue::whereDate('closed_on', '>=', $startDate)
+            ->whereDate('closed_on', '<=', $endDate)
             ->selectRaw('Date(closed_on) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date', 'asc')->get()
             ->map([$this, "mapToChartData"])->keyBy('x');
 
-        $issuesClosedFirstLine = Issue::where('closed_on', '>', $startDate)
-            ->where('closed_on', '<', $endDate)
+        $issuesClosedFirstLine = Issue::whereDate('closed_on', '>=', $startDate)
+            ->whereDate('closed_on', '<=', $endDate)
             ->where('status_id', 8)
             ->selectRaw('Date(closed_on) as date, COUNT(*) as count')
             ->groupBy('date')
@@ -51,8 +51,8 @@ class IssueStatsService
             ->map([$this, "mapToChartData"])->keyBy('x');
 
         $overDueIssues = Issue::Closed()
-            ->where('closed_on', '>', $startDate)
-            ->where('closed_on', '<', $endDate)
+            ->whereDate('closed_on', '>=', $startDate)
+            ->whereDate('closed_on', '<=', $endDate)
             ->get()->filter(function (Issue $issue) {
                 return $issue->due_date !== null && $issue->time_left < 0;
             })->groupBy(function (Issue $issue) {
@@ -65,8 +65,8 @@ class IssueStatsService
             });
 
         $closedInTimeIssues = Issue::Closed()
-            ->where('closed_on', '>', $startDate)
-            ->where('closed_on', '<', $endDate)
+            ->whereDate('closed_on', '>=', $startDate)
+            ->whereDate('closed_on', '<=', $endDate)
             ->get()->filter(function (Issue $issue) {
                 return $issue->due_date !== null && $issue->time_left >= 0;
             })->groupBy(function (Issue $issue) {
@@ -120,7 +120,7 @@ class IssueStatsService
     public function getIssuesReportPerProject($startDate, $endDate)
     {
         $issuesCreated = $this->getCountOfIssuesInStatusPerProject('created', $startDate, $endDate);
-        $issuesClosed =  $this->getCountOfIssuesInStatusPerProject('closed', $startDate, $endDate);
+        $issuesClosed = $this->getCountOfIssuesInStatusPerProject('closed', $startDate, $endDate);
         $issuesClosedInTime = $this->getCountOfIssuesInStatusPerProject('closed_in_time', $startDate, $endDate);
         $issuesClosedOverdue = $this->getCountOfIssuesInStatusPerProject('closed_overdue', $startDate, $endDate);
 
@@ -131,10 +131,10 @@ class IssueStatsService
                     'project_id' => $project->id,
                     'parent_project_id' => $project->parent_id,
                     'children' => collect(),
-                    'created' => $issuesCreated->get($project->name, 0),
-                    'closed' => $issuesClosed->get($project->name, 0),
-                    'closed_in_time' => $issuesClosedInTime->get($project->name, 0),
-                    'closed_overdue' => $issuesClosedOverdue->get($project->name, 0)
+                    'created' => $issuesCreated->get($project->id, 0),
+                    'closed' => $issuesClosed->get($project->id, 0),
+                    'closed_in_time' => $issuesClosedInTime->get($project->id, 0),
+                    'closed_overdue' => $issuesClosedOverdue->get($project->id, 0)
                 ];
             });
 
@@ -153,20 +153,20 @@ class IssueStatsService
         if ($status === 'created') {
             $issues = Issue::createdWithin($startDate, $endDate)
                 ->join('projects', 'issues.project_id', '=', 'projects.id')
-                ->selectRaw('projects.name as project, COUNT(*) as count')
-                ->groupBy('project')
+                ->selectRaw('projects.id as project_id, COUNT(*) as count')
+                ->groupBy('projects.id')
                 ->get()
                 ->mapWithKeys(function ($item) {
-                    return [$item['project'] => (int)$item['count']];
+                    return [$item['project_id'] => (int)$item['count']];
                 });
         } elseif ($status === 'closed') {
             $issues = Issue::closedWithin($startDate, $endDate)
                 ->join('projects', 'issues.project_id', '=', 'projects.id')
-                ->selectRaw('projects.name as project, COUNT(*) as count')
-                ->groupBy('project')
+                ->selectRaw('projects.id as project_id, COUNT(*) as count')
+                ->groupBy('projects.id')
                 ->get()
                 ->mapWithKeys(function ($item) {
-                    return [$item['project'] => (int)$item['count']];
+                    return [$item['project_id'] => (int)$item['count']];
                 });
         } elseif ($status === 'closed_in_time') {
             $issues = Issue::closedWithin($startDate, $endDate)
@@ -175,7 +175,7 @@ class IssueStatsService
                 ->filter(function (Issue $issue) {
                     return $issue->due_date !== null && $issue->time_left >= 0;
                 })->groupBy(function (Issue $issue) {
-                    return optional($issue->project)->name;
+                    return optional($issue->project)->id;
                 })->map->count();
         } elseif ($status === 'closed_overdue') {
             $issues = Issue::closedWithin($startDate, $endDate)
@@ -184,7 +184,7 @@ class IssueStatsService
                 ->filter(function (Issue $issue) {
                     return $issue->due_date !== null && $issue->time_left < 0;
                 })->groupBy(function (Issue $issue) {
-                    return optional($issue->project)->name;
+                    return optional($issue->project)->id;
                 })->map->count();
         }
         return $issues;
@@ -192,12 +192,12 @@ class IssueStatsService
 
     private function addChildProjectIssuesRecursive($project, $projects)
     {
-        $childProjects = $projects->where('parent_project_id',$project['project_id']);
+        $childProjects = $projects->where('parent_project_id', $project['project_id']);
         foreach ($childProjects as $childProject) {
             $childProject = $this->addChildProjectIssuesRecursive($childProject, $projects);
             $project['created'] += $childProject['created'];
             $project['closed'] += $childProject['closed'];
-            $project['closed_in_time'] += $childProject['closed_in_time' ];
+            $project['closed_in_time'] += $childProject['closed_in_time'];
             $project['closed_overdue'] += $childProject['closed_overdue'];
             $project['children'][] = $childProject;
         }

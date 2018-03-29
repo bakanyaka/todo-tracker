@@ -28,9 +28,8 @@ class IssueReportController extends Controller
 
     public function index(Request $request)
     {
-        $periodDays = $request->period ? $request->period : 7;
-        $periodStartDate = Carbon::now()->subDays($periodDays)->toDateString();
-        $periodEndDate = Carbon::now()->toDateString();
+        $periodStartDate = $request->input('period_from_date',Carbon::now()->subDays(7)->toDateString());
+        $periodEndDate = $request->input('period_to_date',Carbon::now()->toDateString());
 
         return response()->json([
             'data' => $this->issueStatsService->getIssuesSummaryPerDay($periodStartDate, $periodEndDate)
@@ -39,12 +38,11 @@ class IssueReportController extends Controller
 
     public function byProject(Request $request)
     {
-        $periodDays = $request->period ? $request->period : 7;
-        $periodStart = Carbon::now()->subDays($periodDays)->toDateString();
-        $periodEnd = Carbon::now()->toDateString();
+        $periodStartDate = $request->input('period_from_date',Carbon::now()->subDays(7)->toDateString());
+        $periodEndDate = $request->input('period_to_date',Carbon::now()->toDateString());
 
         return response()->json([
-            'data' => $this->issueStatsService->getIssuesReportPerProject($periodStart,$periodEnd)
+            'data' => $this->issueStatsService->getIssuesReportPerProject($periodStartDate,$periodEndDate)
         ]);
     }
 }

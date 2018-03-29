@@ -5,6 +5,8 @@ import Issues from './views/issues/Issues'
 import Dashboard from './views/dashboard/Dashboard'
 import Reports from './views/reports/Reports'
 import Services from './views/services/Services'
+import Synchronizations from './views/synchronizations/Synchronizations'
+import AssigneeReport from './views/reports/assignees/AssigneeReport'
 
 Vue.use(Router);
 
@@ -14,7 +16,7 @@ let routes = [
         name: 'home',
         redirect: {
             path: '/issues',
-            query: {user: 'me'}
+            query: {user: 'control'}
         },
         component: Full,
         meta: {
@@ -42,7 +44,17 @@ let routes = [
                 name: 'reports',
                 component: Reports,
                 meta: {
-                    label: 'Отчеты'
+                    label: 'Отчеты',
+                    roles: ['admin']
+                }
+            },
+            {
+                path: '/reports/assignees/:id',
+                name: 'assignee_report',
+                component: AssigneeReport,
+                meta: {
+                    label: 'Отчеты',
+                    roles: ['admin']
                 }
             },
             {
@@ -51,6 +63,15 @@ let routes = [
                 component: Services,
                 meta: {
                     label: 'Сервисы',
+                    roles: ['admin']
+                }
+            },
+            {
+                path: '/synchronizations',
+                name: 'synchronizations',
+                component: Synchronizations,
+                meta: {
+                    label: 'Синхронизации',
                     roles: ['admin']
                 }
             }

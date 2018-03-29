@@ -6,17 +6,17 @@ let items = [
             },*/
     {
         name: 'Задачи',
-        url: '/issues?user=me',
+        url: '/issues?user=control',
         icon: 'icon-check'
-    },
-    {
-        name: 'Отчеты',
-        url: '/reports',
-        icon: 'icon-chart'
     }
 ];
 if (config && config.user && config.user.is_admin) {
     items = items.concat([
+        {
+            name: 'Отчеты',
+            url: '/reports',
+            icon: 'icon-chart'
+        },
         {
             title: true,
             name: 'Администрировать',
@@ -30,8 +30,12 @@ if (config && config.user && config.user.is_admin) {
             name: 'Сервисы',
             url: '/services',
             icon: 'icon-wrench'
+        },
+        {
+            name: 'Синхронизации',
+            url: '/synchronizations',
+            icon: 'icon-refresh'
         }
-
     ])
 }
 export default {

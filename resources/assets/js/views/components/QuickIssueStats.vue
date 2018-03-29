@@ -87,7 +87,6 @@
         mounted() {
             this.getIssueStats();
             setInterval(() => {
-                console.log('QuickIssueStats updated');
                 this.getIssueStats();
             }, 60000);
         },

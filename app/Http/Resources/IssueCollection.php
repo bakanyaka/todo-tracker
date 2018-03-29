@@ -16,7 +16,7 @@ class IssueCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        $lastSync = Synchronization::whereNotNull('completed_at')->orderByDesc('completed_at')->first();
+        $lastSync = Synchronization::whereNotNull('completed_at')->where('type','issues')->orderByDesc('completed_at')->first();
         return [
             'data' => $this->collection,
             $this->mergeWhen($lastSync !== null,[

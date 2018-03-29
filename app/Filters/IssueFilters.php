@@ -15,7 +15,7 @@ class IssueFilters extends Filters
      *
      * @var array
      */
-    protected $filters = ['user', 'status','created_after','created_before','period','project'];
+    protected $filters = ['user', 'status','created_after','created_before','period', 'period_from_date', 'period_to_date','project'];
 
     /**
      * Filter issues by user who tracks it
@@ -75,7 +75,7 @@ class IssueFilters extends Filters
             return $this->builder;
         }
         $dt = Carbon::parse($date);
-        return $this->builder->where('created_on', '>=', $dt->toDateString());
+        return $this->builder->whereDate('created_on', '>=', $dt->toDateString());
     }
 
     /**
@@ -90,7 +90,7 @@ class IssueFilters extends Filters
             return $this->builder;
         }
         $dt = Carbon::parse($date);
-        return $this->builder->where('created_on', '<=', $dt->toDateString());
+        return $this->builder->whereDate('created_on', '<=', $dt->toDateString());
     }
 
     /**
@@ -113,6 +113,45 @@ class IssueFilters extends Filters
         }
         $this->builder->where('created_on', '<', $dateTo);
         $this->builder->where('created_on', '>', $dateFrom);
+        return $this->builder;
+    }
+
+    /**
+     * Filter the issues according to those that were created or closed after given date
+     *
+     * @param string $dateFrom
+     * @return $this|\Illuminate\Database\Eloquent\Builder
+     */
+    public function period_from_date($dateFrom)
+    {
+        if($dateFrom === null) {
+            return $this->builder;
+        }
+
+        if ($this->request->status === 'closed') {
+            $this->builder->whereDate('closed_on', '>=', $dateFrom);
+            return $this->builder;
+        }
+        $this->builder->whereDate('created_on', '>=', $dateFrom);
+        return $this->builder;
+    }
+
+    /**
+     * Filter the issues according to those that were created or closed before given date
+     *
+     * @param int $days
+     * @return $this|\Illuminate\Database\Eloquent\Builder
+     */
+    public function period_to_date($dateTo)
+    {
+        if($dateTo === null) {
+            return $this->builder;
+        }
+        if ($this->request->status === 'closed') {
+            $this->builder->whereDate('closed_on', '<=', $dateTo);
+            return $this->builder;
+        }
+        $this->builder->whereDate('created_on', '<=', $dateTo);
         return $this->builder;
     }
 

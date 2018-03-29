@@ -44,7 +44,7 @@ class GetIssuesTest extends IssuesTestCase
     public function timestamp_of_last_sync_with_redmine_is_returned_with_issues()
     {
         $this->signIn();
-        $sync = Synchronization::create(['completed_at' => Carbon::now()]);
+        $sync = Synchronization::create(['completed_at' => Carbon::now(), 'type' => 'issues']);
 
         $response = $this->get(route('api.issues'));
 
@@ -54,7 +54,6 @@ class GetIssuesTest extends IssuesTestCase
                'completed_at' => $sync->completed_at->toDateTimeString(),
            ]
         ]);
-
     }
 
     /** @test */
@@ -147,39 +146,6 @@ class GetIssuesTest extends IssuesTestCase
     }
 
     /** @test */
-    public function user_can_get_issues_created_within_given_date_interval()
-    {
-        //Given we have a user
-        $user = create('App\User');
-        $this->signIn($user);
-        //And two dates
-        $dateOne = Carbon::parse('2018-01-17');
-        $dateTwo = Carbon::parse('2018-01-19');
-        //One tracked issue that was created before given interval
-        $beforeIssue = $this->createTrackedIssue($user, ['created_on' => '2018-01-16 10:00:00']);
-        //And another tracked issue that was created after interval
-        $afterIssue = $this->createTrackedIssue($user, ['created_on' => '2018-01-20 10:00:00']);
-        //And another tracked issue that was created within given interval
-        $withinIssue = $this->createTrackedIssue($user, ['created_on' => '2018-01-18 10:00:00']);
-        //When user makes request to get issues created within given interval
-        $response = $this->get(route('api.issues', [
-            'user' => 'all',
-            'created_after' => $dateOne->toDateString(),
-            'created_before' => $dateTwo->toDateString(),
-        ]));
-        //Then response only contains issue that was created within given interval
-        $response->assertJsonMissing([
-            'id' => $beforeIssue->id
-        ]);
-        $response->assertJsonMissing([
-            'id' => $afterIssue->id
-        ]);
-        $response->assertJsonFragment([
-            'id' => $withinIssue->id
-        ]);
-    }
-
-    /** @test */
     public function user_can_get_all_paused_issues()
     {
         // Given we have paused issue
@@ -257,26 +223,95 @@ class GetIssuesTest extends IssuesTestCase
     }
 
     /** @test */
-    public function user_can_get_all_issues_open_in_a_specified_period()
+    public function user_can_get_all_open_issues_created_within_specified_period()
     {
         Carbon::setTestNow('2018-01-19 15:00:00');
-        // Given we have an issue created more than 7 days ag
-        $oldIssue = create(Issue::class, [
-            'created_on' => '2018-01-09 12:00:00'
+
+        // Given we have open issues created within specified period
+        $issuesShouldBeIncluded[] = create(Issue::class, [
+            'created_on' => '2018-01-12 00:00:00'
         ]);
-        // And an issue created within 7 days
-        $newIssue = create(Issue::class, [
-            'created_on' => '2018-01-13 10:00:00'
+        $issuesShouldBeIncluded[] = create(Issue::class, [
+            'created_on' => '2018-01-18 23:59:00'
         ]);
-        // When user makes request to get all open issues in 7 days
+
+        // And issues created before and after specified period
+        $issuesShouldBeMissing[] = create(Issue::class, [
+            'created_on' => '2018-01-11 12:00:00'
+        ]);
+        $issuesShouldBeMissing[] = create(Issue::class, [
+            'created_on' => '2018-01-19 12:00:00'
+        ]);
+
+        // And closed issues created within specified period
+        $issuesShouldBeMissing[] = factory(Issue::class)->states(['closed'])->create([
+            'created_on' => '2018-01-15 23:59:00'
+        ]);
+
+        // When user makes request to get all open issues within period
         $this->signIn();
-        $response = $this->get(route('api.issues', ['period' => 7]));
-        // Then response only contains issue created within 7 days
-        $response->assertJsonMissing([
-            'id' => $oldIssue->id
+        $response = $this->get(route('api.issues', [
+            'period_from_date' => '2018-01-12',
+            'period_to_date' => '2018-01-18'
+        ]));
+        // Then response only contains issue created within period
+        $response->assertJsonFragment([
+            'id' => $issuesShouldBeIncluded[0]->id
         ]);
         $response->assertJsonFragment([
-            'id' => $newIssue->id
+            'id' => $issuesShouldBeIncluded[1]->id
+        ]);
+        $response->assertJsonMissing([
+            'id' => $issuesShouldBeMissing[0]->id
+        ]);
+        $response->assertJsonMissing([
+            'id' => $issuesShouldBeMissing[1]->id
+        ]);
+        $response->assertJsonMissing([
+            'id' => $issuesShouldBeMissing[2]->id
+        ]);
+    }
+
+    /** @test */
+    public function user_can_get_all_issues_created_within_specified_period()
+    {
+        Carbon::setTestNow('2018-01-19 15:00:00');
+
+        // Given we have both open and closed issues created within specified period
+        $issuesShouldBeIncluded[] = create(Issue::class, [
+            'created_on' => '2018-01-12 00:00:00'
+        ]);
+        $issuesShouldBeIncluded[] = factory(Issue::class)->states(['closed'])->create([
+            'created_on' => '2018-01-18 23:59:00'
+        ]);
+
+        // And issues created before and after specified period
+        $issuesShouldBeMissing[] = create(Issue::class, [
+            'created_on' => '2018-01-11 12:00:00'
+        ]);
+        $issuesShouldBeMissing[] = create(Issue::class, [
+            'created_on' => '2018-01-19 12:00:00'
+        ]);
+
+        // When user makes request to get all open issues within period
+        $this->signIn();
+        $response = $this->get(route('api.issues', [
+            'status' => 'all',
+            'period_from_date' => '2018-01-12',
+            'period_to_date' => '2018-01-18'
+        ]));
+        // Then response only contains issue created within period
+        $response->assertJsonFragment([
+            'id' => $issuesShouldBeIncluded[0]->id
+        ]);
+        $response->assertJsonFragment([
+            'id' => $issuesShouldBeIncluded[1]->id
+        ]);
+        $response->assertJsonMissing([
+            'id' => $issuesShouldBeMissing[0]->id
+        ]);
+        $response->assertJsonMissing([
+            'id' => $issuesShouldBeMissing[1]->id
         ]);
     }
 
@@ -284,25 +319,49 @@ class GetIssuesTest extends IssuesTestCase
     public function user_can_get_all_issues_closed_in_a_specified_period()
     {
         Carbon::setTestNow('2018-01-19 15:00:00');
-        // Given we have an issue closed more than 7 days ag
-        $oldIssue = create(Issue::class, [
-            'created_on' => '2018-01-09 12:00:00',
-            'closed_on' => '2018-01-09 13:00:00'
+
+        // Given we have issues closed closed within specified period
+        $issuesShouldBeIncluded[] = factory(Issue::class)->states(['closed'])->create([
+            'closed_on' => '2018-01-12 00:00:00'
         ]);
-        // And an issue closed within 7 days
-        $newIssue = factory(Issue::class)->states(['closed'])->create([
-            'created_on' => '2018-01-09 10:00:00',
-            'closed_on' => '2018-01-13 11:00:00'
+        $issuesShouldBeIncluded[] = factory(Issue::class)->states(['closed'])->create([
+            'closed_on' => '2018-01-18 23:59:00'
         ]);
-        // When user makes request to get all closed issues in 7 days
+
+        // And issues closed before and after specified period
+        $issuesShouldBeMissing[] = factory(Issue::class)->states(['closed'])->create([
+            'closed_on' => '2018-01-11 23:59:00'
+        ]);
+        $issuesShouldBeMissing[] = factory(Issue::class)->states(['closed'])->create([
+            'closed_on' => '2018-01-19 0:00:00'
+        ]);
+        // And open issue
+        $issuesShouldBeMissing[] = create(Issue::class, [
+            'created_on' => '2018-01-13 12:00:00'
+        ]);
+
+        // When user makes request to get all closed issues within period
         $this->signIn();
-        $response = $this->get(route('api.issues', ['status' => 'closed', 'period' => 7]));
-        // Then response only contains issue created within 7 days
-        $response->assertJsonMissing([
-            'id' => $oldIssue->id
+        $response = $this->get(route('api.issues', [
+            'status' => 'closed',
+            'period_from_date' => '2018-01-12',
+            'period_to_date' => '2018-01-18'
+        ]));
+        // Then response only contains issue created within period
+        $response->assertJsonFragment([
+            'id' => $issuesShouldBeIncluded[0]->id
         ]);
         $response->assertJsonFragment([
-            'id' => $newIssue->id
+            'id' => $issuesShouldBeIncluded[1]->id
+        ]);
+        $response->assertJsonMissing([
+            'id' => $issuesShouldBeMissing[0]->id
+        ]);
+        $response->assertJsonMissing([
+            'id' => $issuesShouldBeMissing[1]->id
+        ]);
+        $response->assertJsonMissing([
+            'id' => $issuesShouldBeMissing[2]->id
         ]);
     }
 
