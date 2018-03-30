@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Models\Assignee;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Service;
@@ -466,6 +467,26 @@ class GetIssuesTest extends IssuesTestCase
         // And doesn't contain issues in project three
         $response->assertJsonMissing([
             'id' => $issueThree->id
+        ]);
+    }
+
+    /** @test */
+    public function user_can_filter_issues_by_assignee()
+    {
+
+        $assignee = create(Assignee::class);
+        $assigneeIssue = create(Issue::class, ['assigned_to' => "{$assignee->firstname} {$assignee->lastname}", 'assigned_to_id' => $assignee->id]);
+        $anotherIssue = create(Issue::class);
+
+        $this->signIn();
+        $response = $this->get(route('api.issues', ['assigned_to' => "{$assignee->firstname} {$assignee->lastname}"]));
+
+        $response->assertJsonFragment([
+            'id' => $assigneeIssue->id,
+        ]);
+
+        $response->assertJsonMissing([
+            'id' => $anotherIssue->id
         ]);
     }
 }

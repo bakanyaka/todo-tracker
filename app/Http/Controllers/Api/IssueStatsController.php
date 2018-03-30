@@ -29,6 +29,7 @@ class IssueStatsController extends Controller
         })->count();
         $createdTodayIssuesCount = Issue::where('created_on','>=', Carbon::today())->count();
         $closedTodayIssuesCount = Issue::where('closed_on','>=', Carbon::today())->count();
+        $inProcurementIssuesCount = Issue::open()->where('assigned_to', 'Отдел Закупок')->count();
 
         return response()->json([
             'data' => [
@@ -37,7 +38,8 @@ class IssueStatsController extends Controller
                 'overdue' => $overDueIssuesCount,
                 'due_soon' => $dueSoonIssuesCount,
                 'created_today' => $createdTodayIssuesCount,
-                'closed_today' => $closedTodayIssuesCount
+                'closed_today' => $closedTodayIssuesCount,
+                'in_procurement' => $inProcurementIssuesCount
             ]
         ]);
     }

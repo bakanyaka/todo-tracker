@@ -15,7 +15,20 @@ class IssueFilters extends Filters
      *
      * @var array
      */
-    protected $filters = ['user', 'status','created_after','created_before','period', 'period_from_date', 'period_to_date','project'];
+    protected $filters = ['user', 'assigned_to', 'status', 'created_after', 'created_before', 'period', 'period_from_date', 'period_to_date', 'project'];
+
+    /**
+     * Filter issues by assignee it is assigned to
+     * @param $assigneeName
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function assigned_to($assigneeName)
+    {
+        if ($assigneeName === null) {
+            return $this->builder;
+        }
+        return $this->builder->where('assigned_to', $assigneeName);
+    }
 
     /**
      * Filter issues by user who tracks it
@@ -29,9 +42,9 @@ class IssueFilters extends Filters
             return $this->builder;
         } elseif ($username === 'me') {
             $user = auth()->user();
-/*            return $this->builder->whereHas('users', function ($query) use ($user) {
-                $query->where('id', $user->id);
-            });*/
+            /*            return $this->builder->whereHas('users', function ($query) use ($user) {
+                            $query->where('id', $user->id);
+                        });*/
             $this->builder = $user->issues()->getQuery()->mergeConstraintsFrom($this->builder);
             return $this->builder;
         } elseif ($username === 'all') {
@@ -53,7 +66,7 @@ class IssueFilters extends Filters
      */
     public function status($status)
     {
-        if($status === 'all') {
+        if ($status === 'all') {
             return $this->builder;
         } elseif ($status === 'closed') {
             return $this->builder->closed();
@@ -71,7 +84,7 @@ class IssueFilters extends Filters
      */
     public function created_after($date)
     {
-        if($date === null) {
+        if ($date === null) {
             return $this->builder;
         }
         $dt = Carbon::parse($date);
@@ -86,7 +99,7 @@ class IssueFilters extends Filters
      */
     public function created_before($date)
     {
-        if($date === null) {
+        if ($date === null) {
             return $this->builder;
         }
         $dt = Carbon::parse($date);
@@ -101,7 +114,7 @@ class IssueFilters extends Filters
      */
     public function period($days)
     {
-        if($days === null) {
+        if ($days === null) {
             return $this->builder;
         }
         $dateFrom = now()->subDays($days)->toDateString();
@@ -124,7 +137,7 @@ class IssueFilters extends Filters
      */
     public function period_from_date($dateFrom)
     {
-        if($dateFrom === null) {
+        if ($dateFrom === null) {
             return $this->builder;
         }
 
@@ -144,7 +157,7 @@ class IssueFilters extends Filters
      */
     public function period_to_date($dateTo)
     {
-        if($dateTo === null) {
+        if ($dateTo === null) {
             return $this->builder;
         }
         if ($this->request->status === 'closed') {
@@ -161,10 +174,10 @@ class IssueFilters extends Filters
             return $this->builder;
         }
         if ($this->request->include_subprojects === 'yes') {
-            $projects = Project::with(['children','children.children'])->where('id',$projectId)->get()->recursivePluck('id')->toArray();
-            return $this->builder->whereIn('project_id',$projects);
+            $projects = Project::with(['children', 'children.children'])->where('id', $projectId)->get()->recursivePluck('id')->toArray();
+            return $this->builder->whereIn('project_id', $projects);
         } else {
-            return $this->builder->where('project_id',$projectId);
+            return $this->builder->where('project_id', $projectId);
         }
     }
 }

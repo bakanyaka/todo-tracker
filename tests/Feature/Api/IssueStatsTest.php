@@ -142,4 +142,17 @@ class IssueStatsTest extends IssuesTestCase
             'closed_today' => 3
         ]);
     }
+
+    /** @test */
+    public function user_can_get_count_of_open_issues_in_procurement()
+    {
+        factory(Issue::class,1)->states('open')->create();
+        factory(Issue::class,1)->states('closed')->create(['assigned_to' => 'Отдел Закупок']);
+        factory(Issue::class,2)->states('open')->create(['assigned_to' => 'Отдел Закупок']);
+        $this->signIn();
+        $response = $this->get(route('api.issues.stats'));
+        $response->assertJsonFragment([
+            'in_procurement' => 2
+        ]);
+    }
 }
