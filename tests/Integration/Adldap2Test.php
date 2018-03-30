@@ -9,7 +9,9 @@ use Tests\TestCase;
 
 class Adldap2Test extends TestCase
 {
-    /** @test */
+    /** @test
+     *  @doesNotPerformAssertions
+     * */
     public function it_connects_to_active_directory() {
         try {
             $provider = Adldap::getDefaultProvider()->connect();

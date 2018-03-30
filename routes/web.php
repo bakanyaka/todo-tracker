@@ -44,6 +44,11 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
         Route::get('/report/{assignee}', 'Api\AssigneeReportController@show')->name('api.assignees.report.show');
     });
 
+    Route::group(['prefix' => 'employees'], function() {
+        Route::get('/', 'Api\EmployeeController@index')->name('api.employees.index');
+    });
+
+
     Route::group(['prefix' => 'time-entries'], function() {
         Route::get('/sync', 'Api\TimeEntryController@sync')->name('api.time-entries.sync');
     });
