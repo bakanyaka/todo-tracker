@@ -469,4 +469,13 @@ class Issue extends Model
         }
         return $b->priority_id - $a->priority_id;
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('notInProcurement', function (Builder $builder) {
+            $builder->where('assigned_to', '<>', 'Отдел Закупок');
+        });
+    }
 }

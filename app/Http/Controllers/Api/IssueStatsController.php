@@ -29,7 +29,7 @@ class IssueStatsController extends Controller
         })->count();
         $createdTodayIssuesCount = Issue::where('created_on','>=', Carbon::today())->count();
         $closedTodayIssuesCount = Issue::where('closed_on','>=', Carbon::today())->count();
-        $inProcurementIssuesCount = Issue::open()->where('assigned_to', 'Отдел Закупок')->count();
+        $inProcurementIssuesCount = Issue::withoutGlobalScope('notInProcurement')->open()->where('assigned_to', 'Отдел Закупок')->count();
 
         return response()->json([
             'data' => [

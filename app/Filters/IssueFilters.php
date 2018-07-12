@@ -27,6 +27,9 @@ class IssueFilters extends Filters
         if ($assigneeName === null) {
             return $this->builder;
         }
+        if ($assigneeName === 'Отдел Закупок') {
+            $this->builder->withoutGlobalScope('notInProcurement');
+        }
         return $this->builder->where('assigned_to', $assigneeName);
     }
 
