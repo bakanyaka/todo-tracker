@@ -138,6 +138,7 @@ class Redmine
             'department' => $this->getCustomFieldValue($customFields,1),
             'service' => $this->getCustomFieldValue($customFields,65),
             'control' => $this->getCustomFieldValue($customFields,66),
+            'start_date' => Carbon::parse($issue['start_date'])->timezone('Europe/Moscow'),
             'created_on' => Carbon::parse($issue['created_on'])->timezone('Europe/Moscow'),
             'updated_on' => Carbon::parse($issue['updated_on'])->timezone('Europe/Moscow'),
             'closed_on' => array_has($issue,'closed_on') ? Carbon::parse($issue['closed_on'])->timezone('Europe/Moscow') : null

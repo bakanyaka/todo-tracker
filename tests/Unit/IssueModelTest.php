@@ -19,7 +19,7 @@ class IssueModelTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->artisan("db:Seed");
+        $this->artisan("db:seed");
     }
 
     /** @test */
@@ -316,6 +316,15 @@ class IssueModelTest extends TestCase
         $issue = $issue->fresh();
         // Then time passed (in hours) since previous status change should be added to om_pause_hours attribute
         $this->assertEquals(2, $issue->on_pause_hours);
+    }
+
+    /** @test */
+    public function when_redmine_issue_has_different_start_date_model_created_on_date_part_is_changed_to_start_date()
+    {
+        $issueData = $this->makeFakeIssueArray();
+        $issue = new Issue(['id' => $issueData['id']]);
+        $issue->updateFromRedmineIssue($issueData);
+        $this->assertEquals(Carbon::create($issueData['start_date']->year, $issueData['start_date']->month, $issueData['start_date']->day, $issueData['created_on']->hour, $issueData['created_on']->minute, $issueData['created_on']->second, $issueData['created_on']->tz), $issue->created_on);
     }
 
 }

@@ -44,7 +44,7 @@ class SyncIssues implements ShouldQueue
         $issues = Redmine::getUpdatedIssues($lastSyncDate);
         $updatedIssuesCount = 0;
         foreach ($issues as $redmineIssue) {
-            $issue = Issue::setEagerLoads([])->firstOrNew(['id' => $redmineIssue['id']]);
+            $issue = Issue::setEagerLoads([])->withoutGlobalScopes()->firstOrNew(['id' => $redmineIssue['id']]);
             // Only update issue if it was updated in redmine
             if ($issue->updated_on === null || $issue->updated_on->lt($redmineIssue['updated_on']) ) {
                 $issue->updateFromRedmineIssue($redmineIssue);

@@ -38,6 +38,7 @@ class RedmineServiceTest extends TestCase
             'department' => $issueData['custom_fields'][0]['value'],
             'service' => $issueData['custom_fields'][1]['value'],
             'control' => $issueData['custom_fields'][2]['value'],
+            'start_date' => Carbon::parse($issueData['start_date']),
             'created_on' => Carbon::parse($issueData['created_on']),
             'updated_on' => Carbon::parse($issueData['updated_on']),
             'closed_on' => Carbon::parse($issueData['closed_on']),

@@ -431,7 +431,7 @@ class Issue extends Model
         $this->department = $redmineIssue['department'];
         $this->assigned_to = $redmineIssue['assigned_to'];
         $this->assigned_to_id = $redmineIssue['assigned_to_id'];
-        $this->created_on = $redmineIssue['created_on'];
+        $this->created_on = Carbon::create($redmineIssue['start_date']->year, $redmineIssue['start_date']->month, $redmineIssue['start_date']->day, $redmineIssue['created_on']->hour, $redmineIssue['created_on']->minute, $redmineIssue['created_on']->second, $redmineIssue['created_on']->tz);
         $this->closed_on = $redmineIssue['closed_on'];
         $this->updated_on = $redmineIssue['updated_on'];
         $this->control = $redmineIssue['control'] == 1 ? true : false;

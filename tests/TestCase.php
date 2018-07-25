@@ -42,6 +42,8 @@ abstract class TestCase extends BaseTestCase
 
     protected function makeFakeIssueArray($attributes = [])
     {
+        $created_on = Carbon::instance($this->faker->dateTimeThisMonth());
+
         $issue = array_merge([
             'id' =>  $this->faker->unique()->randomNumber(5),
             'status_id' => 2,
@@ -55,7 +57,8 @@ abstract class TestCase extends BaseTestCase
             'department' => '115 Управление информационных систем',
             'service' => 'Организация рабочих мест пользователей',
             'control' => 1,
-            'created_on' => Carbon::instance($this->faker->dateTimeThisMonth()),
+            'start_date' => Carbon::parse($created_on->toDateString()),
+            'created_on' => $created_on,
             'updated_on' => Carbon::instance($this->faker->dateTimeThisMonth()),
             'closed_on' => Carbon::instance($this->faker->dateTimeThisMonth()),
         ],$attributes);

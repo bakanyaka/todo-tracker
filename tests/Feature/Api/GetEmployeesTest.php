@@ -10,7 +10,7 @@ class GetEmployeesTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+
     public function user_can_get_a_list_of_all_employees()
     {
         $this->signIn();

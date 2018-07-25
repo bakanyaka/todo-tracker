@@ -57,7 +57,7 @@
         <b-card class="text-white text-center bg-info">
             <router-link :to="{name: 'issues.index', query: {assigned_to: 'Отдел Закупок'}}">
                 <div class="h2 text-muted  mb-2">
-                    <i class="icon-cup"></i>
+                    <i class="icon-basket"></i>
                 </div>
                 <div class="h3 mb-0">{{stats.in_procurement}}</div>
                 <span class="text-uppercase font-weight-bold">В закупке</span>
