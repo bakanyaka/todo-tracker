@@ -13,7 +13,7 @@ class ServiceTest extends TestCase
     use RefreshDatabase;
 
 
-
+    /** @test */
     public function when_service_is_deleted_service_id_is_set_to_null_in_all_associated_issues()
     {
         $service = create(Service::class);

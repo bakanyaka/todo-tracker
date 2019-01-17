@@ -24,7 +24,7 @@ class ServicesTest extends TestCase
         $response->assertJsonFragment([
             'id' => $services[0]->id,
             'name' => $services[0]->name,
-            'hours' => (string)$services[0]->hours
+            'hours' => $services[0]->hours
         ]);
     }
 

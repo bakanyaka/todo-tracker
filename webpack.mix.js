@@ -15,7 +15,7 @@ let webpack = require('webpack');
 
 mix.js('resources/js/main.js', 'public/js')
     .extract(['vue','vue-router','axios','lodash','bootstrap-vue','chart.js','vue-chartjs','vue-snotify','vuejs-datepicker', 'moment'])
-    .sass('resources/sass/app.scss', 'public/css')
+    .sass('resources/sass/style.scss', 'public/css')
     .sass('resources/sass/vendor.scss', 'public/css')
     .sourceMaps();
 

@@ -1,5 +1,5 @@
-// Bootstrap Vue
-@import "~bootstrap-vue/dist/bootstrap-vue";
+/* CoreUI Icons Set */
+@import '~@coreui/icons/css/coreui-icons.min.css';
 
 /* Import Font Awesome Icons Set */
 $fa-font-path: '~font-awesome/fonts/';
@@ -11,3 +11,7 @@ $simple-line-font-path: '~simple-line-icons/fonts/';
 
 /* Import Vue-Snotify styles */
 @import "~vue-snotify/styles/material";
+
+/* Import Bootstrap Vue Styles */
+@import '~bootstrap-vue/dist/bootstrap-vue.css';
+

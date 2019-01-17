@@ -1,8 +1,13 @@
-import Vue from 'vue'
-import BootstrapVue from 'bootstrap-vue'
+import BootstrapVue from 'bootstrap-vue';
+import 'core-js/es6/promise';
+import 'core-js/es6/string';
+import 'core-js/es7/array';
+
+import Vue from 'vue';
 import Snotify from 'vue-snotify';
-import App from './App'
-import router from './router'
+import App from './App';
+import router from './router';
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when

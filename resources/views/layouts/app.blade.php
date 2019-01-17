@@ -11,7 +11,7 @@
     <meta name="redmine-uri" content="{{ config('services.redmine.uri') }}">
     <!-- Styles -->
     <link href="{{ mix('css/vendor.css') }}" rel="stylesheet">
-    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+    <link href="{{ mix('css/style.css') }}" rel="stylesheet">
 </head>
 
 <!-- BODY options, add following classes to body to change options
