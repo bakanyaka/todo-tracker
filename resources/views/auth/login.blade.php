@@ -1,114 +1,85 @@
-@extends('layouts.app')
+<!doctype html>
+<html lang="{{ app()->getLocale() }}">
+<head>
+    <title>{{ config('app.name', 'Laravel') }}</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- Redmine URI -->
+    <meta name="redmine-uri" content="{{ config('services.redmine.uri') }}">
+    <!-- Styles -->
+    <link href="{{ mix('css/vendor.css') }}" rel="stylesheet">
+    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+</head>
 
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card-group mt-5">
-                <div class="card p-4">
-                    <div class="card-body">
-                        <h1>Вход</h1>
-                        <p class="text-muted">Введите данные вашей учетной записи</p>
-                        <form method="POST" action="{{ route('login') }}">
-                            {{ csrf_field() }}
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="icon-user"></i></span>
-                                <input title="username" placeholder="Имя пользователя" type="text" class="form-control{{ $errors->has('username') ? ' is-invalid' : '' }}" name="username" value="{{ old('username') }}" required autofocus >
-                            </div>
-                            @if ($errors->has('username'))
-                                <div class="invalid-feedback d-flex">
-                                    {{ $errors->first('username') }}
+<!-- BODY options, add following classes to body to change options
+// Header options
+1. '.header-fixed'					- Fixed Header
+// Brand options
+1. '.brand-minimized'       - Minimized brand (Only symbol)
+// Sidebar options
+1. '.sidebar-fixed'					- Fixed Sidebar
+2. '.sidebar-hidden'				- Hidden Sidebar
+3. '.sidebar-off-canvas'		- Off Canvas Sidebar
+4. '.sidebar-minimized'			- Minimized Sidebar (Only icons)
+5. '.sidebar-compact'			  - Compact Sidebar
+// Aside options
+1. '.aside-menu-fixed'			- Fixed Aside Menu
+2. '.aside-menu-hidden'			- Hidden Aside Menu
+3. '.aside-menu-off-canvas'	- Off Canvas Aside Menu
+// Breadcrumb options
+1. '.breadcrumb-fixed'			- Fixed Breadcrumb
+// Footer options
+1. '.footer-fixed'					- Fixed footer
+-->
+
+<body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card-group mt-5">
+                    <div class="card p-4">
+                        <div class="card-body">
+                            <h1>Вход</h1>
+                            <p class="text-muted">Введите данные вашей учетной записи</p>
+                            <form method="POST" action="{{ route('login') }}">
+                                {{ csrf_field() }}
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="icon-user"></i></span>
+                                    <input title="username" placeholder="Имя пользователя" type="text" class="form-control{{ $errors->has('username') ? ' is-invalid' : '' }}" name="username" value="{{ old('username') }}" required autofocus >
                                 </div>
-                            @endif
-                            <div class="input-group mt-3">
-                                <span class="input-group-addon"><i class="icon-lock"></i></span>
-                                <input type="password" placeholder="Пароль" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
-                            </div>
-                            @if ($errors->has('password'))
-                                <div class="invalid-feedback d-flex">
-                                    <strong>{{ $errors->first('password') }}</strong>
+                                @if ($errors->has('username'))
+                                    <div class="invalid-feedback d-flex">
+                                        {{ $errors->first('username') }}
+                                    </div>
+                                @endif
+                                <div class="input-group mt-3">
+                                    <span class="input-group-addon"><i class="icon-lock"></i></span>
+                                    <input type="password" placeholder="Пароль" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
                                 </div>
-                            @endif
-                            <div class="form-check mt-3">
-                                <label class="form-check-label">
-                                    <input type="checkbox" class="form-check-input"  name="remember" {{ old('remember') ? 'checked' : '' }}> Запомнить меня
-                                </label>
-                            </div>
-                            <div class="row mt-4">
-                                <div class="col-6">
-                                    <button type="submit" class="btn btn-primary px-4">Войти</button>
+                                @if ($errors->has('password'))
+                                    <div class="invalid-feedback d-flex">
+                                        <strong>{{ $errors->first('password') }}</strong>
+                                    </div>
+                                @endif
+                                <div class="form-check mt-3">
+                                    <label class="form-check-label">
+                                        <input type="checkbox" class="form-check-input"  name="remember" {{ old('remember') ? 'checked' : '' }}> Запомнить меня
+                                    </label>
                                 </div>
-                            </div>
-                        </form>
+                                <div class="row mt-4">
+                                    <div class="col-6">
+                                        <button type="submit" class="btn btn-primary px-4">Войти</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{{--<div class="container">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">Login</div>
-
-                <div class="panel-body">
-                    <form class="form-horizontal" method="POST" action="{{ route('login') }}">
-                        {{ csrf_field() }}
-
-                        <div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
-                            <label for="email" class="col-md-4 control-label">Username</label>
-
-                            <div class="col-md-6">
-                                <input id="username" type="text" class="form-control" name="username" value="{{ old('username') }}" required autofocus>
-
-                                @if ($errors->has('username'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('username') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
-                            <label for="password" class="col-md-4 control-label">Password</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control" name="password" required>
-
-                                @if ($errors->has('password'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> Remember Me
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="col-md-8 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
-                                    Login
-                                </button>
-
-                                <a class="btn btn-link" href="{{ route('password.request') }}">
-                                    Forgot Your Password?
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>--}}
-@endsection
+</body>
+</html>

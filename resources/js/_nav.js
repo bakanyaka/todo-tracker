@@ -10,7 +10,7 @@ let items = [
         icon: 'icon-check'
     }
 ];
-if (config && config.user && config.user.is_admin) {
+if (typeof config !== 'undefined' && config.user && config.user.is_admin) {
     items = items.concat([
         {
             name: 'Отчеты',

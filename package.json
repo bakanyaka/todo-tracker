@@ -10,25 +10,29 @@
     "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
   },
   "devDependencies": {
-    "browser-sync": "^2.24.5",
+    "browser-sync": "^2.26.3",
     "browser-sync-webpack-plugin": "^1.2.0",
-    "chart.js": "^2.7.2",
+    "chart.js": "^2.7.3",
     "cross-env": "^5.2.0",
-    "laravel-mix": "^2.1.11"
+    "laravel-mix": "^4.0.7",
+    "resolve-url-loader": "^2.3.1",
+    "sass": "^1.16.0",
+    "sass-loader": "^7.1.0",
+    "vue-template-compiler": "^2.5.22"
   },
   "dependencies": {
     "axios": "^0.18",
     "bootstrap": "4.0.0",
     "bootstrap-vue": "2.0.0-rc.1",
     "font-awesome": "^4.7.0",
-    "lodash": "^4.17.10",
-    "moment": "^2.22.2",
+    "lodash": "^4.17.11",
+    "moment": "^2.23.0",
     "simple-line-icons": "^2.4.1",
-    "vue": "^2.5.13",
-    "vue-chartjs": "^3.3.2",
-    "vue-router": "^3.0.1",
+    "vue": "^2.5.22",
+    "vue-chartjs": "^3.4.0",
+    "vue-router": "^3.0.2",
     "vue-simple-spinner": "^1.2.8",
-    "vue-snotify": "^3.2.0",
+    "vue-snotify": "^3.2.1",
     "vuejs-datepicker": "^0.9.29"
   }
 }
