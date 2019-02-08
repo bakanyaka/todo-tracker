@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use function GuzzleHttp\Promise\all;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class IssueController extends Controller
 {
@@ -46,6 +47,7 @@ class IssueController extends Controller
         }
 
         $issues = $issues->sort([Issue::class, 'defaultSort'])->values();//->paginate(5);
+
         return new IssueCollection($issues);
     }
 
@@ -58,16 +60,6 @@ class IssueController extends Controller
         }
 
         return response()->json();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -89,40 +81,6 @@ class IssueController extends Controller
         $issue->save();
         $issue->track(auth()->user());
         return response()->json([],201);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Issue  $issue
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Issue $issue)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Issue  $issue
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Issue $issue)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Issue  $issue
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Issue $issue)
-    {
-        //
     }
 
     /**

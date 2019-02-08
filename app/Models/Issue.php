@@ -3,11 +3,9 @@
 namespace App\Models;
 
 use App\BusinessDate;
-use App\Exceptions\FailedToRetrieveRedmineDataException;
 use App\Facades\Redmine;
 use App\Filters\IssueFilters;
 use App\User;
-use Cache;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -119,13 +117,31 @@ class Issue extends Model
     public $incrementing = false;
 
     /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('notInProcurement', function (Builder $builder) {
+            $builder->where('assigned_to', '<>', 'Отдел Закупок')
+                ->where(function (Builder $query) {
+                    $query->where('tracker_id', '<>', 12)->orWhereNull('tracker_id');
+                });
+        });
+    }
+
+    /**
      * Apply all relevant filters based on request
      *
      * @param Builder $query
      * @param IssueFilters $filters
      * @return Builder
      */
-    public function scopeFilter(Builder $query, IssueFilters $filters) {
+    public function scopeFilter(Builder $query, IssueFilters $filters)
+    {
         return $filters->apply($query);
     }
 
@@ -224,6 +240,32 @@ class Issue extends Model
     public function scopeMarkedForControl($query)
     {
         return $query->where(['control' => true]);
+    }
+
+    /**
+     * Scope a query to only include issues that are not in procurement
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeNotInProcurement($query)
+    {
+        return $query
+            ->where('assigned_to', '<>', 'Отдел Закупок')
+            ->where('tracker_id', '<>', 12);
+    }
+
+    /**
+     * Scope a query to only include issues that are in procurement
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeInProcurement(Builder $query)
+    {
+        return $query->where(function (Builder $subQuery) {
+            $subQuery->where('assigned_to', 'Отдел Закупок')->orWhere('tracker_id', 12);
+        });
     }
 
     /**
@@ -370,7 +412,7 @@ class Issue extends Model
 
     /**
      *
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setStatusIdAttribute($value)
@@ -447,6 +489,7 @@ class Issue extends Model
         if (!is_null($project)) {
             $this->project_id = $project->id;
         }
+        $this->tracker_id = $redmineIssue['tracker_id'];
         $service = Service::where('name', $redmineIssue['service'])->first();
         $this->service()->associate($service);
         return $this;
@@ -468,14 +511,5 @@ class Issue extends Model
             }
         }
         return $b->priority_id - $a->priority_id;
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::addGlobalScope('notInProcurement', function (Builder $builder) {
-            $builder->where('assigned_to', '<>', 'Отдел Закупок');
-        });
     }
 }

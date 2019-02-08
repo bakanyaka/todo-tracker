@@ -29,6 +29,7 @@ class RedmineServiceTest extends TestCase
         $this->assertEquals([
             'id' => $issueData['id'],
             'project_id' => $issueData['project']['id'],
+            'tracker_id' => $issueData['tracker']['id'],
             'status_id' => $issueData['status']['id'],
             'priority_id' => $issueData['priority']['id'],
             'author' => $issueData['author']['name'],

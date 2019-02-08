@@ -61,6 +61,7 @@ class IssueModelTest extends TestCase
 
         $issue->updateFromRedmine();
         $this->assertEquals($issueData['subject'], $issue->subject);
+        $this->assertEquals($issueData['tracker_id'], $issue->tracker_id);
         $this->assertEquals($issueData['priority_id'], $issue->priority_id);
         $this->assertEquals($issueData['status_id'], $issue->status_id);
         $this->assertEquals($issueData['department'], $issue->department);

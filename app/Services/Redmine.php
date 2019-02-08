@@ -129,6 +129,7 @@ class Redmine
             'id' =>  $issue['id'],
             'project_id' => $issue['project']['id'],
             'status_id' => $issue['status']['id'],
+            'tracker_id' => $issue['tracker']['id'],
             'priority_id' => $issue['priority']['id'],
             'author' => $issue['author']['name'],
             'assigned_to' => data_get($issue,'assigned_to.name'),
