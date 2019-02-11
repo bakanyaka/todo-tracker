@@ -31,7 +31,7 @@ class Issue extends Resource
             'closed_on' => optional($this->closed_on)->toDateTimeString(),
             'is_closed' => $this->status->is_closed,
             'is_paused' => $this->status->is_paused,
-            'is_tracked_by_current_user' => $this->isTracked
+            'is_tracked_by_current_user' => $this->isTrackedByCurrentUser
         ];
     }
 }

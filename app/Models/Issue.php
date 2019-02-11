@@ -427,14 +427,15 @@ class Issue extends Model
         $this->status_changed_on = now();
     }
 
-    public function getIsTrackedAttribute()
+    public function getIsTrackedByCurrentUserAttribute()
     {
-        return $this->users()->where('id', auth()->id())->exists();
+        /** @noinspection PhpParamsInspection */
+        return $this->isTrackedBy(auth()->user());
     }
 
     public function isTrackedBy(User $user)
     {
-        return $this->users()->find($user->id) !== null;
+        return $this->users->where('id', $user->id)->isNotEmpty();
     }
 
     /**
@@ -473,7 +474,7 @@ class Issue extends Model
         $this->department = $redmineIssue['department'];
         $this->assigned_to = $redmineIssue['assigned_to'];
         $this->assigned_to_id = $redmineIssue['assigned_to_id'];
-        $this->created_on = Carbon::create($redmineIssue['start_date']->year, $redmineIssue['start_date']->month, $redmineIssue['start_date']->day, $redmineIssue['created_on']->hour, $redmineIssue['created_on']->minute, $redmineIssue['created_on']->second, $redmineIssue['created_on']->tz);
+        $this->created_on = Carbon::create($redmineIssue['created_on']->year, $redmineIssue['created_on']->month, $redmineIssue['created_on']->day, $redmineIssue['created_on']->hour, $redmineIssue['created_on']->minute, $redmineIssue['created_on']->second, $redmineIssue['created_on']->tz);
         $this->closed_on = $redmineIssue['closed_on'];
         $this->updated_on = $redmineIssue['updated_on'];
         $this->control = $redmineIssue['control'] == 1 ? true : false;

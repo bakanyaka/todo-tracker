@@ -1,18 +1,21 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Models;
 
 use App\BusinessDate;
 use App\Facades\Redmine;
 use App\Models\Issue;
+use App\Models\Priority;
 use App\Models\Service;
+use App\Models\Status;
 use Carbon\Carbon;
+use Hamcrest\Core\Is;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 
-class IssueModelTest extends TestCase
+class IssueTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -23,33 +26,29 @@ class IssueModelTest extends TestCase
     }
 
     /** @test */
-    public function can_get_priority_name()
+    public function it_belongs_to_priority()
     {
-        $priority = \App\Models\Priority::create([
-            'id' => 1,
-            'name' => 'Высокий'
-        ]);
-        $issue = create('App\Models\Issue', [
-            'priority_id' => $priority->id
-        ]);
-
-        $this->assertEquals('Высокий', $issue->priority->name);
+        $issue = create(Issue::class);
+        $this->assertInstanceOf(Priority::class, $issue->priority);
     }
 
     /** @test */
-    public function can_get_issue_paused_status_using_attribute()
+    public function it_belongs_to_a_status()
     {
-        $issue = create(Issue::class, [
-            'status_id' => 4
-        ]);
+        $issue = create(Issue::class);
+        $this->assertInstanceOf(Status::class, $issue->status);
+    }
 
-        $this->assertEquals(4,$issue->status->id);
+    /** @test */
+    public function it_gets_is_paused_attribute()
+    {
+        $issue = factory(Issue::class)->state('paused')->create()->fresh();
+        $this->assertInstanceOf(Status::class, $issue->status);
         $this->assertEquals(true, $issue->is_paused);
-
     }
 
     /** @test */
-    public function it_retrieves_model_data_from_redmine_and_updates_it()
+    public function it_retrieves_issue_data_from_redmine_and_updates_itself()
     {
         $issueData = $this->makeFakeIssueArray();
         $issue = new Issue(['id' => $issueData['id']]);
@@ -73,7 +72,7 @@ class IssueModelTest extends TestCase
     }
 
     /** @test */
-    public function it_updates_model_data_from_redmine_issue()
+    public function it_updates_itself_from_given_redmine_issue()
     {
         $issueData = $this->makeFakeIssueArray();
         $issue = new Issue(['id' => $issueData['id']]);
@@ -318,14 +317,4 @@ class IssueModelTest extends TestCase
         // Then time passed (in hours) since previous status change should be added to om_pause_hours attribute
         $this->assertEquals(2, $issue->on_pause_hours);
     }
-
-    /** @test */
-    public function when_redmine_issue_has_different_start_date_model_created_on_date_part_is_changed_to_start_date()
-    {
-        $issueData = $this->makeFakeIssueArray();
-        $issue = new Issue(['id' => $issueData['id']]);
-        $issue->updateFromRedmineIssue($issueData);
-        $this->assertEquals(Carbon::create($issueData['start_date']->year, $issueData['start_date']->month, $issueData['start_date']->day, $issueData['created_on']->hour, $issueData['created_on']->minute, $issueData['created_on']->second, $issueData['created_on']->tz), $issue->created_on);
-    }
-
 }

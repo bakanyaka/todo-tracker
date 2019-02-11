@@ -24,7 +24,7 @@ class IssueController extends Controller
      */
     public function index(IssueFilters $filters)
     {
-        $issues = Issue::filter($filters)->get();
+        $issues = Issue::filter($filters)->with('users')->get();
         switch (request()->overdue) {
             case 'yes':
                 $issues = $issues->filter(function(Issue $issue) {

@@ -15,7 +15,7 @@
                 </router-link>
             </b-card>
             <b-card class="text-white text-center bg-success">
-                <router-link :to="{name: 'issues.index', query: {status: 'closed', period: 0}}">
+                <router-link :to="{name: 'issues.index', query: {status: 'closed', period: 0, ...projectQuery}}">
                     <div class="h2 text-muted  mb-2">
                         <i class="icon-like"></i>
                     </div>
@@ -24,7 +24,7 @@
                 </router-link>
             </b-card>
             <b-card class="text-white text-center bg-info">
-                <router-link :to="{name: 'issues.index', query: {status: 'all', period: 0}}">
+                <router-link :to="{name: 'issues.index', query: {status: 'all', period: 0, ...projectQuery}}">
                     <div class="h2 text-muted  mb-2">
                         <i class="icon-call-in"></i>
                     </div>
@@ -33,7 +33,7 @@
                 </router-link>
             </b-card>
             <b-card class="text-white text-center bg-secondary">
-                <router-link :to="{name: 'issues.index', query: {status: 'paused'}}">
+                <router-link :to="{name: 'issues.index', query: {status: 'paused', ...projectQuery}}">
                     <div class="h2 text-muted  mb-2">
                         <i class="icon-control-pause"></i>
                     </div>
@@ -42,7 +42,7 @@
                 </router-link>
             </b-card>
             <b-card class="text-white text-center bg-warning">
-                <router-link :to="{name: 'issues.index', query: {overdue: 'soon'}}">
+                <router-link :to="{name: 'issues.index', query: {overdue: 'soon', ...projectQuery}}">
                     <div class="h2 text-muted  mb-2">
                         <i class="icon-hourglass"></i>
                     </div>
@@ -51,7 +51,7 @@
                 </router-link>
             </b-card>
             <b-card class="text-white text-center bg-danger">
-                <router-link :to="{name: 'issues.index', query: {overdue: 'yes'}}">
+                <router-link :to="{name: 'issues.index', query: {overdue: 'yes', ...projectQuery}}">
                     <div class="h2 text-muted  mb-2">
                         <i class="icon-fire"></i>
                     </div>
@@ -60,7 +60,7 @@
                 </router-link>
             </b-card>
             <b-card class="text-white text-center bg-info">
-                <router-link :to="{name: 'issues.index', query: {assigned_to: 'Отдел Закупок'}}">
+                <router-link :to="{name: 'issues.index', query: {assigned_to: 'Отдел Закупок', ...projectQuery}}">
                     <div class="h2 text-muted  mb-2">
                         <i class="icon-basket"></i>
                     </div>
@@ -100,6 +100,10 @@
     computed: {
       projectQuery() {
         const query = {};
+        if (this.project_id) {
+          query.project = this.project_id;
+          query.include_subprojects = 'yes'
+        }
         return query;
       },
     },
