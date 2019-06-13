@@ -41,7 +41,7 @@ class IssueController extends Controller
                     if ($issue->due_date === null) {
                         return false;
                     }
-                    return $issue->due_date->toDateString() === now()->toDateString() && $issue->percent_of_time_left < 30 && $issue->percent_of_time_left > 0;
+                    return $issue->percent_of_time_left < 30 && $issue->percent_of_time_left > 0;
                 });
                 break;
         }

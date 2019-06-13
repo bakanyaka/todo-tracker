@@ -125,12 +125,12 @@ class Issue extends Model
     {
         parent::boot();
 
-        static::addGlobalScope('notInProcurement', function (Builder $builder) {
-            $builder->where('assigned_to', '<>', 'Отдел Закупок')
-                ->where(function (Builder $query) {
-                    $query->where('tracker_id', '<>', 12)->orWhereNull('tracker_id');
-                });
-        });
+//        static::addGlobalScope('notInProcurement', function (Builder $builder) {
+//            $builder->where('assigned_to', '<>', 'Отдел Закупок')
+//                ->where(function (Builder $query) {
+//                    $query->where('tracker_id', '<>', 12)->orWhereNull('tracker_id');
+//                });
+//        });
     }
 
     /**
