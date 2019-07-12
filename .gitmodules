@@ -1,0 +1,3 @@
+[submodule "laradock-todo-tracker"]
+	path = laradock-todo-tracker
+	url = https://github.com/bakanyaka/laradock.git

@@ -1,9 +1,6 @@
 <template>
     <div>
-        <b-form-select v-model="project_id" class="mb-3 w-25" @input="getIssueStats">
-            <option :value="null">Все проекты</option>
-            <option v-for="project in projects" :value="project.id">{{project.name}}</option>
-        </b-form-select>
+        <project-select v-model="project_id" @input="getIssueStats" class="mb-3 w-25"></project-select>
         <b-card-group deck class="mb-4">
             <b-card class="text-white text-center bg-primary">
                 <router-link :to="{name: 'issues.index', query: { ...projectQuery}}">
@@ -73,12 +70,13 @@
 </template>
 
 <script>
+  import ProjectSelect from './ProjectSelect';
   export default {
     name: 'quick-issue-stats',
+    components: { ProjectSelect },
     data() {
       return {
         project_id: null,
-        projects: [],
         stats: {
           open: 0,
           closed_today: 0,
@@ -92,7 +90,6 @@
     },
     mounted() {
       this.getIssueStats();
-      this.getProjects();
       setInterval(() => {
         this.getIssueStats();
       }, 60000);
@@ -112,10 +109,6 @@
         return axios.get(route('api.issues.stats', { project_id: this.project_id })).then((response) => {
           this.stats = response.data.data;
         });
-      },
-      async getProjects() {
-        const response = await axios.get(route('api.projects'));
-        this.projects = response.data.data;
       },
     },
   };

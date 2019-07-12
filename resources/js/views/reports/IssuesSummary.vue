@@ -1,12 +1,15 @@
 <template>
     <b-card>
         <b-row>
-            <b-col sm="5" class="mb-3">
+            <b-col sm="4" class="mb-3">
                 <h4 class="card-title mb-0">Общий отчет за период</h4>
                 <div class="small text-muted">{{period.startDate}} - {{period.endDate}}</div>
             </b-col>
-            <b-col sm="7" class="d-none d-md-block">
-                <period-filter :period="7" @change="onDateRangeChanged"></period-filter>
+            <b-col sm="8" class="d-flex align-items-center justify-content-end">
+                <div class="mr-3">
+                    <project-select v-model="projectId" @input="getReport" size="sm"></project-select>
+                </div>
+                <period-filter :period="7" @change="onDateRangeChanged "></period-filter>
             </b-col>
         </b-row>
         <issues-chart :chart-data="datacollection" class="chart-wrapper" style="height:300px;margin-top:40px;"
@@ -54,6 +57,7 @@
 <script>
   import * as moment from 'moment';
   import PeriodFilter from '../components/PeriodFilter';
+  import ProjectSelect from '../components/ProjectSelect';
   import IssuesChart from './IssuesChart';
 
   const brandSuccess = '#4dbd74';
@@ -73,6 +77,7 @@
 
   export default {
     components: {
+      ProjectSelect,
       PeriodFilter,
       IssuesChart,
     },
@@ -91,10 +96,11 @@
           closed_overdue: 0,
           closed_in_time: 0,
         },
+        projectId: null,
       };
     },
     mounted() {
-      this.getReport(this.period);
+      this.getReport();
     },
     methods: {
       onDateRangeChanged(range) {
@@ -106,6 +112,7 @@
           params: {
             period_from_date: this.period.startDate,
             period_to_date: this.period.endDate,
+            project_id: this.projectId,
           },
         }).then((response) => {
           this.issueSummary.created = response.data.data.created.total;

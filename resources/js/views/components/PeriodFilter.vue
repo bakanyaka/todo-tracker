@@ -1,5 +1,5 @@
 <template>
-    <div class="form-inline pull-right">
+    <div class="form-inline justify-content-end align-items-center">
         <b-button-toolbar class="float-right" aria-label="Period filter">
             <b-form-radio-group size="sm" class="mr-3" id="radiosBtn" buttons button-variant="outline-secondary"
                                 v-model="selected" :options="options" name="radiosBtn"
