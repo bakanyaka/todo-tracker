@@ -2,19 +2,17 @@
     <div class="animated fadeIn">
         <quick-issue-stats></quick-issue-stats>
         <b-row class="row">
-            <b-col md="3">
-                <b-card header="Добавить задачу в отслеживаемые" class="pb-1">
-                    <div class="form-inline">
-                        <b-input class="form-control-sm mr-2" type="text" placeholder="# Задачи" v-model="addIssueId"
-                                 required></b-input>
-                        <b-button @click="addIssue()" variant="primary" size="sm" class="my-2"><i
-                                class="fa fa-plus"></i>&nbsp;
-                            Отслеживать
-                        </b-button>
-                    </div>
+            <b-col md="2">
+                <b-card header="Отслеживать задачу">
+                    <b-input class="form-control-sm mr-2" type="text" placeholder="# Задачи" v-model="addIssueId"
+                             required></b-input>
+                    <b-button @click="addIssue()" variant="primary" size="sm" class="my-2"><i
+                            class="fa fa-plus"></i>&nbsp;
+                        Отслеживать
+                    </b-button>
                 </b-card>
             </b-col>
-            <b-col md="9">
+            <b-col md="10">
                 <b-card header="Фильтры">
                     <filters @filters:changed="onFiltersChanged"></filters>
                 </b-card>
@@ -23,7 +21,8 @@
         <b-card>
             <template slot="header">
                 Отслеживаемые задачи
-                <small class="pull-right">Синхронизация с Redmine выполнена {{meta.hasOwnProperty('last_sync') ? meta.last_sync.completed_at_human : 'Никогда'}}
+                <small class="pull-right">Синхронизация с Redmine выполнена {{meta.hasOwnProperty('last_sync') ?
+                    meta.last_sync.completed_at_human : 'Никогда'}}
                     <b-button @click="getIssues()" variant="primary" size="sm" class="my-2 ml-2"><i
                             class="fa fa-refresh"></i>&nbsp;
                     </b-button>
@@ -43,7 +42,8 @@
                         </div>
                     </b-col>
                     <b-col sm="4" offset-md="2">
-                        <b-input size="sm" type="text" placeholder="Поиск в результатах" v-model="searchText" required></b-input>
+                        <b-input size="sm" type="text" placeholder="Поиск в результатах" v-model="searchText"
+                                 required></b-input>
                     </b-col>
                 </b-row>
                 <b-table outlined small
@@ -82,180 +82,180 @@
 </template>
 
 <script>
-    import filters from './Filters'
-    import Spinner from 'vue-simple-spinner'
-    import QuickIssueStats from "../components/QuickIssueStats";
+  import filters from './Filters';
+  import Spinner from 'vue-simple-spinner';
+  import QuickIssueStats from '../components/QuickIssueStats';
 
-    export default {
-        data() {
-            return {
-                redmineUri: config.redmineUri,
-                loading: true,
-                addIssueId: null,
-                searchText: '',
-                pagination: {
-                    totalRows: null,
-                    perPage: 50,
-                    currentPage: 1,
-                },
-                fields: [
-                    {
-                        key: 'id',
-                        label: '#'
-                    },
-                    {
-                        key: 'subject',
-                        label: 'Тема'
-                    },
-                    {
-                        key: 'assigned_to',
-                        label: 'Назначена'
-                    },
-                    {
-                        key: 'department',
-                        label: 'Подразделение'
-                    },
-                    {
-                        key: 'priority',
-                        label: 'Приоритет'
-                    },
-                    {
-                        key: 'service',
-                        label: 'Сервис'
-                    },
-                    {
-                        key: 'estimated_hours',
-                        label: 'Расчетное время',
-                    },
-                    {
-                        key: 'time_left',
-                        label: 'Оставшееся время'
-                    },
-                    {
-                        key: 'created_on',
-                        label: 'Дата создания'
-                    },
-                    {
-                        key: 'due_date',
-                        label: 'Плановая дата завершения'
-                    },
-                    {
-                        key: 'closed_on',
-                        label: 'Фактическая дата завершения'
-                    },
-                    {
-                        key: 'actions',
-                        label: 'Действия'
-                    }
-                ],
-                issues: [],
-                meta: {},
-            }
+  export default {
+    data() {
+      return {
+        redmineUri: config.redmineUri,
+        loading: true,
+        addIssueId: null,
+        searchText: '',
+        pagination: {
+          totalRows: null,
+          perPage: 50,
+          currentPage: 1,
         },
-        components: {
-            QuickIssueStats,
-            filters,
-            Spinner
-        },
-        computed: {
-            visibleRows() {
-                if (this.pagination.totalRows / (this.pagination.perPage * this.pagination.currentPage) >= 1) {
-                    return this.pagination.perPage
-                } else {
-                    return this.pagination.totalRows - this.pagination.perPage * (this.pagination.currentPage - 1)
-                }
-            },
-        },
-        created() {
-            this.getIssues().then(() => {
-                this.pagination.currentPage = parseInt(this.$route.query.page) || 1
-            });
-            setInterval(() => {
-                this.getIssues();
-            }, 300000);
-        },
-        watch: {
-            '$route'() {
-                this.getIssues();
-            }
-        },
-        methods: {
-            getIssues(query = this.$route.query) {
-                this.loading = true;
-                return axios.get(route('api.issues'), {
-                    params: {
-                        ...query
-                    }
-                }).then((response) => {
-                    this.issues = response.data.data.map((issue) => {
-                        if (issue.is_paused === true) {
-                            issue._rowVariant = 'info'
-                        } else if (issue.time_left && issue.time_left < 0) {
-                            issue._rowVariant = 'danger'
-                        } else if (issue.estimated_hours && (issue.time_left / issue.estimated_hours < 0.3)) {
-                            issue._rowVariant = 'warning'
-                        }
-                        return issue;
-                    });
-                    this.pagination.totalRows = response.data.data.length;
-                    this.meta = response.data.meta || {};
-                    this.loading = false;
-                }).catch((e) => {
-                    console.log(e);
-                    this.$snotify.error('Ошибка при загрузке задач');
-                    this.loading = false;
-                });
-            },
-            async addIssue(issueId = this.addIssueId) {
-                try {
-                    await axios.post(route('api.issues.track'), {issue_id: issueId});
-                    this.$snotify.success('Задача добавлена');
-                } catch (e) {
-                    console.log(e);
-                    this.$snotify.error('Ошибка! Задача не добавлена');
-                }
-                this.addIssueId = null;
-                this.getIssues();
-            },
-            async removeIssue(id) {
-                try {
-                    await axios.delete(route('api.issues.untrack', {issue: id}));
-                    this.$snotify.success('Задача больше не остлеживается');
-                } catch (e) {
-                    console.log(e);
-                    this.$snotify.error('Ошибка!');
-                }
-                this.addIssueId = null;
-                this.getIssues();
-            },
-/*            pageChanged() {
-                this.$router.replace({
-                    query: {
-                        ...this.$route.query,
-                        page: this.pagination.currentPage
-                    }
-                })
-            },*/
-            async onFiltersChanged(filters) {
-                await this.$router.replace({
-                    query: {
-                        ...filters,
-                    }
-                });
-                this.searchText = '';
-            },
-            onFiltered (filteredItems) {
-                this.pagination.currentPage = 1;
-                this.pagination.totalRows = filteredItems.length;
-            },
-            syncIssues() {
-                axios.get(route('api.issues.sync')).then(() => {
-                    this.$snotify.success('Задание на синхронизацию добавлено в очередь');
-                    this.getIssues();
-                }).catch((e) => {
-                    this.$snotify.error('Ошибка при добавлении задания в очередь');
-                });
-            }
+        fields: [
+          {
+            key: 'id',
+            label: '#',
+          },
+          {
+            key: 'subject',
+            label: 'Тема',
+          },
+          {
+            key: 'assigned_to',
+            label: 'Назначена',
+          },
+          {
+            key: 'department',
+            label: 'Подразделение',
+          },
+          {
+            key: 'priority',
+            label: 'Приоритет',
+          },
+          {
+            key: 'service',
+            label: 'Сервис',
+          },
+          {
+            key: 'estimated_hours',
+            label: 'Расчетное время',
+          },
+          {
+            key: 'time_left',
+            label: 'Оставшееся время',
+          },
+          {
+            key: 'created_on',
+            label: 'Дата создания',
+          },
+          {
+            key: 'due_date',
+            label: 'Плановая дата завершения',
+          },
+          {
+            key: 'closed_on',
+            label: 'Фактическая дата завершения',
+          },
+          {
+            key: 'actions',
+            label: 'Действия',
+          },
+        ],
+        issues: [],
+        meta: {},
+      };
+    },
+    components: {
+      QuickIssueStats,
+      filters,
+      Spinner,
+    },
+    computed: {
+      visibleRows() {
+        if (this.pagination.totalRows / (this.pagination.perPage * this.pagination.currentPage) >= 1) {
+          return this.pagination.perPage;
+        } else {
+          return this.pagination.totalRows - this.pagination.perPage * (this.pagination.currentPage - 1);
         }
-    }
+      },
+    },
+    created() {
+      this.getIssues().then(() => {
+        this.pagination.currentPage = parseInt(this.$route.query.page) || 1;
+      });
+      setInterval(() => {
+        this.getIssues();
+      }, 300000);
+    },
+    watch: {
+      '$route'() {
+        this.getIssues();
+      },
+    },
+    methods: {
+      getIssues(query = this.$route.query) {
+        this.loading = true;
+        return axios.get(route('api.issues'), {
+          params: {
+            ...query,
+          },
+        }).then((response) => {
+          this.issues = response.data.data.map((issue) => {
+            if (issue.is_paused === true) {
+              issue._rowVariant = 'info';
+            } else if (issue.time_left && issue.time_left < 0) {
+              issue._rowVariant = 'danger';
+            } else if (issue.estimated_hours && (issue.time_left / issue.estimated_hours < 0.3)) {
+              issue._rowVariant = 'warning';
+            }
+            return issue;
+          });
+          this.pagination.totalRows = response.data.data.length;
+          this.meta = response.data.meta || {};
+          this.loading = false;
+        }).catch((e) => {
+          console.log(e);
+          this.$snotify.error('Ошибка при загрузке задач');
+          this.loading = false;
+        });
+      },
+      async addIssue(issueId = this.addIssueId) {
+        try {
+          await axios.post(route('api.issues.track'), { issue_id: issueId });
+          this.$snotify.success('Задача добавлена');
+        } catch (e) {
+          console.log(e);
+          this.$snotify.error('Ошибка! Задача не добавлена');
+        }
+        this.addIssueId = null;
+        this.getIssues();
+      },
+      async removeIssue(id) {
+        try {
+          await axios.delete(route('api.issues.untrack', { issue: id }));
+          this.$snotify.success('Задача больше не остлеживается');
+        } catch (e) {
+          console.log(e);
+          this.$snotify.error('Ошибка!');
+        }
+        this.addIssueId = null;
+        this.getIssues();
+      },
+      /*            pageChanged() {
+                      this.$router.replace({
+                          query: {
+                              ...this.$route.query,
+                              page: this.pagination.currentPage
+                          }
+                      })
+                  },*/
+      async onFiltersChanged(filters) {
+        await this.$router.replace({
+          query: {
+            ...filters,
+          },
+        });
+        this.searchText = '';
+      },
+      onFiltered(filteredItems) {
+        this.pagination.currentPage = 1;
+        this.pagination.totalRows = filteredItems.length;
+      },
+      syncIssues() {
+        axios.get(route('api.issues.sync')).then(() => {
+          this.$snotify.success('Задание на синхронизацию добавлено в очередь');
+          this.getIssues();
+        }).catch((e) => {
+          this.$snotify.error('Ошибка при добавлении задания в очередь');
+        });
+      },
+    },
+  };
 </script>

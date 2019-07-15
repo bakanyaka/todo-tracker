@@ -16,15 +16,18 @@ class GetSynchronizationsTest extends TestCase
     public function user_can_get_last_synchronizations_timestamps()
     {
         $this->signIn();
+
+        $issuesLastSync = Synchronization::create(['completed_at' => Carbon::now()->subHours(1), 'type' => 'issues']);
+        $timeEntriesLastSync = Synchronization::create(['completed_at' => Carbon::now()->subHours(2), 'type' => 'time_entries']);
+        $assigneesLastSync = Synchronization::create(['completed_at' => Carbon::now()->subHours(3), 'type' => 'assignees']);
+        $projectsLastSync = Synchronization::create(['completed_at' => Carbon::now()->subHours(4), 'type' => 'projects']);
+        $trackersLastSync = Synchronization::create(['completed_at' => Carbon::now()->subHours(5), 'type' => 'trackers']);
+
         Synchronization::create(['completed_at' => Carbon::now()->subDay(1), 'type' => 'issues']);
         Synchronization::create(['completed_at' => Carbon::now()->subDay(1), 'type' => 'time_entries']);
         Synchronization::create(['completed_at' => Carbon::now()->subDay(1), 'type' => 'assignees']);
         Synchronization::create(['completed_at' => Carbon::now()->subDay(1), 'type' => 'projects']);
-
-        $issuesLastSync = Synchronization::create(['completed_at' => Carbon::now()->subHours(1), 'type' => 'issues']);
-        $timeEntriesLastSync = Synchronization::create(['completed_at' => Carbon::now()->subHours(2), 'type' => 'time_entries']);
-        $AssigneesLastSync = Synchronization::create(['completed_at' => Carbon::now()->subHours(3), 'type' => 'assignees']);
-        $ProjectsLastSync = Synchronization::create(['completed_at' => Carbon::now()->subHours(4), 'type' => 'projects']);
+        Synchronization::create(['completed_at' => Carbon::now()->subDay(1), 'type' => 'trackers']);
 
         $response = $this->get(route('api.synchronizations.index'));
 
@@ -39,14 +42,17 @@ class GetSynchronizationsTest extends TestCase
                     'completed_at_human' => $timeEntriesLastSync->completed_at->diffForHumans(),
                 ],
                 'assignees' => [
-                    'completed_at' => $AssigneesLastSync->completed_at->toDateTimeString(),
-                    'completed_at_human' => $AssigneesLastSync->completed_at->diffForHumans(),
+                    'completed_at' => $assigneesLastSync->completed_at->toDateTimeString(),
+                    'completed_at_human' => $assigneesLastSync->completed_at->diffForHumans(),
                 ],
                 'projects' => [
-                    'completed_at' => $ProjectsLastSync->completed_at->toDateTimeString(),
-                    'completed_at_human' => $ProjectsLastSync->completed_at->diffForHumans(),
+                    'completed_at' => $projectsLastSync->completed_at->toDateTimeString(),
+                    'completed_at_human' => $projectsLastSync->completed_at->diffForHumans(),
                 ],
-
+                'trackers' => [
+                    'completed_at' => $trackersLastSync->completed_at->toDateTimeString(),
+                    'completed_at_human' => $trackersLastSync->completed_at->diffForHumans(),
+                ],
             ]
         ]);
     }

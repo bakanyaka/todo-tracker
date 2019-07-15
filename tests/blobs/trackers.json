@@ -1,0 +1,188 @@
+{
+  "trackers": [
+    {
+      "id": 3,
+      "name": "Поддержка",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 1,
+      "name": "Ошибка",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Запрос",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 20,
+      "name": "Задача",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 9,
+      "name": "Проект",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 5,
+      "name": "Изменение",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 11,
+      "name": "Ремонт",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 12,
+      "name": "Закупка",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 13,
+      "name": "Техническое обслуживание",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 15,
+      "name": "Оргтехника",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 16,
+      "name": "Заявка абонента",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 8,
+      "name": "КЕ",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 23,
+      "name": "Обращение",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 7,
+      "name": "- Каналы",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 14,
+      "name": "- Документы",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 10,
+      "name": "- Картридж",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 17,
+      "name": "- Новый ПК",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 18,
+      "name": "- Web сайт",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 19,
+      "name": "- Обучение",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 21,
+      "name": "- Замена ПК",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 22,
+      "name": "- Регистрация пользователя",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 4,
+      "name": "- Подключение услуг",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    },
+    {
+      "id": 6,
+      "name": "- Отключение услуг",
+      "default_status": {
+        "id": 1,
+        "name": "Новый"
+      }
+    }
+  ]
+}

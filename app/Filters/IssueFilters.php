@@ -15,7 +15,18 @@ class IssueFilters extends Filters
      *
      * @var array
      */
-    protected $filters = ['user', 'assigned_to', 'status', 'created_after', 'created_before', 'period', 'period_from_date', 'period_to_date', 'project'];
+    protected $filters = [
+        'user',
+        'assigned_to',
+        'status',
+        'created_after',
+        'created_before',
+        'period',
+        'period_from_date',
+        'period_to_date',
+        'project',
+        'tracker',
+    ];
 
     /**
      * Filter issues by assignee it is assigned to
@@ -182,5 +193,13 @@ class IssueFilters extends Filters
         } else {
             return $this->builder->where('project_id', $projectId);
         }
+    }
+
+    public function tracker($trackerId)
+    {
+        if ($trackerId === null) {
+            return $this->builder;
+        }
+        return $this->builder->where('tracker_id', $trackerId);
     }
 }

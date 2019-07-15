@@ -35,6 +35,10 @@ class IssueStatsService
             $issuesQuery->whereIn('project_id', $projects);
         }
 
+        if ($this->request->has('tracker_id')) {
+            $issuesQuery->where('tracker_id', $this->request->tracker_id);
+        }
+
         $startDateCarbon = Carbon::parse($startDate);
         $endDateCarbon = Carbon::parse($endDate);
 

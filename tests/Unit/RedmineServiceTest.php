@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Support\Arr;
 use Tests\TestCase;
 
 class RedmineServiceTest extends TestCase
@@ -205,6 +206,22 @@ class RedmineServiceTest extends TestCase
         $result = $redmine->getProjects();
 
         $this->assertCount(36, $result);
+    }
+
+    /** @test */
+    public function it_retrieves_all_trackers()
+    {
+        $mock = new MockHandler([
+            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/trackers.json')),
+        ]);
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $redmine = new Redmine($client);
+
+        $result = $redmine->getTrackers();
+
+        $this->assertCount(23, $result);
+        $this->assertTrue(Arr::has($result, ['0.name', '0.id']));
     }
 
     /** @test */

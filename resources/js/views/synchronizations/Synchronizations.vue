@@ -13,7 +13,8 @@
                             </b-input-group-prepend>
                             <b-form-input type="text" disabled></b-form-input>
                             <b-input-group-append>
-                                <b-button variant="primary" @click.stop="syncUsers"><i class="fa fa-refresh"></i></b-button>
+                                <b-button variant="primary" @click.stop="syncUsers"><i class="fa fa-refresh"></i>
+                                </b-button>
                             </b-input-group-append>
                         </b-input-group>
                     </b-form-group>
@@ -24,7 +25,20 @@
                             </b-input-group-prepend>
                             <b-form-input type="text" disabled></b-form-input>
                             <b-input-group-append>
-                                <b-button variant="primary" @click.stop="syncProjects"><i class="fa fa-refresh"></i></b-button>
+                                <b-button variant="primary" @click.stop="syncProjects"><i class="fa fa-refresh"></i>
+                                </b-button>
+                            </b-input-group-append>
+                        </b-input-group>
+                    </b-form-group>
+                    <b-form-group :description="'Последняя синхронизация: ' + lastSync.trackers">
+                        <b-input-group>
+                            <b-input-group-prepend>
+                                <b-input-group-text>Трекеры</b-input-group-text>
+                            </b-input-group-prepend>
+                            <b-form-input type="text" disabled></b-form-input>
+                            <b-input-group-append>
+                                <b-button variant="primary" @click.stop="syncTrackers"><i class="fa fa-refresh"></i>
+                                </b-button>
                             </b-input-group-append>
                         </b-input-group>
                     </b-form-group>
@@ -35,7 +49,8 @@
                             </b-input-group-prepend>
                             <b-form-input type="date" v-model="syncIssuesDate"></b-form-input>
                             <b-input-group-append>
-                                <b-button variant="primary" @click.stop="syncIssues"><i class="fa fa-refresh"></i></b-button>
+                                <b-button variant="primary" @click.stop="syncIssues"><i class="fa fa-refresh"></i>
+                                </b-button>
                             </b-input-group-append>
                         </b-input-group>
                     </b-form-group>
@@ -46,7 +61,8 @@
                             </b-input-group-prepend>
                             <b-form-input type="date" v-model="syncTimeEntriesDate"></b-form-input>
                             <b-input-group-append>
-                                <b-button variant="primary" @click.stop="syncTimeEntries"><i class="fa fa-refresh"></i></b-button>
+                                <b-button variant="primary" @click.stop="syncTimeEntries"><i class="fa fa-refresh"></i>
+                                </b-button>
                             </b-input-group-append>
                         </b-input-group>
                     </b-form-group>
@@ -57,81 +73,109 @@
 </template>
 
 <script>
-    import moment from 'moment';
-    export default {
-        name: "synchronizations",
-        data() {
-            return {
-                syncIssuesDate: moment().format('YYYY-MM-DD'),
-                syncTimeEntriesDate: moment().format('YYYY-MM-DD'),
-                lastSync: {
-                    issues: 'Никогда',
-                    time_entries: 'Никогда',
-                    assignees: 'Никогда',
-                    projects: 'Никогда'
-                }
-            }
+  import moment from 'moment';
+
+  export default {
+    name: 'synchronizations',
+    data() {
+      return {
+        syncIssuesDate: moment().format('YYYY-MM-DD'),
+        syncTimeEntriesDate: moment().format('YYYY-MM-DD'),
+        lastSync: {
+          issues: 'Никогда',
+          time_entries: 'Никогда',
+          assignees: 'Никогда',
+          projects: 'Никогда',
+          trackers: 'Никогда',
         },
-        created() {
-            this.getLastSynchorinizations();
-            setInterval(() => {
-                this.getLastSynchorinizations();
-            }, 300000);
-        },
-        methods: {
-            getLastSynchorinizations() {
-                return axios.get(route('api.synchronizations.index')).then((response) => {
-                    this.lastSync.issues = response.data.data.issues ? response.data.data.issues.completed_at_human : 'Никогда';
-                    this.lastSync.time_entries = response.data.data.time_entries ? response.data.data.time_entries.completed_at_human : 'Никогда';
-                    this.lastSync.assignees = response.data.data.assignees ? response.data.data.assignees.completed_at_human : 'Никогда';
-                    this.lastSync.projects = response.data.data.projects ? response.data.data.projects.completed_at_human : 'Никогда';
-                }).catch((e) => {
-                    console.log(e);
-                    this.$snotify.error('Ошибка при загрузке синхронизаций');
-                });
-            },
-            syncUsers() {
-                return axios.get(route('api.assignees.sync')).then(() => {
-                    this.$snotify.success('Пользователи синхронизированы');
-                }).catch((e) => {
-                    console.log(e);
-                    this.$snotify.error('Ошибка при синхронизации пользователей');
-                });
-            },
-            syncProjects() {
-                return axios.get(route('api.projects.sync')).then(() => {
-                    this.$snotify.success('Проекты синхронизированы');
-                }).catch((e) => {
-                    console.log(e);
-                    this.$snotify.error('Ошибка при синхронизации проектов');
-                });
-            },
-            syncIssues() {
-                return axios.get(route('api.issues.sync'), {
-                    params: {
-                        updated_since: this.syncIssuesDate
-                    }
-                }).then(() => {
-                    this.$snotify.success('Задачи синхронизированы');
-                }).catch((e) => {
-                    console.log(e);
-                    this.$snotify.error('Ошибка при синхронизации задач');
-                });
-            },
-            syncTimeEntries() {
-                return axios.get(route('api.time-entries.sync'), {
-                    params: {
-                        spent_since: this.syncTimeEntriesDate
-                    }
-                }).then(() => {
-                    this.$snotify.success('Проекты синхронизированы');
-                }).catch((e) => {
-                    console.log(e);
-                    this.$snotify.error('Ошибка при синхронизации задач');
-                });
-            }
-        }
-    }
+        syncInterval: null,
+      };
+    },
+    created() {
+      this.getLastSynchorinizations();
+      this.syncInterval = setInterval(() => {
+        this.getLastSynchorinizations();
+      }, 300000);
+    },
+    methods: {
+      getLastSynchorinizations() {
+        return axios.get(route('api.synchronizations.index')).then((response) => {
+          this.lastSync.issues = response.data.data.issues ? response.data.data.issues.completed_at_human : 'Никогда';
+          this.lastSync.time_entries = response.data.data.time_entries
+            ? response.data.data.time_entries.completed_at_human
+            : 'Никогда';
+          this.lastSync.assignees = response.data.data.assignees
+            ? response.data.data.assignees.completed_at_human
+            : 'Никогда';
+          this.lastSync.projects = response.data.data.projects
+            ? response.data.data.projects.completed_at_human
+            : 'Никогда';
+          this.lastSync.trackers = response.data.data.trackers
+            ? response.data.data.trackers.completed_at_human
+            : 'Никогда';
+        }).catch((e) => {
+          console.log(e);
+          this.$snotify.error('Ошибка при загрузке синхронизаций');
+        });
+      },
+      syncUsers() {
+        return axios.get(route('api.assignees.sync')).then(() => {
+          this.$snotify.success('Пользователи синхронизированы');
+          this.getLastSynchorinizations();
+        }).catch((e) => {
+          console.log(e);
+          this.$snotify.error('Ошибка при синхронизации пользователей');
+        });
+      },
+      syncProjects() {
+        return axios.get(route('api.projects.sync')).then(() => {
+          this.$snotify.success('Проекты синхронизированы');
+          this.getLastSynchorinizations();
+        }).catch((e) => {
+          console.log(e);
+          this.$snotify.error('Ошибка при синхронизации проектов');
+        });
+      },
+      syncTrackers() {
+        return axios.get(route('api.trackers.sync')).then(() => {
+          this.$snotify.success('Трекеры синхронизированы');
+          this.getLastSynchorinizations();
+        }).catch((e) => {
+          console.log(e);
+          this.$snotify.error('Ошибка при синхронизации трекеров');
+        });
+      },
+      syncIssues() {
+        return axios.get(route('api.issues.sync'), {
+          params: {
+            updated_since: this.syncIssuesDate,
+          },
+        }).then(() => {
+          this.getLastSynchorinizations();
+          this.$snotify.success('Задачи синхронизированы');
+        }).catch((e) => {
+          console.log(e);
+          this.$snotify.error('Ошибка при синхронизации задач');
+        });
+      },
+      syncTimeEntries() {
+        return axios.get(route('api.time-entries.sync'), {
+          params: {
+            spent_since: this.syncTimeEntriesDate,
+          },
+        }).then(() => {
+          this.getLastSynchorinizations();
+          this.$snotify.success('Проекты синхронизированы');
+        }).catch((e) => {
+          console.log(e);
+          this.$snotify.error('Ошибка при синхронизации задач');
+        });
+      },
+    },
+    beforeDestroy() {
+      clearInterval(this.syncInterval);
+    },
+  };
 </script>
 
 <style scoped>

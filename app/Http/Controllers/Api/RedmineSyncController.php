@@ -27,13 +27,18 @@ class RedmineSyncController extends Controller
             ->orderByDesc('completed_at')
             ->first();
 
-        $AssigneesLastSync = Synchronization::whereNotNull('completed_at')
+        $assigneesLastSync = Synchronization::whereNotNull('completed_at')
             ->where('type','assignees')
             ->orderByDesc('completed_at')
             ->first();
 
-        $ProjectsLastSync = Synchronization::whereNotNull('completed_at')
+        $projectsLastSync = Synchronization::whereNotNull('completed_at')
             ->where('type','projects')
+            ->orderByDesc('completed_at')
+            ->first();
+
+        $trackersLastSync = Synchronization::whereNotNull('completed_at')
+            ->where('type','trackers')
             ->orderByDesc('completed_at')
             ->first();
 
@@ -41,8 +46,9 @@ class RedmineSyncController extends Controller
             'data' => [
                 'issues' => $issuesLastSync ? new SynchronizationResource($issuesLastSync) : null,
                 'time_entries' => $timeEntriesLastSync ? new SynchronizationResource($timeEntriesLastSync) : null,
-                'assignees' => $AssigneesLastSync ? new SynchronizationResource($AssigneesLastSync) : null,
-                'projects' => $ProjectsLastSync ? new SynchronizationResource($ProjectsLastSync) : null,
+                'assignees' => $assigneesLastSync ? new SynchronizationResource($assigneesLastSync) : null,
+                'projects' => $projectsLastSync ? new SynchronizationResource($projectsLastSync) : null,
+                'trackers' => $trackersLastSync ? new SynchronizationResource($trackersLastSync) : null,
             ]
         ]);
     }

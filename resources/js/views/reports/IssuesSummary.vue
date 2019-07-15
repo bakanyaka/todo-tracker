@@ -5,11 +5,12 @@
                 <h4 class="card-title mb-0">Общий отчет за период</h4>
                 <div class="small text-muted">{{period.startDate}} - {{period.endDate}}</div>
             </b-col>
-            <b-col sm="8" class="d-flex align-items-center justify-content-end">
-                <div class="mr-3">
-                    <project-select v-model="projectId" @input="getReport" size="sm"></project-select>
-                </div>
+            <b-col sm="8">
                 <period-filter :period="7" @change="onDateRangeChanged "></period-filter>
+                <div class="d-flex justify-content-end mt-2">
+                    <project-select v-model="projectId" @input="getReport" size="sm" class="w-25 mr-3"></project-select>
+                    <tracker-select v-model="trackerId" @input="getReport" size="sm" class="w-25"></tracker-select>
+                </div>
             </b-col>
         </b-row>
         <issues-chart :chart-data="datacollection" class="chart-wrapper" style="height:300px;margin-top:40px;"
@@ -27,7 +28,8 @@
                                      period_from_date: period.startDate,
                                      period_to_date: period.endDate,
                                      project: projectId,
-                                     include_subprojects: 'yes'
+                                     include_subprojects: 'yes',
+                                     tracker: trackerId,
                                  }
                              }">
                         <strong>{{issueSummary.created}}</strong>
@@ -43,7 +45,8 @@
                                     period_from_date: period.startDate,
                                     period_to_date: period.endDate,
                                     project: projectId,
-                                    include_subprojects: 'yes'
+                                    include_subprojects: 'yes',
+                                    tracker: trackerId,
                                 }
                             }">
                         <strong>{{issueSummary.closed}}</strong>
@@ -64,7 +67,8 @@
                                     period_from_date: period.startDate,
                                     period_to_date: period.endDate,
                                     project: projectId,
-                                    include_subprojects: 'yes'
+                                    include_subprojects: 'yes',
+                                    tracker: trackerId,
                                 }
                             }">
                         <strong>{{issueSummary.closed_in_time}}</strong>
@@ -81,7 +85,8 @@
                                     period_from_date: period.startDate,
                                     period_to_date: period.endDate,
                                     project: projectId,
-                                    include_subprojects: 'yes'
+                                    include_subprojects: 'yes',
+                                    tracker: trackerId,
                                 }
                             }">
                         <strong>{{issueSummary.closed_overdue}}</strong>
@@ -96,6 +101,7 @@
   import * as moment from 'moment';
   import PeriodFilter from '../components/PeriodFilter';
   import ProjectSelect from '../components/ProjectSelect';
+  import TrackerSelect from '../components/TrackerSelect';
   import IssuesChart from './IssuesChart';
 
   const brandSuccess = '#4dbd74';
@@ -115,6 +121,7 @@
 
   export default {
     components: {
+      TrackerSelect,
       ProjectSelect,
       PeriodFilter,
       IssuesChart,
@@ -135,6 +142,7 @@
           closed_in_time: 0,
         },
         projectId: null,
+        trackerId: null,
       };
     },
     mounted() {
@@ -151,6 +159,7 @@
             period_from_date: this.period.startDate,
             period_to_date: this.period.endDate,
             project_id: this.projectId,
+            tracker_id: this.trackerId,
           },
         }).then((response) => {
           this.issueSummary.created = response.data.data.created.total;

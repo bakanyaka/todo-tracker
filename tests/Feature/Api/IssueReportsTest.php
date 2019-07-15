@@ -433,6 +433,68 @@ class IssueReportsTest extends IssuesTestCase
     }
 
     /** @test */
+    public function it_can_be_filtered_by_tracker()
+    {
+        $trackerOne = create(Project::class);
+        $trackerTwo = create(Project::class);
+
+        factory(Issue::class, 2)->create([
+            'created_on' => '2018-01-27 10:00:00',
+            'tracker_id' => $trackerOne,
+        ]);
+        factory(Issue::class, 3)->create([
+            'created_on' => '2018-01-27 10:00:00',
+            'tracker_id' => $trackerTwo,
+        ]);
+
+
+        $response = $this->get(route('api.issues.reports', [
+            'period_from_date' => '2018-01-25',
+            'period_to_date' => '2018-01-31',
+            'tracker_id' => $trackerOne->id,
+        ]));
+        $response->assertJson([
+            'data' => [
+                'created' => [
+                    'total' => 2,
+                    'data' => [
+                        [
+                            'x' => '2018-01-31',
+                            'y' => 0,
+                        ],
+                        [
+                            'x' => '2018-01-30',
+                            'y' => 0,
+                        ],
+                        [
+                            'x' => '2018-01-29',
+                            'y' => 0,
+                        ],
+                        [
+                            'x' => '2018-01-28',
+                            'y' => 0,
+                        ],
+                        [
+                            'x' => '2018-01-27',
+                            'y' => 2,
+                        ],
+                        [
+                            'x' => '2018-01-26',
+                            'y' => 0,
+                        ],
+
+                        [
+                            'x' => '2018-01-25',
+                            'y' => 0,
+                        ],
+                    ]
+                ]
+            ]
+        ]);
+
+    }
+
+    /** @test */
     public function user_can_get_issues_report_grouped_by_project()
     {
         $service = create(Service::class, ['hours' => 1]);

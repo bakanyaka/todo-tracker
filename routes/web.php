@@ -34,6 +34,11 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function() {
         Route::get('/sync', 'Api\ProjectController@sync')->name('api.projects.sync');
     });
 
+    Route::group(['prefix' => 'trackers'], function() {
+        Route::get('/', 'Api\TrackerController@index')->name('api.trackers');
+        Route::get('/sync', 'Api\TrackerController@sync')->name('api.trackers.sync');
+    });
+
     Route::group(['prefix' => 'services', 'middleware' => ['can:touch,' . \App\Models\Service::class]], function() {
         Route::get('/', 'Api\ServiceController@index')->name('api.services');
         Route::post('/', 'Api\ServiceController@store')->name('api.services.store');

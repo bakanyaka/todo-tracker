@@ -8,6 +8,7 @@ use App\Exceptions\FailedToRetrieveRedmineDataException;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Support\Arr;
 
 class Redmine
 {
@@ -57,6 +58,17 @@ class Redmine
         return $data->map([$this,'parseRedmineProjectData']);
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     * @throws FailedToRetrieveRedmineDataException
+     */
+    public function getTrackers()
+    {
+        $data = $this->getPaginatedDataFromRedmine("trackers.json",'trackers');
+        return $data->map([$this,'parseRedmineTrackerData']);
+    }
+
+
 
     /**
      * @return \Illuminate\Support\Collection
@@ -79,6 +91,8 @@ class Redmine
         $data = $this->getPaginatedDataFromRedmine($url,'time_entries');
         return $data->map([$this, 'parseRedmineTimeEntryData']);
     }
+
+
 
     /**
      * @param string $uri
@@ -108,12 +122,14 @@ class Redmine
             $url .= '?';
         }
         $data = $this->getJsonDataFromRedmine($url);
-        $total_count = $data['total_count'];
-        $limit = $data['limit'];
         $items = collect($data[$dataProperty]);
-        for ($offset = $limit; $offset < $total_count; $offset += $limit) {
-            $data = $this->getJsonDataFromRedmine("{$url}&offset={$offset}");
-            $items = $items->merge($data[$dataProperty]);
+        if (Arr::has($data, ['total_count', 'limit'])) {
+            $total_count = $data['total_count'];
+            $limit = $data['limit'];
+            for ($offset = $limit; $offset < $total_count; $offset += $limit) {
+                $data = $this->getJsonDataFromRedmine("{$url}&offset={$offset}");
+                $items = $items->merge($data[$dataProperty]);
+            }
         }
         return $items;
     }
@@ -145,6 +161,15 @@ class Redmine
             'closed_on' => array_get($issue,'closed_on') ? Carbon::parse($issue['closed_on'])->timezone('Europe/Moscow') : null
         ];
     }
+
+    public function parseRedmineTrackerData($tracker)
+    {
+        return [
+            'id' => $tracker['id'],
+            'name' => $tracker['name'],
+        ];
+    }
+
     public function parseRedmineProjectData($project)
     {
         return [
