@@ -26,13 +26,10 @@ class IssueReportController extends Controller
         $this->issueStatsService = $issueStatsService;
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $periodStartDate = $request->input('period_from_date',Carbon::now()->subDays(7)->toDateString());
-        $periodEndDate = $request->input('period_to_date',Carbon::now()->toDateString());
-
         return response()->json([
-            'data' => $this->issueStatsService->getIssuesSummaryPerDay($periodStartDate, $periodEndDate)
+            'data' => $this->issueStatsService->getIssuesSummaryPerDay()
         ]);
     }
 

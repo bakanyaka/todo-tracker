@@ -28,6 +28,6 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
         <env name="DB_CONNECTION" value="mysql"/>
-        <env name="DB_DATABASE" value="todo-tracker_test"/>
+        <env name="DB_DATABASE" value="dev_db_2"/>
     </php>
 </phpunit>

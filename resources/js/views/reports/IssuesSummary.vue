@@ -20,14 +20,32 @@
                 <b-col class="mb-sm-2 mb-0">
                     <div class="text-muted">Поступило задач</div>
                     <router-link
-                            :to="{name: 'issues.index', query: {status: 'all', period_from_date: period.startDate, period_to_date: period.endDate}}">
+                            :to="{
+                                 name: 'issues.index',
+                                 query: {
+                                     status: 'all',
+                                     period_from_date: period.startDate,
+                                     period_to_date: period.endDate,
+                                     project: projectId,
+                                     include_subprojects: 'yes'
+                                 }
+                             }">
                         <strong>{{issueSummary.created}}</strong>
                     </router-link>
                 </b-col>
                 <b-col class="mb-sm-2 mb-0 d-md-down-none">
                     <div class="text-muted">Выполнено задач</div>
                     <router-link
-                            :to="{name: 'issues.index', query: {status: 'closed', period_from_date: period.startDate, period_to_date: period.endDate}}">
+                            :to="{
+                                name: 'issues.index',
+                                query: {
+                                    status: 'closed',
+                                    period_from_date: period.startDate,
+                                    period_to_date: period.endDate,
+                                    project: projectId,
+                                    include_subprojects: 'yes'
+                                }
+                            }">
                         <strong>{{issueSummary.closed}}</strong>
                     </router-link>
                 </b-col>
@@ -38,14 +56,34 @@
                 <b-col class="mb-sm-2 mb-0">
                     <div class="text-muted">Выполнено в срок</div>
                     <router-link
-                            :to="{name: 'issues.index', query: {status: 'closed', overdue: 'no', period_from_date: period.startDate, period_to_date: period.endDate}}">
+                            :to="{
+                                name: 'issues.index',
+                                query: {
+                                    status: 'closed',
+                                    overdue: 'no',
+                                    period_from_date: period.startDate,
+                                    period_to_date: period.endDate,
+                                    project: projectId,
+                                    include_subprojects: 'yes'
+                                }
+                            }">
                         <strong>{{issueSummary.closed_in_time}}</strong>
                     </router-link>
                 </b-col>
                 <b-col class="mb-sm-2 mb-0 d-md-down-none">
                     <div class="text-muted">Выполнено не в срок</div>
                     <router-link
-                            :to="{name: 'issues.index', query: {status: 'closed', overdue: 'yes', period_from_date: period.startDate, period_to_date: period.endDate}}">
+                            :to="{
+                                name: 'issues.index',
+                                query: {
+                                    status: 'closed',
+                                    overdue: 'yes',
+                                    period_from_date: period.startDate,
+                                    period_to_date: period.endDate,
+                                    project: projectId,
+                                    include_subprojects: 'yes'
+                                }
+                            }">
                         <strong>{{issueSummary.closed_overdue}}</strong>
                     </router-link>
                 </b-col>

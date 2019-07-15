@@ -228,7 +228,7 @@ class IssueStatsTest extends IssuesTestCase
             'paused' => 4,
             'overdue' => 4,
             'due_soon' => 4,
-            'created_today' => 12,
+            'created_today' => 16,
             'closed_today' => 4,
             'in_procurement' => 4,
         ]);

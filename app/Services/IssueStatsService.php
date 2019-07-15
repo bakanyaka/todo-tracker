@@ -7,11 +7,34 @@ namespace App\Services;
 use App\Models\Issue;
 use App\Models\Project;
 use Carbon\Carbon;
+use Hamcrest\Core\Is;
+use Illuminate\Http\Request;
 
 class IssueStatsService
 {
-    public function getIssuesSummaryPerDay($startDate, $endDate)
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    public function __construct(Request $request)
     {
+        $this->request = $request;
+    }
+
+
+    public function getIssuesSummaryPerDay()
+    {
+        $startDate = $this->request->input('period_from_date',Carbon::now()->subDays(7)->toDateString());
+        $endDate = $this->request->input('period_to_date',Carbon::now()->toDateString());
+
+        $issuesQuery = Issue::query();
+
+        if ($this->request->has('project_id')) {
+            $projects = Project::with(['children', 'children.children'])->where('id', $this->request->project_id)->get()->recursivePluck('id')->toArray();
+            $issuesQuery->whereIn('project_id', $projects);
+        }
+
         $startDateCarbon = Carbon::parse($startDate);
         $endDateCarbon = Carbon::parse($endDate);
 
@@ -28,21 +51,21 @@ class IssueStatsService
             ];
         }
 
-        $issuesCreated = Issue::whereDate('created_on', '>=', $startDate)
+        $issuesCreated = (clone $issuesQuery)->whereDate('created_on', '>=', $startDate)
             ->whereDate('created_on', '<=', $endDate)
             ->selectRaw('Date(created_on) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date', 'asc')->get()
             ->map([$this, "mapToChartData"])->keyBy('x');
 
-        $issuesClosed = Issue::whereDate('closed_on', '>=', $startDate)
+        $issuesClosed = (clone $issuesQuery)->whereDate('closed_on', '>=', $startDate)
             ->whereDate('closed_on', '<=', $endDate)
             ->selectRaw('Date(closed_on) as date, COUNT(*) as count')
             ->groupBy('date')
             ->orderBy('date', 'asc')->get()
             ->map([$this, "mapToChartData"])->keyBy('x');
 
-        $issuesClosedFirstLine = Issue::whereDate('closed_on', '>=', $startDate)
+        $issuesClosedFirstLine = (clone $issuesQuery)->whereDate('closed_on', '>=', $startDate)
             ->whereDate('closed_on', '<=', $endDate)
             ->where('status_id', 8)
             ->selectRaw('Date(closed_on) as date, COUNT(*) as count')
@@ -50,7 +73,7 @@ class IssueStatsService
             ->orderBy('date', 'asc')->get()
             ->map([$this, "mapToChartData"])->keyBy('x');
 
-        $overDueIssues = Issue::Closed()
+        $overDueIssues = (clone $issuesQuery)->closed()
             ->whereDate('closed_on', '>=', $startDate)
             ->whereDate('closed_on', '<=', $endDate)
             ->get()->filter(function (Issue $issue) {
@@ -64,7 +87,7 @@ class IssueStatsService
                 ];
             });
 
-        $closedInTimeIssues = Issue::Closed()
+        $closedInTimeIssues = (clone $issuesQuery)->closed()
             ->whereDate('closed_on', '>=', $startDate)
             ->whereDate('closed_on', '<=', $endDate)
             ->get()->filter(function (Issue $issue) {
