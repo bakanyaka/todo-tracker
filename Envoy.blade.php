@@ -1,5 +1,5 @@
 @setup
-    $user = 'admin';
+    $user = 'administrator';
 
     $group = 'apache';
 

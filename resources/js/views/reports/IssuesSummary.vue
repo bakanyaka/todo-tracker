@@ -6,7 +6,7 @@
                 <div class="small text-muted">{{period.startDate}} - {{period.endDate}}</div>
             </b-col>
             <b-col sm="8">
-                <period-filter :period="7" @change="onDateRangeChanged "></period-filter>
+                <period-filter :period="7" @input="onDateRangeChanged "></period-filter>
                 <div class="d-flex justify-content-end mt-2">
                     <project-select v-model="projectId" @input="getReport" size="sm" class="w-25 mr-3"></project-select>
                     <tracker-select v-model="trackerId" @input="getReport" size="sm" class="w-25"></tracker-select>

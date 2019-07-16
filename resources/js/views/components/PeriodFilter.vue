@@ -38,11 +38,12 @@
                     if (this.selected !== 'other') {
                         this.startDate = moment().subtract(this.selected,'days').format('YYYY-MM-DD');
                         this.endDate = moment().subtract(1,'days').format('YYYY-MM-DD');
+                        this.onPeriodInput();
                     }
                 });
             },
             onPeriodInput() {
-                this.$emit('change', {
+                this.$emit('input', {
                     startDate: this.startDate,
                     endDate: this.endDate
                 });

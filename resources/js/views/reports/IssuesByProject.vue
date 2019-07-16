@@ -1,7 +1,7 @@
 <template>
     <b-card header="Задачи по проектам">
         <div class="clearfix">
-            <period-filter period="7" @change="onDateRangeChanged"></period-filter>
+            <period-filter period="7" @input="onDateRangeChanged"></period-filter>
         </div>
         <div>
             <b-form-checkbox :plain="true" v-model="filters.include_subprojects" :value="true" :unchecked-value="false" >
