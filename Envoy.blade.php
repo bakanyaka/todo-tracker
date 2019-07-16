@@ -19,7 +19,7 @@
     $release = $path . '/releases/' . $date->format('YmdHis');
 @endsetup
 
-@servers(['deployment' => ['administrator@srv-web02']]);
+@servers(['production' => ['administrator@srv-web02']]);
 
 @task('clone', ['on' => $on])
     mkdir -p {{ $release }}
