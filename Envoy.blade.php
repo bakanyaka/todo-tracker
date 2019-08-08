@@ -19,12 +19,13 @@
     $release = $path . '/releases/' . $date->format('YmdHis');
 @endsetup
 
-@servers(['production' => ['administrator@srv-web02']]);
+@servers(['production' => ['administrator@srv-web02.arsenal.plm']]);
 
 @task('clone', ['on' => $on])
     mkdir -p {{ $release }}
     git clone --depth 1 -b {{ $branch }} "{{ $repo }}" {{ $release }}
     echo "Repository has been cloned"
+    [ ! -d "{{ $path }}/storage" ] && cp -ar "{{ $current }}/storage" "{{ $path }}"
 @endtask
 
 @task('composer', ['on' => $on])
@@ -37,6 +38,10 @@
     cd {{ $release }}
     ln -nfs {{ $path }}/.env .env
     chgrp -h {{ $group }} .env
+
+    mv -f ./storage ./storage.repo
+    ln -nfs "{{ $path }}/storage" ./
+    chgrp -h {{ $group }} ./storage
 
     php artisan backup:run --only-db
     php artisan config:clear
