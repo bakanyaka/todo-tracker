@@ -26,10 +26,10 @@
                                @change="onFiltersChanged">
                 </b-form-select>
             </div>
-            <div class="col-auto">
+            <div class="col-auto" style="min-width: 15rem">
                 <label for="project">Трекер:</label>
                 <tracker-select size="sm" id="tracker-select" v-model="filters.tracker.selected"
-                                @change="onFiltersChanged">
+                                @input="onFiltersChanged">
                 </tracker-select>
             </div>
             <div class="col-auto">
@@ -111,7 +111,7 @@
             selected: null,
           },
           tracker: {
-            selected: null,
+            selected: [],
           }
         },
       };

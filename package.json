@@ -37,6 +37,7 @@
     "vue": "^2.6.10",
     "vue-chartjs": "^3.4.2",
     "vue-router": "^3.0.7",
+    "vue-select": "^3.1.0",
     "vue-simple-spinner": "^1.2.8",
     "vue-snotify": "^3.2.1",
     "vuejs-datepicker": "^0.9.29"

@@ -9,6 +9,7 @@ use App\Models\Project;
 use Carbon\Carbon;
 use Hamcrest\Core\Is;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class IssueStatsService
 {
@@ -36,7 +37,11 @@ class IssueStatsService
         }
 
         if ($this->request->has('tracker_id')) {
-            $issuesQuery->where('tracker_id', $this->request->tracker_id);
+            $issuesQuery->whereIn('tracker_id', Arr::wrap($this->request->tracker_id));
+        }
+
+        if ($this->request->has('has_service')) {
+            $issuesQuery->whereNotNull('service_id');
         }
 
         $startDateCarbon = Carbon::parse($startDate);

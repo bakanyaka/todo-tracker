@@ -7,9 +7,17 @@
             </b-col>
             <b-col sm="8">
                 <period-filter :period="7" @input="onDateRangeChanged "></period-filter>
-                <div class="d-flex justify-content-end mt-2">
-                    <project-select v-model="projectId" @input="getReport" size="sm" class="w-25 mr-3"></project-select>
-                    <tracker-select v-model="trackerId" @input="getReport" size="sm" class="w-25"></tracker-select>
+                <div class="d-flex justify-content-end mt-2 align-items-center">
+                    <b-form-checkbox
+                            v-model="has_service"
+                            value="1"
+                            :unchecked-value="null"
+                            @input="getReport"
+                    >
+                        Только с сервисами
+                    </b-form-checkbox>
+                    <project-select v-model="projectId" @input="getReport" size="sm" class="w-25 ml-3"></project-select>
+                    <tracker-select v-model="trackerId" @input="getReport" size="sm" class="w-25 ml-3"></tracker-select>
                 </div>
             </b-col>
         </b-row>
@@ -30,6 +38,7 @@
                                      project: projectId,
                                      include_subprojects: 'yes',
                                      tracker: trackerId,
+                                     has_service: has_service,
                                  }
                              }">
                         <strong>{{issueSummary.created}}</strong>
@@ -47,6 +56,7 @@
                                     project: projectId,
                                     include_subprojects: 'yes',
                                     tracker: trackerId,
+                                    has_service: has_service,
                                 }
                             }">
                         <strong>{{issueSummary.closed}}</strong>
@@ -69,6 +79,7 @@
                                     project: projectId,
                                     include_subprojects: 'yes',
                                     tracker: trackerId,
+                                    has_service: has_service,
                                 }
                             }">
                         <strong>{{issueSummary.closed_in_time}}</strong>
@@ -87,6 +98,7 @@
                                     project: projectId,
                                     include_subprojects: 'yes',
                                     tracker: trackerId,
+                                    has_service: has_service,
                                 }
                             }">
                         <strong>{{issueSummary.closed_overdue}}</strong>
@@ -142,7 +154,8 @@
           closed_in_time: 0,
         },
         projectId: null,
-        trackerId: null,
+        trackerId: [],
+        has_service: null,
       };
     },
     mounted() {
@@ -160,6 +173,7 @@
             period_to_date: this.period.endDate,
             project_id: this.projectId,
             tracker_id: this.trackerId,
+            has_service: this.has_service,
           },
         }).then((response) => {
           this.issueSummary.created = response.data.data.created.total;

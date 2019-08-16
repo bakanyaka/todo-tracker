@@ -1,4 +1,5 @@
 import BootstrapVue from 'bootstrap-vue';
+import vSelect from 'vue-select'
 import 'core-js/es6/promise';
 import 'core-js/es6/string';
 import 'core-js/es7/array';
@@ -23,6 +24,8 @@ require('./bootstrap');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 Vue.use(BootstrapVue);
+
+Vue.component('v-select', vSelect);
 
 // Use Snotify
 // You can pass {config, options} as second argument. See the next example or setConfig in [API] section

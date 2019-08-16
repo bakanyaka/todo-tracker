@@ -7,6 +7,7 @@ namespace App\Filters;
 use App\Models\Project;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 class IssueFilters extends Filters
 {
@@ -26,6 +27,7 @@ class IssueFilters extends Filters
         'period_to_date',
         'project',
         'tracker',
+        'has_service',
     ];
 
     /**
@@ -200,6 +202,18 @@ class IssueFilters extends Filters
         if ($trackerId === null) {
             return $this->builder;
         }
-        return $this->builder->where('tracker_id', $trackerId);
+        return $this->builder->whereIn('tracker_id', Arr::wrap($trackerId));
+    }
+
+    public function has_service($hasServiceFlag)
+    {
+        if ($hasServiceFlag === null) {
+            return $this->builder;
+        }
+        if ($hasServiceFlag) {
+            $this->builder->whereNotNull('service_id');
+        } else {
+            $this->builder->whereNull('service_id');
+        }
     }
 }

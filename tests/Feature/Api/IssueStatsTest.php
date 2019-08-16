@@ -224,7 +224,7 @@ class IssueStatsTest extends IssuesTestCase
         $response = $this->get(route('api.issues.stats', ['project_id' => $project->id]));
 
         $response->assertJsonFragment([
-            'open' => 12,
+            'open' => 16,
             'paused' => 4,
             'overdue' => 4,
             'due_soon' => 4,

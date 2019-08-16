@@ -65,7 +65,7 @@ class GetIssuesTest extends IssuesTestCase
         $openIssue = $this->createTrackedIssue($user,[]);
         //And closed issue tracked by user
         $closedIssue = $this->createTrackedIssue($user,[],false);
-        
+
         //And issue tracked by another user
         $otherIssue = $this->createTrackedIssue(create('App\User'));
 
@@ -487,6 +487,32 @@ class GetIssuesTest extends IssuesTestCase
 
         $response->assertJsonMissing([
             'id' => $anotherIssue->id
+        ]);
+    }
+
+    /** @test */
+    public function use_can_filter_issues_that_have_associated_service()
+    {
+        $service = create(Service::class, [
+            'name' => 'Тестирование',
+            'hours' => 2
+        ]);
+        $issueWithService = factory(Issue::class)->create([
+            'service_id' => $service->id
+        ]);
+        $issueWithoutService = factory(Issue::class)->create([
+            'service_id' => null,
+        ]);
+
+        // When user makes request to get non overdue issues
+        $this->signIn();
+        $response = $this->get(route('api.issues', ['has_service' => 1]));
+        // Then response only contains overdue issue
+        $response->assertJsonMissing([
+            'id' => $issueWithoutService->id
+        ]);
+        $response->assertJsonFragment([
+            'id' => $issueWithService->id
         ]);
     }
 }
