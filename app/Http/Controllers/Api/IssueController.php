@@ -53,10 +53,11 @@ class IssueController extends Controller
 
     public function sync()
     {
+        $forceUpdateAll = request()->input('force_update_all') ? true : false;
         if(request('updated_since')) {
-            SyncIssues::dispatch(Carbon::parse(request('updated_since')));
+            SyncIssues::dispatch(Carbon::parse(request('updated_since')), $forceUpdateAll);
         } else {
-            SyncIssues::dispatch();
+            SyncIssues::dispatch(null, $forceUpdateAll);
         }
 
         return response()->json();

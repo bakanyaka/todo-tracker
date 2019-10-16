@@ -16,7 +16,6 @@ let routes = [
         name: 'home',
         redirect: {
             path: '/issues',
-            query: {user: 'control'}
         },
         component: Full,
         meta: {

@@ -50,7 +50,8 @@ class IssueTest extends TestCase
     /** @test */
     public function it_retrieves_issue_data_from_redmine_and_updates_itself()
     {
-        $issueData = $this->makeFakeIssueArray();
+        $service = factory(Service::class)->create();
+        $issueData = $this->makeFakeIssueArray(['service_id' => $service->id]);
         $issue = new Issue(['id' => $issueData['id']]);
 
         Redmine::shouldReceive('getIssue')
@@ -63,29 +64,28 @@ class IssueTest extends TestCase
         $this->assertEquals($issueData['tracker_id'], $issue->tracker_id);
         $this->assertEquals($issueData['priority_id'], $issue->priority_id);
         $this->assertEquals($issueData['status_id'], $issue->status_id);
-        $this->assertEquals($issueData['department'], $issue->department);
         $this->assertEquals($issueData['assigned_to'], $issue->assigned_to);
         $this->assertEquals($issueData['created_on'], $issue->created_on);
         $this->assertEquals($issueData['closed_on'], $issue->closed_on);
         $this->assertEquals(true, $issue->control);
-        $this->assertEquals(24, $issue->estimatedHours);
+        $this->assertEquals($service->id, $issue->service_id);
     }
 
     /** @test */
     public function it_updates_itself_from_given_redmine_issue()
     {
-        $issueData = $this->makeFakeIssueArray();
+        $service = factory(Service::class)->create();
+        $issueData = $this->makeFakeIssueArray(['service_id' => $service->id]);
         $issue = new Issue(['id' => $issueData['id']]);
         $issue->updateFromRedmineIssue($issueData);
         $this->assertEquals($issueData['subject'], $issue->subject);
         $this->assertEquals($issueData['priority_id'], $issue->priority_id);
         $this->assertEquals($issueData['status_id'], $issue->status_id);
-        $this->assertEquals($issueData['department'], $issue->department);
         $this->assertEquals($issueData['assigned_to'], $issue->assigned_to);
         $this->assertEquals($issueData['created_on'], $issue->created_on);
         $this->assertEquals($issueData['closed_on'], $issue->closed_on);
         $this->assertEquals(true, $issue->control);
-        $this->assertEquals(24, $issue->estimatedHours);
+        $this->assertEquals($service->id, $issue->service_id);
     }
 
     /** @test */
@@ -116,8 +116,7 @@ class IssueTest extends TestCase
     /** @test */
     public function it_calculates_due_date()
     {
-        $service = Service::create([
-            'name' => 'Тестирование',
+        $service = factory(Service::class)->create([
             'hours' => 2
         ]);
         $issue = create('App\Models\Issue', [
@@ -134,8 +133,7 @@ class IssueTest extends TestCase
         Carbon::setTestNow($now);
 
         // Overdue issue should return negative value
-        $service = Service::create([
-            'name' => 'Тестирование',
+        $service = factory(Service::class)->create([
             'hours' => 2
         ]);
         $overDueIssue = create('App\Models\Issue', [
@@ -162,8 +160,7 @@ class IssueTest extends TestCase
     public function it_calculates_time_left_before_deadline_or_overdue_time_when_issue_is_closed()
     {
 
-        $service = Service::create([
-            'name' => 'Тестирование',
+        $service = factory(Service::class)->create([
             'hours' => 2
         ]);
 
@@ -204,8 +201,7 @@ class IssueTest extends TestCase
     public function it_calculates_percent_of_time_left()
     {
 
-        $service = Service::create([
-            'name' => 'Тестирование',
+        $service = factory(Service::class)->create([
             'hours' => 4
         ]);
 
@@ -223,8 +219,7 @@ class IssueTest extends TestCase
     public function feedback_time_is_added_to_due_date()
     {
         //Given we have an issue with set feedback time
-        $service = Service::create([
-            'name' => 'Тестирование',
+        $service = factory(Service::class)->create([
             'hours' => 2
         ]);
         $issue = create('App\Models\Issue', [
@@ -241,7 +236,7 @@ class IssueTest extends TestCase
     public function when_issue_is_on_paused_status_time_left_is_calculated_based_on_last_status_change()
     {
         // Given we have an open issue that has paused status and status change timestamp
-        $service = Service::create([
+        $service = factory(Service::class)->create([
             'name' => 'Тестирование',
             'hours' => 2
         ]);

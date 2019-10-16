@@ -4,16 +4,6 @@
             <template slot="header">
                 Сервисы
             </template>
-            <p>
-                <b>Внимание! Для правильной синхронизации сервисов в задачах, наименования сервисов должны в точности
-                    соответствовать значениям поля Сервис в Redmine.</b>
-            </p>
-            <b-button class="mb-3" variant="primary"
-                      size="sm"
-                      title="Добавить сервис"
-                      @click.stop="showAddServiceModal()">
-                <i class="fa fa-plus"> Добавить сервис</i>
-            </b-button>
             <spinner v-if="loading" size="large" message="Загрузка..."></spinner>
             <div v-else-if="!services.length">
                 Сервисы отсутствуют
@@ -34,22 +24,6 @@
                          :per-page="pagination.perPage"
                          :current-page="pagination.currentPage"
                 >
-                    <template slot="actions" slot-scope="row">
-                        <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
-                        <b-button variant="primary"
-                                  size="sm"
-                                  title="Редактировать"
-                                  @click.stop="editService(row.item)">
-                            <i class="fa fa-edit"></i>
-                        </b-button>
-                        <b-button variant="danger"
-                                  size="sm"
-                                  title="Удалить"
-                                  @click.stop="deleteService(row.item.id)">
-                            <i class="fa fa-remove"></i>
-                        </b-button>
-                    </template>
-
                     <template slot="table-caption">
                         На странице показано {{visibleRows}} из {{pagination.totalRows}}
                     </template>
@@ -59,14 +33,11 @@
                 </b-pagination>
             </template>
         </b-card>
-        <modify-service-modal ref="addServiceModal" modal-type="create" @modified="getServices()"></modify-service-modal>
-        <modify-service-modal ref="editServiceModal" modal-type="edit" @modified="getServices()"></modify-service-modal>
     </div>
 </template>
 
 <script>
     import Spinner from 'vue-simple-spinner'
-    import ModifyServiceModal from "./ModifyServiceModal";
 
     export default {
         data() {
@@ -91,17 +62,12 @@
                         key: 'hours',
                         label: 'Часов'
                     },
-                    {
-                        key: 'actions',
-                        label: 'Действия'
-                    }
                 ],
                 services: [],
                 meta: {},
             }
         },
         components: {
-            ModifyServiceModal,
             Spinner
         },
         computed: {

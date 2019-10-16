@@ -2,6 +2,8 @@
 
 namespace Tests;
 
+use App\Models\Service;
+use App\Models\Tracker;
 use Carbon\Carbon;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -48,16 +50,14 @@ abstract class TestCase extends BaseTestCase
             'id' =>  $this->faker->unique()->randomNumber(5),
             'status_id' => 2,
             'priority_id' => 4,
-            'tracker_id' => 3,
+            'tracker_id' => \factory(Tracker::class)->create()->id,
             'project_id' => 2,
             'author' => $this->faker->name,
             'assigned_to' => $this->faker->name,
             'assigned_to_id' => $this->faker->unique()->randomNumber(3),
             'subject' => $this->faker->name . ' : ' . $this->faker->realText(60),
             'description' => $this->faker->realText(),
-            'department' => '115 Управление информационных систем',
-            'service' => 'Организация рабочих мест пользователей',
-            'control' => 1,
+            'service_id' => 1,
             'start_date' => Carbon::parse($created_on->toDateString()),
             'created_on' => $created_on,
             'updated_on' => Carbon::instance($this->faker->dateTimeThisMonth()),

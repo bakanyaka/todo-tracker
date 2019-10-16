@@ -92,6 +92,17 @@ class Redmine
         return $data->map([$this, 'parseRedmineTimeEntryData']);
     }
 
+    /**
+     * @param int $projectId
+     * @return \Illuminate\Support\Collection
+     * @throws FailedToRetrieveRedmineDataException
+     */
+    public function getVersions(int $projectId)
+    {
+        $data = $this->getPaginatedDataFromRedmine( "/projects/{$projectId}/versions.json",'versions');
+        return $data->map([$this, 'parseRedmineVersionData']);
+    }
+
 
 
     /**
@@ -148,13 +159,12 @@ class Redmine
             'tracker_id' => $issue['tracker']['id'],
             'priority_id' => $issue['priority']['id'],
             'author' => $issue['author']['name'],
+            'author_id' => $issue['author']['id'],
             'assigned_to' => data_get($issue,'assigned_to.name'),
             'assigned_to_id' => data_get($issue,'assigned_to.id'),
             'subject' => $issue['subject'],
             'description' => $issue['description'],
-            'department' => $this->getCustomFieldValue($customFields,1),
-            'service' => $this->getCustomFieldValue($customFields,65),
-            'control' => $this->getCustomFieldValue($customFields,66),
+            'service_id' => $this->getCustomFieldValue($customFields,[80, 81]),
             'start_date' => Carbon::parse($issue['start_date'])->timezone('Europe/Moscow'),
             'created_on' => Carbon::parse($issue['created_on'])->timezone('Europe/Moscow'),
             'updated_on' => Carbon::parse($issue['updated_on'])->timezone('Europe/Moscow'),
@@ -205,11 +215,29 @@ class Redmine
         ];
     }
 
-    public function getCustomFieldValue($customFields,$id)
+    public function parseRedmineVersionData($version)
     {
-        return data_get(array_collapse(array_where($customFields, function($value) use ($id) {
-            return $value['id'] == $id;
-        })),'value');
+        $customFields = data_get($version, 'custom_fields',[]);
+        return [
+            'id' => $version['id'],
+            'project_id' => array_get($version, 'project.id'),
+            'name' => $version['name'],
+            'hours' => $this->getCustomFieldValue($customFields,82),
+        ];
+    }
+
+    public function getCustomFieldValue($customFields,$fieldId)
+    {
+        $ids = Arr::wrap($fieldId);
+        foreach ($ids as $id) {
+            $value = Arr::get(Arr::first($customFields, function ($value) use ($id) {
+                return $value['id'] == $id;
+            }), 'value');
+            if ($value !== null) {
+                return is_integer($value) ? (int) $value : $value;
+            }
+        }
+        return null;
     }
 
 }

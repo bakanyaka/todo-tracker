@@ -21,10 +21,19 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Service extends Model
 {
+
     /**
-     * Don't auto-apply mass assignment protection.
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     * The attributes that aren't mass assignable.
      *
      * @var array
      */
-    protected $fillable = ['name', 'hours'];
+    protected $guarded = [];
+
 }

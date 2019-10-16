@@ -47,9 +47,26 @@
                             <b-input-group-prepend>
                                 <b-input-group-text>Задачи</b-input-group-text>
                             </b-input-group-prepend>
+                            <b-input-group-prepend is-text>
+                                <b-form-checkbox :value="1" :unchecked-value="null" v-model="forceUpdateAllRequests">
+                                    Принудительно
+                                </b-form-checkbox>
+                            </b-input-group-prepend>
                             <b-form-input type="date" v-model="syncIssuesDate"></b-form-input>
                             <b-input-group-append>
                                 <b-button variant="primary" @click.stop="syncIssues"><i class="fa fa-refresh"></i>
+                                </b-button>
+                            </b-input-group-append>
+                        </b-input-group>
+                    </b-form-group>
+                    <b-form-group :description="'Последняя синхронизация: ' + lastSync.services">
+                        <b-input-group>
+                            <b-input-group-prepend>
+                                <b-input-group-text>Сервисы</b-input-group-text>
+                            </b-input-group-prepend>
+                            <b-form-input type="text" disabled></b-form-input>
+                            <b-input-group-append>
+                                <b-button variant="primary" @click.stop="syncServices"><i class="fa fa-refresh"></i>
                                 </b-button>
                             </b-input-group-append>
                         </b-input-group>
@@ -87,8 +104,10 @@
           assignees: 'Никогда',
           projects: 'Никогда',
           trackers: 'Никогда',
+          services: 'Никогда',
         },
         syncInterval: null,
+        forceUpdateAllRequests: null,
       };
     },
     created() {
@@ -113,6 +132,9 @@
           this.lastSync.trackers = response.data.data.trackers
             ? response.data.data.trackers.completed_at_human
             : 'Никогда';
+          this.lastSync.services = response.data.data.services
+            ? response.data.data.services.completed_at_human
+            : 'Никогда';
         }).catch((e) => {
           console.log(e);
           this.$snotify.error('Ошибка при загрузке синхронизаций');
@@ -136,6 +158,15 @@
           this.$snotify.error('Ошибка при синхронизации проектов');
         });
       },
+      syncServices() {
+        return axios.get(route('api.services.sync')).then(() => {
+          this.$snotify.success('Сервисы синхронизированы');
+          this.getLastSynchorinizations();
+        }).catch((e) => {
+          console.log(e);
+          this.$snotify.error('Ошибка при синхронизации сервисов');
+        });
+      },
       syncTrackers() {
         return axios.get(route('api.trackers.sync')).then(() => {
           this.$snotify.success('Трекеры синхронизированы');
@@ -149,6 +180,7 @@
         return axios.get(route('api.issues.sync'), {
           params: {
             updated_since: this.syncIssuesDate,
+            force_update_all: this.forceUpdateAllRequests,
           },
         }).then(() => {
           this.getLastSynchorinizations();

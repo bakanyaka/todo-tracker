@@ -17,15 +17,21 @@ class SyncIssues implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     public $date;
+    /**
+     * @var bool
+     */
+    protected $forceUpdateAll;
 
     /**
      * Create a new job instance.
      *
-     * @param null $date
+     * @param  null  $date
+     * @param  bool  $forceUpdateAll
      */
-    public function __construct($date = null)
+    public function __construct($date = null, $forceUpdateAll = false)
     {
         $this->date = $date;
+        $this->forceUpdateAll = $forceUpdateAll;
     }
 
     /**
@@ -46,7 +52,7 @@ class SyncIssues implements ShouldQueue
         foreach ($issues as $redmineIssue) {
             $issue = Issue::setEagerLoads([])->withoutGlobalScopes()->firstOrNew(['id' => $redmineIssue['id']]);
             // Only update issue if it was updated in redmine
-            if ($issue->updated_on === null || $issue->updated_on->lt($redmineIssue['updated_on']) ) {
+            if ($this->forceUpdateAll || $issue->updated_on === null || $issue->updated_on->lt($redmineIssue['updated_on']) ) {
                 $issue->updateFromRedmineIssue($redmineIssue);
                 $issue->save();
                 $updatedIssuesCount++;

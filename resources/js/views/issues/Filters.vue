@@ -69,7 +69,6 @@
             options: [
               { value: 'me', text: 'Только я' },
               { value: 'all', text: 'Какой-либо пользователь' },
-              { value: 'control', text: 'Помеченные контроль' },
               { value: null, text: 'Все задачи' },
             ],
           },

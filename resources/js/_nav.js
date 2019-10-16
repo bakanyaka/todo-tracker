@@ -6,7 +6,7 @@ let items = [
             },*/
     {
         name: 'Задачи',
-        url: '/issues?user=control',
+        url: '/issues',
         icon: 'icon-check'
     }
 ];

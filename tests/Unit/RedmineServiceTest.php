@@ -34,12 +34,11 @@ class RedmineServiceTest extends TestCase
             'status_id' => $issueData['status']['id'],
             'priority_id' => $issueData['priority']['id'],
             'author' => $issueData['author']['name'],
+            'author_id' => $issueData['author']['id'],
             'assigned_to' => $issueData['assigned_to']['name'],
             'subject' => $issueData['subject'],
             'description' => $issueData['description'],
-            'department' => $issueData['custom_fields'][0]['value'],
-            'service' => $issueData['custom_fields'][1]['value'],
-            'control' => $issueData['custom_fields'][2]['value'],
+            'service_id' => $issueData['custom_fields'][0]['value'],
             'start_date' => Carbon::parse($issueData['start_date']),
             'created_on' => Carbon::parse($issueData['created_on']),
             'updated_on' => Carbon::parse($issueData['updated_on']),
@@ -49,7 +48,7 @@ class RedmineServiceTest extends TestCase
     }
 
     /**
-     * @param array $attributes
+     * @param  array  $attributes
      * @return array
      */
     protected function makeFakeRedmineIssue($attributes = [])
@@ -81,26 +80,16 @@ class RedmineServiceTest extends TestCase
                     'id' => $this->faker->randomNumber(3),
                     'name' => $this->faker->name
                 ],
-                'subject' => $this->faker->name . ' : ' . $this->faker->realText(60),
+                'subject' => $this->faker->name.' : '.$this->faker->realText(60),
                 'description' => $this->faker->realText(),
                 'start_date' => $this->faker->dateTimeThisMonth()->format('Y-m-d'),
                 'done_ratio' => $this->faker->numberBetween(0, 100),
                 'custom_fields' => [
                     [
-                        'id' => 1,
-                        'name' => 'Подразделение',
-                        'value' => '115 Управление информационных систем'
+                        'id' => 80,
+                        'name' => 'Сервисный запрос',
+                        'value' => '9'
                     ],
-                    [
-                        'id' => 65,
-                        'name' => 'Сервис',
-                        'value' => 'Организация рабочих мест пользователей'
-                    ],
-                    [
-                        'id' => 66,
-                        'name' => 'Контроль',
-                        'value' => 1
-                    ]
                 ],
                 'created_on' => $this->faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z'),
                 'updated_on' => $this->faker->dateTimeThisMonth()->format('Y-m-d\TH:i:s\Z'),
@@ -114,8 +103,10 @@ class RedmineServiceTest extends TestCase
     public function it_retrieves_all_issues_modified_since_given_date()
     {
         $mock = new MockHandler([
-            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/issues_page_1.json')),
-            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/issues_page_2.json'))
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/issues_page_1.json')),
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/issues_page_2.json'))
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
@@ -123,32 +114,49 @@ class RedmineServiceTest extends TestCase
 
         $result = $redmine->getUpdatedIssues(Carbon::parse('2017-12-13'));
 
-        $this->assertCount(49, $result);
+        $this->assertCount(45, $result);
         $this->assertArraySubset([
-            "id" => 40142,
-            "project_id" => 102,
+            "id" => 62961,
+            "project_id" => 144,
+            "tracker_id" => 2,
             "status_id" => 1,
-            "priority_id" => 7,
-            "author" => "Николай Федоровых",
-            "assigned_to" => "Николай Федоровых",
-            "assigned_to_id" => 115,
-            "subject" => 'Ошибка "{Обработка.СА_УправлениеСканАрхивом.Форма.Форма.Форма(2605)}: Значение не является значением объектного типа (Получить)" (Якина Анна)',
-            "description" => "",
-            "department" => "123  Управление по бухгалтерскому учету и отчетности",
-            "service" => null,
-            "control" => "0",
-            'created_on' => Carbon::parse('2017-12-18 11:38:32'),
-            'updated_on' => Carbon::parse('2017-12-18 11:38:32'),
+            "priority_id" => 4,
+            "author" => "Инесса Канунник",
+            "author_id" => 162,
+            "assigned_to" => "Тех.поддержка Омега",
+            "assigned_to_id" => 196,
+            "subject" => 'Шеварденкова Татьяна Геннадьевна:предоставить доступ  (31-26, 292-40-81 факс)',
+            "description" => "Направляю Вам заявку на изменение полномочий пользователя ЛВС начальника ИМС-главного метролога Силантьева В.А.",
+            "service_id" => 20,
+            'created_on' => Carbon::parse('2019-10-15T13:05:34Z')->timezone('Europe/Moscow'),
+            'updated_on' => Carbon::parse('2019-10-15T13:05:34Z')->timezone('Europe/Moscow'),
             'closed_on' => null
         ], $result[0]);
+        $this->assertArraySubset([
+            "id" => 62954,
+            "project_id" => 93,
+            "tracker_id" => 24,
+            "status_id" => 2,
+            "priority_id" => 4,
+            "author" => "Инесса Канунник",
+            "assigned_to" => "Тех. поддержка (2 lvl)",
+            "assigned_to_id" => 101,
+            "subject" => 'Фиалковская Елена Владимировна: лже-замятие бумаги  (72-26)',
+            "service_id" => 14,
+            'created_on' => Carbon::parse('2019-10-15T11:13:14Z')->timezone('Europe/Moscow'),
+            'updated_on' => Carbon::parse('2019-10-16T05:41:53Z')->timezone('Europe/Moscow'),
+            'closed_on' => null
+        ], $result[2]);
     }
 
     /** @test */
     public function it_retrieves_all_time_entries_since_given_date()
     {
         $mock = new MockHandler([
-            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/time_entries_page_1.json')),
-            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/time_entries_page_2.json'))
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/time_entries_page_1.json')),
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/time_entries_page_2.json'))
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
@@ -173,8 +181,10 @@ class RedmineServiceTest extends TestCase
     public function it_retrieves_all_users()
     {
         $mock = new MockHandler([
-            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/users_page_1.json')),
-            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/users_page_2.json'))
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/users_page_1.json')),
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/users_page_2.json'))
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
@@ -196,8 +206,10 @@ class RedmineServiceTest extends TestCase
     public function it_retrieves_all_projects()
     {
         $mock = new MockHandler([
-            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/projects_page_1.json')),
-            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/projects_page_2.json'))
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/projects_page_1.json')),
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/projects_page_2.json'))
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
@@ -212,7 +224,8 @@ class RedmineServiceTest extends TestCase
     public function it_retrieves_all_trackers()
     {
         $mock = new MockHandler([
-            new Response(200, ['content-type' => 'application/json; charset=utf8'], file_get_contents(__DIR__ . '/../blobs/trackers.json')),
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/trackers.json')),
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
@@ -225,12 +238,26 @@ class RedmineServiceTest extends TestCase
     }
 
     /** @test */
+    public function it_retrieves_all_versions_for_specified_project()
+    {
+        $mock = new MockHandler([
+            new Response(200, ['content-type' => 'application/json; charset=utf8'],
+                file_get_contents(__DIR__.'/../blobs/project_97_versions.json')),
+        ]);
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $redmine = new Redmine($client);
+
+        $result = $redmine->getVersions(97);
+        $this->assertCount(13, $result);
+    }
+
+    /** @test */
     public function it_converts_gmt_time_to_local_time()
     {
         $issue = $this->makeFakeRedmineIssue([
             'created_on' => '2017-12-07T06:27:42Z'
         ]);
-        $issueData = $issue['issue'];
         $mock = new MockHandler([
             new Response(200, ['content-type' => 'application/json; charset=utf8'], json_encode($issue))
         ]);

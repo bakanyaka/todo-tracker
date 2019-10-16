@@ -31,7 +31,7 @@ class SyncIssuesJobTest extends TestCase
     {
         $service = create(Service::class);
         create(Project::class,['id' => 2]);
-        $redmineIssue = $this->makeFakeIssueArray(['service' => $service->name, 'project_id' => 2]);
+        $redmineIssue = $this->makeFakeIssueArray(['service_id' => $service->id, 'project_id' => 2]);
         Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
 
         $syncJob = new SyncIssues();
@@ -41,10 +41,9 @@ class SyncIssuesJobTest extends TestCase
 
         $this->assertNotNull($issue);
         $this->assertEquals($redmineIssue['subject'], $issue->subject);
-        $this->assertEquals($redmineIssue['department'], $issue->department);
         $this->assertEquals($redmineIssue['assigned_to'], $issue->assigned_to);
         $this->assertEquals($redmineIssue['assigned_to_id'], $issue->assigned_to_id);
-        $this->assertEquals($redmineIssue['service'], $issue->service->name);
+        $this->assertEquals($redmineIssue['service_id'], $issue->service_id);
         $this->assertEquals($redmineIssue['priority_id'], $issue->priority_id);
         $this->assertEquals($redmineIssue['project_id'], $issue->project_id);
         $this->assertEquals($redmineIssue['tracker_id'], $issue->tracker_id);
@@ -57,12 +56,10 @@ class SyncIssuesJobTest extends TestCase
     public function it_updates_issue_if_it_already_exists()
     {
         $issue = create('App\Models\Issue');
-        $service = create('App\Models\Service');
-        create(Project::class,['id' => 2]);
         $redmineIssue = $this->makeFakeIssueArray([
             'id' => $issue->id,
-            'service' => $service->name,
-            'project_id' => 2,
+            'service_id' => factory(Service::class)->create()->id,
+            'project_id' => factory(Project::class)->create()->id,
             'status_id' => 4
         ]);
 
@@ -73,10 +70,9 @@ class SyncIssuesJobTest extends TestCase
         $updatedIssue = $issue->fresh();
 
         $this->assertEquals($redmineIssue['subject'], $updatedIssue->subject);
-        $this->assertEquals($redmineIssue['department'], $updatedIssue->department);
         $this->assertEquals($redmineIssue['assigned_to'], $updatedIssue->assigned_to);
         $this->assertEquals($redmineIssue['assigned_to_id'], $updatedIssue->assigned_to_id);
-        $this->assertEquals($redmineIssue['service'], $updatedIssue->service->name);
+        $this->assertEquals($redmineIssue['service_id'], $updatedIssue->service_id);
         $this->assertEquals($redmineIssue['priority_id'], $updatedIssue->priority_id);
         $this->assertEquals($redmineIssue['project_id'], $updatedIssue->project_id);
         $this->assertEquals($redmineIssue['status_id'], $updatedIssue->status_id);
@@ -163,20 +159,6 @@ class SyncIssuesJobTest extends TestCase
         $this->assertEquals('new subject', $modifiedIssue->subject);
         $this->assertEquals('old subject', $notModifiedIssue->subject);
 
-
-    }
-
-    /** @test */
-    public function it_marks_issue_for_control_if_it_has_control_flag()
-    {
-        $user = create(User::class);
-        $redmineIssue = $this->makeFakeIssueArray(['control' => 1]);
-        Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
-
-        $syncJob = new SyncIssues();
-        $syncJob->handle();
-
-        $this->assertCount(1,Issue::markedForControl()->get());
 
     }
 

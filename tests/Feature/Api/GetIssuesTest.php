@@ -129,24 +129,6 @@ class GetIssuesTest extends IssuesTestCase
     }
 
     /** @test */
-    public function user_can_get_open_issues_marked_for_control()
-    {
-        //Given we have a user
-        $this->signIn();
-        //And an issue marked for control not tracked by anyone
-        $issue = create(Issue::class,['control' => true]);
-
-        //When user makes request to get all issues marked for control,
-        $response = $this->get(route('api.issues', ['user' => 'control']));
-
-        //Response contains issue marked for control
-        $response->assertStatus(200);
-        $response->assertJsonFragment([
-            'id' => $issue->id,
-        ]);
-    }
-
-    /** @test */
     public function user_can_get_all_paused_issues()
     {
         // Given we have paused issue

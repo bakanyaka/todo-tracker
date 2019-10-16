@@ -26,7 +26,7 @@ class AddServiceIdForeignKeyConstraintToIssuesTable extends Migration
     public function down()
     {
         Schema::table('issues', function (Blueprint $table) {
-            $table->dropForeign('service_id');
+            $table->dropForeign(['service_id']);
         });
     }
 }

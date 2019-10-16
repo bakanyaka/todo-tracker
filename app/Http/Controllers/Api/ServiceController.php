@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 
-use App\Http\Requests\StoreService as StoreServiceRequest;
-use App\Http\Resources\Service as ServiceResource;
-use App\Models\Service;
-use Illuminate\Http\Request;
+use App\Facades\Redmine;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Service as ServiceResource;
+use App\Models\Project;
+use App\Models\Service;
+use App\Models\Synchronization;
+use Carbon\Carbon;
 
 class ServiceController extends Controller
 {
@@ -21,54 +23,34 @@ class ServiceController extends Controller
         return ServiceResource::collection(Service::all());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param StoreServiceRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function store(StoreServiceRequest $request)
+    public function sync()
     {
-        $service = Service::create($request->only('name','hours'));
-        return (new ServiceResource($service))->response()->setStatusCode(201);
+        $versionIds = [];
+        foreach (Project::pluck('id') as $projectId) {
+            $versions = Redmine::getVersions($projectId);
+            $versions->each(function ($version) use ($projectId, &$versionIds) {
+                $versionIds[] = $version['id'];
+                Service::updateOrCreate(
+                    [
+                        'id' => $version['id']
+                    ],
+                    [
+                        'name' => $version['name'],
+                        'project_id' => $projectId,
+                        'hours' => $version['hours'],
+                    ]
+                );
+            });
+        }
+
+        // Delete services that have no redmine version with matching id
+        $servicesWithNoMatchingVersion = Service::pluck('id')->diff($versionIds);
+        Service::destroy($servicesWithNoMatchingVersion);
+        Synchronization::create([
+            'completed_at' => Carbon::now(),
+            'type' => 'services',
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
-     * @return ServiceResource
-     */
-    public function update(Request $request, $id)
-    {
-        $service = Service::findOrFail($id);
-        $service->update($request->only('name','hours'));
-        return new ServiceResource($service);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
-     */
-    public function destroy($id)
-    {
-        $service = Service::findOrFail($id);
-        $service->delete();
-        return response()->json([],204);
-    }
 }

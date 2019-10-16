@@ -237,10 +237,10 @@ class Issue extends Model
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeMarkedForControl($query)
-    {
-        return $query->where(['control' => true]);
-    }
+//    public function scopeMarkedForControl($query)
+//    {
+//        return $query->where(['control' => true]);
+//    }
 
     /**
      * Scope a query to only include issues that are not in procurement
@@ -471,28 +471,38 @@ class Issue extends Model
     public function updateFromRedmineIssue(array $redmineIssue)
     {
         $this->subject = $redmineIssue['subject'];
-        $this->department = $redmineIssue['department'];
         $this->assigned_to = $redmineIssue['assigned_to'];
         $this->assigned_to_id = $redmineIssue['assigned_to_id'];
         $this->created_on = Carbon::create($redmineIssue['created_on']->year, $redmineIssue['created_on']->month, $redmineIssue['created_on']->day, $redmineIssue['created_on']->hour, $redmineIssue['created_on']->minute, $redmineIssue['created_on']->second, $redmineIssue['created_on']->tz);
         $this->closed_on = $redmineIssue['closed_on'];
         $this->updated_on = $redmineIssue['updated_on'];
-        $this->control = $redmineIssue['control'] == 1 ? true : false;
+        $this->control = true;
+
         $priority = Priority::find($redmineIssue['priority_id']);
         if (!is_null($priority)) {
             $this->priority_id = $priority->id;
         }
+
         $status = Status::find($redmineIssue['status_id']);
         if (!is_null($status)) {
             $this->status_id = $status->id;
         }
+
         $project = Project::find($redmineIssue['project_id']);
         if (!is_null($project)) {
             $this->project_id = $project->id;
         }
-        $this->tracker_id = $redmineIssue['tracker_id'];
-        $service = Service::where('name', $redmineIssue['service'])->first();
-        $this->service()->associate($service);
+
+        $tracker = Tracker::find($redmineIssue['tracker_id']);
+        if (!is_null($tracker)) {
+            $this->tracker_id = $tracker->id;
+        }
+
+        $service = Service::find($redmineIssue['service_id']);
+        if (!is_null($service)) {
+            $this->service_id = $service->id;
+        }
+
         return $this;
     }
 

@@ -42,6 +42,11 @@ class RedmineSyncController extends Controller
             ->orderByDesc('completed_at')
             ->first();
 
+        $servicesLastSync = Synchronization::whereNotNull('completed_at')
+            ->where('type','services')
+            ->orderByDesc('completed_at')
+            ->first();
+
         return response()->json([
             'data' => [
                 'issues' => $issuesLastSync ? new SynchronizationResource($issuesLastSync) : null,
@@ -49,6 +54,7 @@ class RedmineSyncController extends Controller
                 'assignees' => $assigneesLastSync ? new SynchronizationResource($assigneesLastSync) : null,
                 'projects' => $projectsLastSync ? new SynchronizationResource($projectsLastSync) : null,
                 'trackers' => $trackersLastSync ? new SynchronizationResource($trackersLastSync) : null,
+                'services' => $servicesLastSync ? new SynchronizationResource($servicesLastSync) : null,
             ]
         ]);
     }

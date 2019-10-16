@@ -66,7 +66,7 @@ class IssueFilters extends Filters
         } elseif ($username === 'all') {
             return $this->builder->has('users');
         } elseif ($username === 'control') {
-            return $this->builder->markedForControl();
+            return $this->builder;
         } else {
             return $this->builder->whereHas('users', function ($query) use ($username) {
                 $query->where('name', $username);

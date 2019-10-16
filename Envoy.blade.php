@@ -25,7 +25,7 @@
     mkdir -p {{ $release }}
     git clone --depth 1 -b {{ $branch }} "{{ $repo }}" {{ $release }}
     echo "Repository has been cloned"
-    [ ! -d "{{ $path }}/storage" ] && cp -ar "{{ $current }}/storage" "{{ $path }}"
+{{--    [ ! -d "{{ $path }}/storage" ] && cp -ar "{{ $current }}/storage" "{{ $path }}"--}}
 @endtask
 
 @task('composer', ['on' => $on])
