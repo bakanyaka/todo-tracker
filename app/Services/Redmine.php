@@ -115,8 +115,7 @@ class Redmine
         try {
             $response = $this->client->get($uri);
         } catch (ClientException $exception) {
-            dd($exception);
-            throw new FailedToRetrieveRedmineDataException();
+            throw new FailedToRetrieveRedmineDataException($exception->getMessage());
         }
         return json_decode($response->getBody(), true);
     }
@@ -222,7 +221,7 @@ class Redmine
             'id' => $version['id'],
             'project_id' => array_get($version, 'project.id'),
             'name' => $version['name'],
-            'hours' => $this->getCustomFieldValue($customFields,82),
+            'custom_fields' => $version['custom_fields'],
         ];
     }
 
@@ -234,7 +233,7 @@ class Redmine
                 return $value['id'] == $id;
             }), 'value');
             if ($value !== null) {
-                return is_integer($value) ? (int) $value : $value;
+                return $value;
             }
         }
         return null;

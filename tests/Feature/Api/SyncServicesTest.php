@@ -6,9 +6,8 @@ use App\Facades\Redmine;
 use App\Models\Project;
 use App\Models\Service;
 use Carbon\Carbon;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SyncServicesTest extends TestCase
 {
@@ -51,7 +50,7 @@ class SyncServicesTest extends TestCase
         $response->assertStatus(200);
         $service->refresh();
         $this->assertEquals($versions[0]['name'], $service->name);
-        $this->assertEquals($versions[0]['hours'], $service->hours);
+        $this->assertEquals(1, $service->hours);
     }
 
     /** @test */
@@ -71,20 +70,20 @@ class SyncServicesTest extends TestCase
     /** @test */
     public function it_saves_sync_timestamp_to_database()
     {
-        $now = Carbon::create(2017,12,9,5);
+        $now = Carbon::create(2017, 12, 9, 5);
         Carbon::setTestNow($now);
 
         $this->signInAsAdmin();
         $response = $this->get(route('api.services.sync'));
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('synchronizations',['completed_at' => $now, 'type' => 'services']);
+        $this->assertDatabaseHas('synchronizations', ['completed_at' => $now, 'type' => 'services']);
 
     }
 
     /**
-     * @param array $attributes
-     * @param int $count
+     * @param  array  $attributes
+     * @param  int  $count
      * @return \Illuminate\Support\Collection
      */
     protected function makeFakeRedmineVersion($attributes = [], $count = 1)
@@ -94,7 +93,13 @@ class SyncServicesTest extends TestCase
             $versions[] = array_merge([
                 'id' => $this->faker->unique()->randomNumber(3),
                 'name' => $this->faker->unique()->sentence,
-                'hours' => $this->faker->numberBetween(1, 48),
+                'custom_fields' => [
+                    [
+                        'id' => 82,
+                        'name' => 'Время рещения (час)',
+                        'value' => '1',
+                    ]
+                ],
             ], $attributes);
         }
         return collect($versions);
