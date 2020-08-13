@@ -14,7 +14,7 @@ let webpack = require('webpack');
 
 
 mix.js('resources/js/main.js', 'public/js')
-    .extract(['vue','vue-router','axios','lodash','bootstrap-vue','chart.js','vue-chartjs','vue-snotify','vuejs-datepicker', 'moment'])
+    .extract()
     .sass('resources/sass/style.scss', 'public/css')
     .sass('resources/sass/vendor.scss', 'public/css')
     .sourceMaps();
@@ -22,8 +22,8 @@ mix.js('resources/js/main.js', 'public/js')
 if (mix.inProduction()) {
     mix.version();
 }
-
-if (!mix.inProduction()) {
-    mix.browserSync('https://todo-tracker.test');
-}
+//
+// if (!mix.inProduction()) {
+//     mix.browserSync('https://todo-tracker.test');
+// }
 

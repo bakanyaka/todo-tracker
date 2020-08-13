@@ -117,6 +117,13 @@ class Issue extends Model
     public $incrementing = false;
 
     /**
+     * Attribute for time left caching
+     *
+     * @var float
+     */
+    protected $timeLeftCached;
+
+    /**
      * The "booting" method of the model.
      *
      * @return void
@@ -136,8 +143,8 @@ class Issue extends Model
     /**
      * Apply all relevant filters based on request
      *
-     * @param Builder $query
-     * @param IssueFilters $filters
+     * @param  Builder  $query
+     * @param  IssueFilters  $filters
      * @return Builder
      */
     public function scopeFilter(Builder $query, IssueFilters $filters)
@@ -148,62 +155,74 @@ class Issue extends Model
     /**
      * Scope a query to only include incomplete issues.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeOpen($query)
     {
-        return $query->whereHas('status', function (Builder $q) {
-            $q->where('is_closed', false);
-        });
+        return $query->whereHas(
+            'status',
+            function (Builder $q) {
+                $q->where('is_closed', false);
+            }
+        );
     }
 
     /**
      * Scope a query to only include complete issues.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeClosed($query)
     {
-        return $query->whereHas('status', function (Builder $q) {
-            $q->where('is_closed', true);
-        });
+        return $query->whereHas(
+            'status',
+            function (Builder $q) {
+                $q->where('is_closed', true);
+            }
+        );
     }
 
     /**
      * Scope a query to only include paused issues.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePaused($query)
     {
-        return $query->whereHas('status', function (Builder $q) {
-            $q->where('is_paused', true);
-        });
+        return $query->whereHas(
+            'status',
+            function (Builder $q) {
+                $q->where('is_paused', true);
+            }
+        );
     }
 
 
     /**
      * Scope a query to only include active issues.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeActive($query)
     {
-        return $query->whereHas('status', function (Builder $q) {
-            $q->where('is_paused', false);
-            $q->where('is_closed', false);
-        });
+        return $query->whereHas(
+            'status',
+            function (Builder $q) {
+                $q->where('is_paused', false);
+                $q->where('is_closed', false);
+            }
+        );
     }
 
 
     /**
      * Scope a query to only include issues created between given dates
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param $startDate
      * @param $endDate
      * @return \Illuminate\Database\Eloquent\Builder
@@ -218,7 +237,7 @@ class Issue extends Model
     /**
      * Scope a query to only include issues closed between given dates
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param $startDate
      * @param $endDate
      * @return \Illuminate\Database\Eloquent\Builder
@@ -234,7 +253,7 @@ class Issue extends Model
     /**
      * Scope a query to only include issues marked for control.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
 //    public function scopeMarkedForControl($query)
@@ -245,7 +264,7 @@ class Issue extends Model
     /**
      * Scope a query to only include issues that are not in procurement
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeNotInProcurement($query)
@@ -258,14 +277,16 @@ class Issue extends Model
     /**
      * Scope a query to only include issues that are in procurement
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeInProcurement(Builder $query)
     {
-        return $query->where(function (Builder $subQuery) {
-            $subQuery->where('assigned_to', 'Отдел Закупок')->orWhere('tracker_id', 12);
-        });
+        return $query->where(
+            function (Builder $subQuery) {
+                $subQuery->where('assigned_to', 'Отдел Закупок')->orWhere('tracker_id', 12);
+            }
+        );
     }
 
     /**
@@ -358,7 +379,9 @@ class Issue extends Model
      */
     public function getDueDateAttribute($value)
     {
-        return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours)->addBusinessHours($this->on_pause_hours) : null;
+        return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours)->addBusinessHours(
+            $this->on_pause_hours
+        ) : null;
     }
 
     /**
@@ -371,14 +394,15 @@ class Issue extends Model
 
     /**
      *  Calculates difference in business hours between current timestamp and due date
-     * @return int|null
      */
-    public function getTimeLeftAttribute()
+    public function getTimeLeftAttribute() : ?float
     {
+        if (isset($this->timeLeftCached)) {
+            return $this->timeLeftCached;
+        }
         if (is_null($this->due_date)) {
             return null;
         }
-
         if ($this->is_paused) {
             $timestamp = $this->status_changed_on;
         } elseif (is_null($this->closed_on)) {
@@ -386,13 +410,12 @@ class Issue extends Model
         } else {
             $timestamp = $this->closed_on;
         }
-
-        $difference = $timestamp->diffInBusinessHours($this->due_date);
-        if ($this->due_date->gte($timestamp)) {
-            return $difference;
-        } else {
-            return $difference * -1;
+        $hoursLeft = $timestamp->diffInBusinessHours($this->due_date);
+        if ($this->due_date->lt($timestamp)) {
+            $hoursLeft = $hoursLeft * -1;
         }
+        $this->timeLeftCached = $hoursLeft;
+        return $hoursLeft;
     }
 
     public function getPercentOfTimeLeftAttribute()
@@ -412,7 +435,7 @@ class Issue extends Model
 
     /**
      *
-     * @param  string $value
+     * @param  string  $value
      * @return void
      */
     public function setStatusIdAttribute($value)
@@ -440,7 +463,7 @@ class Issue extends Model
 
     /**
      * Add this issue to user's tracked issues
-     * @param User $user
+     * @param  User  $user
      */
     public function track(User $user)
     {
@@ -451,7 +474,7 @@ class Issue extends Model
 
     /**
      * Remove issue from user's tracked issues
-     * @param User $user
+     * @param  User  $user
      */
     public function untrack(User $user)
     {
@@ -473,7 +496,15 @@ class Issue extends Model
         $this->subject = $redmineIssue['subject'];
         $this->assigned_to = $redmineIssue['assigned_to'];
         $this->assigned_to_id = $redmineIssue['assigned_to_id'];
-        $this->created_on = Carbon::create($redmineIssue['created_on']->year, $redmineIssue['created_on']->month, $redmineIssue['created_on']->day, $redmineIssue['created_on']->hour, $redmineIssue['created_on']->minute, $redmineIssue['created_on']->second, $redmineIssue['created_on']->tz);
+        $this->created_on = Carbon::create(
+            $redmineIssue['created_on']->year,
+            $redmineIssue['created_on']->month,
+            $redmineIssue['created_on']->day,
+            $redmineIssue['created_on']->hour,
+            $redmineIssue['created_on']->minute,
+            $redmineIssue['created_on']->second,
+            $redmineIssue['created_on']->tz
+        );
         $this->closed_on = $redmineIssue['closed_on'];
         $this->updated_on = $redmineIssue['updated_on'];
         $this->control = true;
