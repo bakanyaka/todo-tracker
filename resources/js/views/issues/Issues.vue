@@ -54,17 +54,17 @@
                          :current-page="pagination.currentPage"
                          @filtered="onFiltered"
                 >
-                    <template slot="id" slot-scope="data">
+                    <template v-slot:cell(id)="data">
                         <a :href="`${redmineUri}/issues/${data.value}`">{{data.value}}</a>
                     </template>
 
-                    <template slot="actions" slot-scope="row">
+                    <template v-slot:cell(actions)="data">
                         <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
-                        <b-button v-if="row.item.is_tracked_by_current_user === true" variant="danger"
-                                  @click.stop="removeIssue(row.item.id)">
+                        <b-button v-if="data.item.is_tracked_by_current_user === true" variant="danger"
+                                  @click.stop="removeIssue(data.item.id)">
                             <i class="fa fa-chain-broken"></i>
                         </b-button>
-                        <b-button v-else variant="success" @click.stop="addIssue(row.item.id)">
+                        <b-button v-else variant="success" @click.stop="addIssue(data.item.id)">
                             <i class="fa icon-eyeglass"></i>
                         </b-button>
                     </template>

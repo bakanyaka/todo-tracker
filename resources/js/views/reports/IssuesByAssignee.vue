@@ -12,12 +12,12 @@
                  :items="filteredAssignees"
                  :fields="fields"
         >
-            <template slot="fullname" slot-scope="row">
+            <template v-slot:cell(fullname)="data">
                 <!--<router-link :to="{name: 'assignee_report', params: {id: row.item.id}}">{{row.item.firstname}} {{row.item.lastname}}</router-link>-->
-                {{row.item.firstname}} {{row.item.lastname}}
+                {{data.item.firstname}} {{data.item.lastname}}
             </template>
-            <template slot="kpi" slot-scope="row">
-                {{row.item.participated_issues_count ? (row.item.spent_issues_count / row.item.participated_issues_count).toFixed(3) : 0}}
+            <template v-slot:cell(kpi)="data">
+                {{data.item.participated_issues_count ? (data.item.spent_issues_count / data.item.participated_issues_count).toFixed(3) : 0}}
             </template>
         </b-table>
     </b-card>
