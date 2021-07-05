@@ -2,16 +2,13 @@
 
 namespace Tests\Unit\Models;
 
-use App\BusinessDate;
 use App\Facades\Redmine;
 use App\Models\Issue;
 use App\Models\Priority;
 use App\Models\Service;
 use App\Models\Status;
 use Carbon\Carbon;
-use Hamcrest\Core\Is;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 
@@ -19,7 +16,7 @@ class IssueTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->artisan("db:seed");
@@ -92,7 +89,7 @@ class IssueTest extends TestCase
     public function issue_can_not_be_tracked_by_same_user_twice()
     {
         //Given we have an issue tracked by user
-        $user = create('App\User');
+        $user = create('App\Models\User');
         $issue = create('App\Models\Issue');
         $issue->track($user);
         //When we try to track same issue by same user again
@@ -105,8 +102,8 @@ class IssueTest extends TestCase
     /** @test */
     public function it_knows_if_it_is_tracked_by_user()
     {
-        $user = create('App\User');
-        $anotherUser = create('App\User');
+        $user = create('App\Models\User');
+        $anotherUser = create('App\Models\User');
         $issue = create('App\Models\Issue');
         $issue->track($user);
         $this->assertEquals(true, $issue->isTrackedBy($user));

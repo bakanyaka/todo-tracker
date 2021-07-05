@@ -5,7 +5,6 @@ namespace App\Models;
 use App\BusinessDate;
 use App\Facades\Redmine;
 use App\Filters\IssueFilters;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -28,13 +27,13 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereIssueId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereUpdatedAt($value)
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $trackedByUsers
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $trackedByUsers
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereSubject($value)
  * @property-read \App\Models\Service $service
  * @property int|null $service_id
  * @property-read BusinessDate $closed_on
  * @property-read mixed $estimated_hours
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\User[] $users
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereServiceId($value)
  * @property-read mixed $actual_time
  * @property-read mixed $percent_of_time_left
@@ -294,7 +293,7 @@ class Issue extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('App\User');
+        return $this->belongsToMany('App\Models\User');
     }
 
     /**

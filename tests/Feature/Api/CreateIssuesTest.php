@@ -28,7 +28,7 @@ class CreateIssuesTest extends IssuesTestCase
     public function user_can_remove_issue_from_his_tracked_issues()
     {
         //Given we have an issue tracked by user
-        $user = create('App\User');
+        $user = create('App\Models\User');
         $this->signIn($user);
         $issue = create('App\Models\Issue');
         $issue->track($user);

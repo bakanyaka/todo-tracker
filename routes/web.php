@@ -11,7 +11,6 @@
 |
 */
 
-
 //Auth::routes();
 Route::get('/login', 'Auth\LoginController@showLoginForm')->name('login')->middleware('guest');
 Route::post('/login',  'Auth\LoginController@login')->middleware('guest');;

@@ -13,12 +13,13 @@ class AddProjectIdToServicesTable extends Migration
      */
     public function up()
     {
-
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
         Schema::table('services', function (Blueprint $table) {
             $table->unsignedInteger('id', false)->change();
             $table->unsignedInteger('project_id');
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
         });
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
 
     /**

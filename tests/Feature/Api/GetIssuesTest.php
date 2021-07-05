@@ -7,10 +7,10 @@ use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\Synchronization;
-use App\User;
+use App\Models\User;
 use Carbon\Carbon;
-use Tests\Feature\IssuesTestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\IssuesTestCase;
 
 class GetIssuesTest extends IssuesTestCase
 {
@@ -61,13 +61,13 @@ class GetIssuesTest extends IssuesTestCase
     public function user_can_gets_his_own_tracked_open_issues()
     {
         //Given we have an open issue tracked by user
-        $user = create('App\User');
+        $user = create('App\Models\User');
         $openIssue = $this->createTrackedIssue($user,[]);
         //And closed issue tracked by user
         $closedIssue = $this->createTrackedIssue($user,[],false);
 
         //And issue tracked by another user
-        $otherIssue = $this->createTrackedIssue(create('App\User'));
+        $otherIssue = $this->createTrackedIssue(create('App\Models\User'));
 
         //When user makes request to get his issues,
         $response = $this->signIn($user)->get(route('api.issues', ['user' => 'me']));
@@ -89,7 +89,7 @@ class GetIssuesTest extends IssuesTestCase
     public function user_can_get_own_tracked_closed_issues()
     {
         //Given we have an closed issue tracked by user
-        $user = create('App\User');
+        $user = create('App\Models\User');
         $closedIssue = $this->createTrackedIssue($user,[],false);
 
         //When user makes request to get his closed issues,

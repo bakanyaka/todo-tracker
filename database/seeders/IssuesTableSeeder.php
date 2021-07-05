@@ -1,6 +1,7 @@
 <?php
 
-use Carbon\Carbon;
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 
 class IssuesTableSeeder extends Seeder
@@ -12,7 +13,7 @@ class IssuesTableSeeder extends Seeder
      */
     public function run()
     {
-        $user = \App\User::find(1);
+        $user = \App\Models\User::find(1);
         factory(App\Models\Issue::class, 10)->create()->each(function ($issue) use ($user) {
             $issue->track($user);
         });

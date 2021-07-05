@@ -2,12 +2,10 @@
 
 namespace Tests;
 
-use App\Models\Service;
 use App\Models\Tracker;
 use Carbon\Carbon;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Illuminate\Support\Facades\DB;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -15,7 +13,7 @@ abstract class TestCase extends BaseTestCase
 
     protected $faker;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -30,14 +28,14 @@ abstract class TestCase extends BaseTestCase
 
     protected function signIn($user = null)
     {
-        $user = $user ?: create('App\User');
+        $user = $user ?: create('App\Models\User');
         $this->actingAs($user);
         return $this;
     }
 
     protected function signInAsAdmin()
     {
-        $user =create('App\User', ['is_admin' => true]);
+        $user =create('App\Models\User', ['is_admin' => true]);
         $this->actingAs($user);
         return $this;
     }

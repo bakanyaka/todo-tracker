@@ -9,18 +9,15 @@ use App\Models\Project;
 use App\Models\Service;
 use App\Models\Synchronization;
 use App\Services\Sync;
-use App\User;
 use Carbon\Carbon;
-use Faker\Factory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use function Sodium\crypto_aead_aes256gcm_decrypt;
 use Tests\TestCase;
 
 class SyncIssuesJobTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->artisan("db:seed");

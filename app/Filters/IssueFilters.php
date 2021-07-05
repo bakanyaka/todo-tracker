@@ -5,7 +5,6 @@ namespace App\Filters;
 
 
 use App\Models\Project;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 

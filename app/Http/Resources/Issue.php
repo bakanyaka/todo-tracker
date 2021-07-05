@@ -2,12 +2,12 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property \App\BusinessDate closed_on
  */
-class Issue extends Resource
+class Issue extends JsonResource
 {
     /**
      * Transform the resource into an array.

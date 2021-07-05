@@ -11,7 +11,7 @@ class IssuesTestCase extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->artisan("db:seed");
@@ -37,7 +37,7 @@ class IssuesTestCase extends TestCase
     }
 
     /**
-     * @param \App\User $user
+     * @param \App\Models\User $user
      * @param array $attributes
      * @param bool $open
      * @return Issue
@@ -45,7 +45,7 @@ class IssuesTestCase extends TestCase
     protected function createTrackedIssue($user = null, $attributes = [], $open = true)
     {
         $state = $open ? 'open' : 'closed';
-        $user = $user ? $user : create('App\User');
+        $user = $user ? $user : create('App\Models\User');
         $issue = factory(Issue::class)->states($state)->create($attributes);
         $issue->track($user);
         return $issue;

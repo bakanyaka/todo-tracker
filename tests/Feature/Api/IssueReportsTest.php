@@ -10,7 +10,7 @@ use Tests\Feature\IssuesTestCase;
 
 class IssueReportsTest extends IssuesTestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->signIn();

@@ -4,15 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Exceptions\FailedToRetrieveRedmineDataException;
 use App\Filters\IssueFilters;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\IssueCollection;
 use App\Jobs\SyncIssues;
 use App\Models\Issue;
-use App\User;
 use Carbon\Carbon;
-use function GuzzleHttp\Promise\all;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 
 class IssueController extends Controller
 {
