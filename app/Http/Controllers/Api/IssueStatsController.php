@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\OverdueState;
 use App\Models\Issue;
 use App\Models\Project;
 use Carbon\Carbon;
@@ -26,20 +27,13 @@ class IssueStatsController extends Controller
             $project_with_children_ids = Project::with(['children', 'children.children'])->where('id', $request['project_id'])->get()->recursivePluck('id')->toArray();
             $issues->whereIn('project_id', $project_with_children_ids);
         }
-        $openIssues = with(clone $issues)->open()->get();
-        $pausedIssuesCount = with(clone $issues)->paused()->count();
-        $overDueIssuesCount = $openIssues->filter(function(Issue $issue) {
-            return $issue->due_date !== null && $issue->time_left < 0;
-        })->count();
-        $dueSoonIssuesCount = $openIssues->filter(function (Issue $issue) {
-            if ($issue->due_date === null) {
-                return false;
-            }
-            return $issue->percent_of_time_left < 30 && $issue->percent_of_time_left > 0;
-        })->count();
-        $createdTodayIssuesCount = with(clone $issues)->where('created_on','>=', Carbon::today())->count();
-        $closedTodayIssuesCount = with(clone $issues)->closed()->where('closed_on','>=', Carbon::today())->count();
-        $inProcurementIssuesCount = with(clone $issues)->withoutGlobalScopes()->open()->inProcurement()->count();
+        $openIssues = $issues->clone()->open()->get();
+        $pausedIssuesCount = $issues->clone()->paused()->count();
+        $overDueIssuesCount = $openIssues->filter(fn(Issue $issue) => $issue->getOverdueState()->is(OverdueState::Yes))->count();
+        $dueSoonIssuesCount = $openIssues->filter(fn(Issue $issue) => $issue->getOverdueState()->is(OverdueState::Soon))->count();
+        $createdTodayIssuesCount = $issues->clone()->where('created_on','>=', Carbon::today())->count();
+        $closedTodayIssuesCount = $issues->clone()->closed()->where('closed_on','>=', Carbon::today())->count();
+        $inProcurementIssuesCount = $issues->clone()->withoutGlobalScopes()->open()->inProcurement()->count();
 
         return response()->json([
             'data' => [

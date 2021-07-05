@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use App\Enums\OverdueState;
 use App\Facades\Redmine;
 use App\Models\Issue;
 use App\Models\Priority;
@@ -114,11 +115,11 @@ class IssueTest extends TestCase
     public function it_calculates_due_date()
     {
         $service = factory(Service::class)->create([
-            'hours' => 2
+            'hours' => 2,
         ]);
         $issue = create('App\Models\Issue', [
             'service_id' => $service->id,
-            'created_on' => '2017-12-05 15:00:00'
+            'created_on' => '2017-12-05 15:00:00',
         ]);
         $this->assertEquals('2017-12-06 09:00:00', $issue->dueDate);
     }
@@ -131,24 +132,24 @@ class IssueTest extends TestCase
 
         // Overdue issue should return negative value
         $service = factory(Service::class)->create([
-            'hours' => 2
+            'hours' => 2,
         ]);
         $overDueIssue = create('App\Models\Issue', [
             'service_id' => $service->id,
-            'created_on' => Carbon::create(2017, 12, 07, 8)
+            'created_on' => Carbon::create(2017, 12, 07, 8),
         ]);
         $this->assertEquals(-2, $overDueIssue->time_left);
 
         // On time issue should return positive value
         $onTimeIssue = create('App\Models\Issue', [
             'service_id' => $service->id,
-            'created_on' => Carbon::create(2017, 12, 07, 11)
+            'created_on' => Carbon::create(2017, 12, 07, 11),
         ]);
         $this->assertEquals(1, $onTimeIssue->time_left);
 
         // Issue without due time should return null value
         $issueWithoutDueDate = create('App\Models\Issue', [
-            'service_id' => null
+            'service_id' => null,
         ]);
         $this->assertEquals(null, $issueWithoutDueDate->time_left);
     }
@@ -156,16 +157,15 @@ class IssueTest extends TestCase
     /** @test */
     public function it_calculates_time_left_before_deadline_or_overdue_time_when_issue_is_closed()
     {
-
         $service = factory(Service::class)->create([
-            'hours' => 2
+            'hours' => 2,
         ]);
 
         // In time issue should return positive value
         $closedInTimeIssue = create('App\Models\Issue', [
             'service_id' => $service->id,
             'created_on' => Carbon::create(2017, 12, 07, 11),
-            'closed_on' => Carbon::create(2017, 12, 07, 12)
+            'closed_on' => Carbon::create(2017, 12, 07, 12),
         ]);
         $this->assertEquals(1, $closedInTimeIssue->time_left);
 
@@ -173,7 +173,7 @@ class IssueTest extends TestCase
         $closedInTimeIssue = create('App\Models\Issue', [
             'service_id' => $service->id,
             'created_on' => Carbon::create(2017, 12, 07, 11),
-            'closed_on' => Carbon::create(2017, 12, 07, 15)
+            'closed_on' => Carbon::create(2017, 12, 07, 15),
         ]);
         $this->assertEquals(-2, $closedInTimeIssue->time_left);
     }
@@ -189,7 +189,7 @@ class IssueTest extends TestCase
 
         //Issue that is not closed should return null
         $issue = create('App\Models\Issue', [
-            'created_on' => Carbon::create(2017, 12, 07, 11)
+            'created_on' => Carbon::create(2017, 12, 07, 11),
         ]);
         $this->assertEquals(null, $issue->actual_time);
     }
@@ -197,9 +197,8 @@ class IssueTest extends TestCase
     /** @test */
     public function it_calculates_percent_of_time_left()
     {
-
         $service = factory(Service::class)->create([
-            'hours' => 4
+            'hours' => 4,
         ]);
 
         $now = Carbon::create(2017, 12, 07, 12);
@@ -217,12 +216,12 @@ class IssueTest extends TestCase
     {
         //Given we have an issue with set feedback time
         $service = factory(Service::class)->create([
-            'hours' => 2
+            'hours' => 2,
         ]);
         $issue = create('App\Models\Issue', [
             'service_id' => $service->id,
             'created_on' => '2017-12-05 15:00:00',
-            'on_pause_hours' => 1.5
+            'on_pause_hours' => 1.5,
         ]);
         //When we retrieve due_date
         //Then due_date should include feedback time
@@ -235,13 +234,13 @@ class IssueTest extends TestCase
         // Given we have an open issue that has paused status and status change timestamp
         $service = factory(Service::class)->create([
             'name' => 'Тестирование',
-            'hours' => 2
+            'hours' => 2,
         ]);
         $issue = create('App\Models\Issue', [
             'service_id' => $service->id,
             'status_id' => 4,
             'created_on' => '2017-12-05 15:00:00',
-            'status_changed_on' => '2017-12-05 16:00:00'
+            'status_changed_on' => '2017-12-05 16:00:00',
         ]);
         // When we retrieve issue time_left
         // Then it should be calculated on last status change timestamp instead of current time
@@ -257,15 +256,15 @@ class IssueTest extends TestCase
         // Given we have an issue with old status_changed_on timestamp
         $issue = create(Issue::class, [
             'status_id' => 1,
-            'status_changed_on' => '2017-12-05 16:00:00'
+            'status_changed_on' => '2017-12-05 16:00:00',
         ]);
-        $this->assertEquals('2017-12-05 16:00:00', (string)$issue->status_changed_on);
+        $this->assertEquals('2017-12-05 16:00:00', (string) $issue->status_changed_on);
         // When we change issue status
         $issue->status_id = 4;
         $issue->save();
         $issue = $issue->fresh();
         // Then status_changed_on timestamp should be equal current timestamp
-        $this->assertEquals(4,$issue->status_id);
+        $this->assertEquals(4, $issue->status_id);
         $this->assertEquals($now, $issue->status_changed_on);
     }
 
@@ -278,20 +277,20 @@ class IssueTest extends TestCase
         // Given we have an issue with status_changed_on timestamp
         $issue = create(Issue::class, [
             'status_id' => 1,
-            'status_changed_on' => '2017-12-05 16:00:00'
+            'status_changed_on' => '2017-12-05 16:00:00',
         ]);
-        $this->assertEquals('2017-12-05 16:00:00', (string)$issue->status_changed_on);
+        $this->assertEquals('2017-12-05 16:00:00', (string) $issue->status_changed_on);
         // When we change issue status to same status
         $issue->status_id = 1;
         $issue->save();
         //Then status_changed_on timestamp should be the same as before
         $issue = $issue->fresh();
-        $this->assertEquals('2017-12-05 16:00:00', (string)$issue->status_changed_on);
-
+        $this->assertEquals('2017-12-05 16:00:00', (string) $issue->status_changed_on);
     }
 
     /** @test */
-    public function when_status_changes_from_paused_to_active_time_passed_since_last_status_change_should_be_added_to_on_pause_hours()
+    public function when_status_changes_from_paused_to_active_time_passed_since_last_status_change_should_be_added_to_on_pause_hours(
+    )
     {
         $now = Carbon::create(2018, 1, 15, 12);
         Carbon::setTestNow($now);
@@ -299,7 +298,7 @@ class IssueTest extends TestCase
         // Given we have an issue on one of the paused statuses
         $issue = create(Issue::class, [
             'status_id' => 4,
-            'status_changed_on' => '2018-01-15 10:00:00'
+            'status_changed_on' => '2018-01-15 10:00:00',
         ]);
 
         // When we set issue status to active status
@@ -308,5 +307,24 @@ class IssueTest extends TestCase
         $issue = $issue->fresh();
         // Then time passed (in hours) since previous status change should be added to om_pause_hours attribute
         $this->assertEquals(2, $issue->on_pause_hours);
+    }
+
+    /** @test */
+    public function it_gets_overdue_state()
+    {
+        $this->travelTo(Carbon::now()->setHour(9)->setMinute(0));
+        $service = factory(Service::class)->create(['hours' => 6]);
+        $issue = factory(Issue::class)->create(['service_id' => $service->id]);
+
+        $this->assertEquals(OverdueState::No, $issue->fresh()->getOverDueState());
+
+        $this->travel(5)->hours();
+        $this->assertEquals(OverdueState::Soon, $issue->fresh()->getOverDueState());
+
+        $this->travel(2)->hours();
+        $this->assertEquals(OverdueState::Yes, $issue->fresh()->getOverDueState());
+
+        $issue->update(['status_id' => 4]);
+        $this->assertEquals(OverdueState::No, $issue->fresh()->getOverDueState());
     }
 }

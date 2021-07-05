@@ -17,17 +17,9 @@ class IssueController extends Controller
     public function index(IssueFilters $filters): IssueCollection
     {
         $issues = Issue::filter($filters)->with('users')->get();
-        $issues = match (request()->overdue) {
-            'yes' => $issues->filter(fn(Issue $issue) => $issue->due_date !== null && $issue->time_left < 0),
-            'no' => $issues->filter(fn(Issue $issue) => $issue->due_date !== null && $issue->time_left >= 0),
-            'soon' => $issues->filter(
-                fn(Issue $issue) => $issue->due_date !== null
-                    && $issue->percent_of_time_left
-                    < 30 && $issue->percent_of_time_left > 0
-            ),
-            default => $issues
-        };
-
+        if (request()->has('overdue')) {
+            $issues = $issues->filter(fn(Issue $issue) => $issue->getOverdueState()->is(request('overdue')));
+        }
         $issues = $issues->sort([Issue::class, 'defaultSort'])->values();
 
         return new IssueCollection($issues);
