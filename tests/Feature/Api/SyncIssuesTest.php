@@ -4,9 +4,9 @@ namespace Tests\Feature\Api;
 
 use App\Jobs\SyncIssues;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SyncIssuesTest extends TestCase
 {
@@ -17,10 +17,7 @@ class SyncIssuesTest extends TestCase
     {
         Bus::fake();
 
-        $this->signIn();
-
-        $response = $this->get(route('api.issues.sync', ['updated_since' => '2018-01-01']));
-        $response->assertStatus(200);
+        $this->signIn()->get(route('api.issues.sync', ['updated_since' => '2018-01-01']))->assertNoContent();
 
         Bus::assertDispatched(SyncIssues::class, function ($job) {
             return $job->date->toDateString() === Carbon::parse('2018-01-01')->toDateString();

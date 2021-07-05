@@ -35,7 +35,7 @@ class CreateIssuesTest extends IssuesTestCase
         $this->assertEquals($issue->id, $user->issues()->first()->id);
 
         //When we send a request to untrack it
-        $response = $this->delete(route('api.issues.untrack', ['id' => $issue['id']]));
+        $response = $this->delete(route('api.issues.untrack', ['issue' => $issue['id']]));
         $response->assertStatus(200);
 
         //Then it should be removed from his tracked issues

@@ -4,27 +4,15 @@ namespace Tests;
 
 use App\Models\Tracker;
 use Carbon\Carbon;
-use Faker\Factory;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Foundation\Testing\WithFaker;
 
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
-
-    protected $faker;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        if(config('database.default') == 'sqlite'){
-            $db = app()->make('db');
-            $db->connection()->getPdo()->exec("PRAGMA foreign_keys = ON");
-        }
-
-        $this->withoutExceptionHandling();
-        $this->faker = Factory::create('ru_RU');
-    }
+    use ArraySubsetAsserts;
+    use WithFaker;
 
     protected function signIn($user = null)
     {

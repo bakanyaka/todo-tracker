@@ -18,7 +18,6 @@
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.16.0",
     "chart.js": "^2.9.3",
-    "core-js": "^2.6.11",
     "css-vars-ponyfill": "^1.17.2",
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.19",

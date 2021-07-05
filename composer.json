@@ -23,6 +23,7 @@
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.10",
+        "dms/phpunit-arraysubset-asserts": "^0.3.0",
         "fakerphp/faker": "^1.9.1",
         "itsgoingd/clockwork": "^5.0.7",
         "laravel/sail": "^1.0.1",

@@ -2,94 +2,53 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Exceptions\FailedToRetrieveRedmineDataException;
 use App\Filters\IssueFilters;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\IssueCollection;
 use App\Jobs\SyncIssues;
 use App\Models\Issue;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class IssueController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @param IssueFilters $filters
-     * @return IssueCollection
-     */
-    public function index(IssueFilters $filters)
+
+    public function index(IssueFilters $filters): IssueCollection
     {
         $issues = Issue::filter($filters)->with('users')->get();
-        switch (request()->overdue) {
-            case 'yes':
-                $issues = $issues->filter(function(Issue $issue) {
-                    return $issue->due_date !== null && $issue->time_left < 0;
-                });
-                break;
-            case 'no':
-                $issues = $issues->filter(function(Issue $issue) {
-                    return $issue->due_date !== null && $issue->time_left >= 0;
-                });
-                break;
-            case 'soon':
-                $issues = $issues->filter(function (Issue $issue) {
-                    if ($issue->due_date === null) {
-                        return false;
-                    }
-                    return $issue->percent_of_time_left < 30 && $issue->percent_of_time_left > 0;
-                });
-                break;
-        }
+        $issues = match (request()->overdue) {
+            'yes' => $issues->filter(fn(Issue $issue) => $issue->due_date !== null && $issue->time_left < 0),
+            'no' => $issues->filter(fn(Issue $issue) => $issue->due_date !== null && $issue->time_left >= 0),
+            'soon' => $issues->filter(
+                fn(Issue $issue) => $issue->due_date !== null
+                    && $issue->percent_of_time_left
+                    < 30 && $issue->percent_of_time_left > 0
+            ),
+            default => $issues
+        };
 
-        $issues = $issues->sort([Issue::class, 'defaultSort'])->values();//->paginate(5);
+        $issues = $issues->sort([Issue::class, 'defaultSort'])->values();
 
         return new IssueCollection($issues);
     }
 
-    public function sync()
+    public function destroy(Issue $issue): JsonResponse
+    {
+        $this->authorize('delete', $issue);
+        $issue->delete();
+        return response()->json(null, Response::HTTP_NO_CONTENT);
+    }
+
+    public function sync(): JsonResponse
     {
         $forceUpdateAll = request()->input('force_update_all') ? true : false;
-        if(request('updated_since')) {
+        if (request('updated_since')) {
             SyncIssues::dispatch(Carbon::parse(request('updated_since')), $forceUpdateAll);
         } else {
             SyncIssues::dispatch(null, $forceUpdateAll);
         }
-
-        return response()->json();
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\Response
-     * @throws Exception
-     */
-    public function store(Request $request)
-    {
-        $request->validate(['issue_id' => 'required|int']);
-        $issue = Issue::firstOrNew(['id' => $request->issue_id]);
-        try {
-            $issue->updateFromRedmine();
-        } catch (FailedToRetrieveRedmineDataException $exception) {
-            abort(404);
-        }
-        $issue->save();
-        $issue->track(auth()->user());
-        return response()->json([],201);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Issue  $issue
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Issue $issue)
-    {
-        $issue->untrack(auth()->user());
-        return response()->json([]);
-    }
 }

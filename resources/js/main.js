@@ -1,8 +1,5 @@
 import BootstrapVue from 'bootstrap-vue';
 import vSelect from 'vue-select'
-import 'core-js/es6/promise';
-import 'core-js/es6/string';
-import 'core-js/es7/array';
 
 import Vue from 'vue';
 import Snotify from 'vue-snotify';
@@ -31,8 +28,16 @@ Vue.component('v-select', vSelect);
 // You can pass {config, options} as second argument. See the next example or setConfig in [API] section
 Vue.use(Snotify);
 
+Vue.mixin({
+  computed: {
+    $user() {
+      return window.config.user;
+    },
+  }
+});
+
 const app = new Vue({
-    el: '#app',
-    router,
-    render: h => h(App)
+  el: '#app',
+  router,
+  render: h => h(App)
 });
