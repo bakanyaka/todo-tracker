@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Facades\Redmine;
-use App\Models\Project;
+use App\Facades\RedmineApi;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\Project as ProjectResource;
+use App\Models\Project;
 use App\Models\Synchronization;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ProjectController extends Controller
 {
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         return ProjectResource::collection(Project::all());
     }
 
     public function sync()
     {
-        $redmineProjects = Redmine::getProjects();
+        $redmineProjects = RedmineApi::getProjects();
         foreach ($redmineProjects as $redmineProject) {
             $project = Project::firstOrNew(['id' => $redmineProject['id']]);
             $project->name = $redmineProject['name'];

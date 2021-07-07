@@ -12,15 +12,13 @@ class CreateIssuesTest extends IssuesTestCase
     /** @test */
     public function user_can_add_new_issue_to_his_tracked_issues_by_id()
     {
-
+        $this->withoutExceptionHandling();
         $issue = $this->makeIssueAndTrackIt(['closed_on' => null]);
 
         $this->assertDatabaseHas('issues', ['id' => $issue['id']]);
 
-        $response = $this->get(route('api.issues'));
-
-        $response->assertJsonFragment([
-            'id' => $issue['id']
+        $this->get(route('api.issues'))->assertOk()->assertJsonFragment([
+            'id' => $issue['id'],
         ]);
     }
 
@@ -61,7 +59,6 @@ class CreateIssuesTest extends IssuesTestCase
         $this->get(route('api.issues.sync'));
 
         Bus::assertDispatched(SyncIssues::class);
-
     }
 
 }

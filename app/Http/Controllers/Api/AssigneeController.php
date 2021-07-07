@@ -2,23 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
+use App\Http\Controllers\Controller;
 use App\Models\Assignee;
 use App\Models\Synchronization;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 
 class AssigneeController extends Controller
 {
-    /**
-     * Sync assignees with Redmine.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function sync()
+
+    public function sync(): JsonResponse
     {
-        $rmAssignees = Redmine::getUsers();
+        $rmAssignees = RedmineApi::getUsers();
         foreach ($rmAssignees as $rmAssignee) {
             $assignee = Assignee::firstOrNew(['id' => $rmAssignee['id']]);
             $assignee->login = $rmAssignee['login'];

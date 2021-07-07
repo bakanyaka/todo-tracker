@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Services\Redmine;
+use App\Services\RedmineApiService;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -25,10 +25,11 @@ class RedmineServiceTest extends TestCase
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
 
-        $redmine = new Redmine($client);
+        $redmine = new RedmineApiService($client);
         $result = $redmine->getIssue(324);
         $this->assertEquals([
             'id' => $issueData['id'],
+            'parent_id' => $issueData['parent']['id'],
             'project_id' => $issueData['project']['id'],
             'tracker_id' => $issueData['tracker']['id'],
             'status_id' => $issueData['status']['id'],
@@ -40,6 +41,7 @@ class RedmineServiceTest extends TestCase
             'description' => $issueData['description'],
             'service_id' => $issueData['custom_fields'][0]['value'],
             'start_date' => Carbon::parse($issueData['start_date']),
+            'due_date' => Carbon::parse($issueData['due_date']),
             'created_on' => Carbon::parse($issueData['created_on']),
             'updated_on' => Carbon::parse($issueData['updated_on']),
             'closed_on' => Carbon::parse($issueData['closed_on']),
@@ -80,9 +82,13 @@ class RedmineServiceTest extends TestCase
                     'id' => $this->faker->randomNumber(3),
                     'name' => $this->faker->name
                 ],
+                'parent' => [
+                    'id' => 71223
+                ],
                 'subject' => $this->faker->name.' : '.$this->faker->realText(60),
                 'description' => $this->faker->realText(),
-                'start_date' => $this->faker->dateTimeThisMonth()->format('Y-m-d'),
+                'start_date' => $start = $this->faker->dateTimeThisMonth()->format('Y-m-d'),
+                'due_date' => Carbon::parse($start)->addDays($this->faker->numberBetween(1, 30))->format('Y-m-d'),
                 'done_ratio' => $this->faker->numberBetween(0, 100),
                 'custom_fields' => [
                     [
@@ -110,7 +116,7 @@ class RedmineServiceTest extends TestCase
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $redmine = new Redmine($client);
+        $redmine = new RedmineApiService($client);
 
         $result = $redmine->getUpdatedIssues(Carbon::parse('2017-12-13'));
 
@@ -160,7 +166,7 @@ class RedmineServiceTest extends TestCase
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $redmine = new Redmine($client);
+        $redmine = new RedmineApiService($client);
 
         $result = $redmine->getTimeEntries(Carbon::parse('2017-12-13'));
 
@@ -188,7 +194,7 @@ class RedmineServiceTest extends TestCase
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $redmine = new Redmine($client);
+        $redmine = new RedmineApiService($client);
 
         $result = $redmine->getUsers();
 
@@ -213,7 +219,7 @@ class RedmineServiceTest extends TestCase
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $redmine = new Redmine($client);
+        $redmine = new RedmineApiService($client);
 
         $result = $redmine->getProjects();
 
@@ -229,7 +235,7 @@ class RedmineServiceTest extends TestCase
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $redmine = new Redmine($client);
+        $redmine = new RedmineApiService($client);
 
         $result = $redmine->getTrackers();
 
@@ -246,7 +252,7 @@ class RedmineServiceTest extends TestCase
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $redmine = new Redmine($client);
+        $redmine = new RedmineApiService($client);
 
         $result = $redmine->getVersions(97);
         $this->assertCount(13, $result);
@@ -264,7 +270,7 @@ class RedmineServiceTest extends TestCase
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
 
-        $redmine = new Redmine($client);
+        $redmine = new RedmineApiService($client);
         $result = $redmine->getIssue(322);
 
         $this->assertEquals('2017-12-07 09:27:42', $result['created_on']);

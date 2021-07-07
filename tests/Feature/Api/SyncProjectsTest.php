@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
 use App\Models\Project;
 use Carbon\Carbon;
 use Tests\TestCase;
@@ -18,7 +18,7 @@ class SyncProjectsTest extends TestCase
     {
         // Given we have project in Redmine that doesn't exist in database
         $projects = $this->makeFakeRedmineProjects();
-        Redmine::shouldReceive('getProjects')->once()->andReturn($projects);
+        RedmineApi::shouldReceive('getProjects')->once()->andReturn($projects);
 
         // When administrator makes request to synchronize projects with Redmine
         $this->signInAsAdmin();
@@ -40,7 +40,7 @@ class SyncProjectsTest extends TestCase
             'identifier' => 'identifier',
             'description' => 'some description'
         ]);
-        Redmine::shouldReceive('getProjects')->once()->andReturn($projectsRM);
+        RedmineApi::shouldReceive('getProjects')->once()->andReturn($projectsRM);
 
         // When administrator makes request to synchronize projects with Redmine
         $this->signIn();
@@ -60,7 +60,7 @@ class SyncProjectsTest extends TestCase
     {
         $now = Carbon::create(2017,12,9,5);
         Carbon::setTestNow($now);
-        Redmine::shouldReceive('getProjects')->once()->andReturn(collect());
+        RedmineApi::shouldReceive('getProjects')->once()->andReturn(collect());
 
         $this->signInAsAdmin();
         $response = $this->get(route('api.projects.sync'));

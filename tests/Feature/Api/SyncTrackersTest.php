@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
 use App\Models\Project;
 use App\Models\Tracker;
 use Carbon\Carbon;
@@ -19,7 +19,7 @@ class SyncTrackersTestTest extends TestCase
     {
         // Given we have project in Redmine that doesn't exist in database
         $trackers = $this->makeFakeRedmineTrackers();
-        Redmine::shouldReceive('getTrackers')->once()->andReturn($trackers);
+        RedmineApi::shouldReceive('getTrackers')->once()->andReturn($trackers);
 
         // When administrator makes request to synchronize trackers with Redmine
         $this->signInAsAdmin();
@@ -39,7 +39,7 @@ class SyncTrackersTestTest extends TestCase
             'id' => $trackersRM[0]['id'],
             'name' => 'Some Name',
         ]);
-        Redmine::shouldReceive('getTrackers')->once()->andReturn($trackersRM);
+        RedmineApi::shouldReceive('getTrackers')->once()->andReturn($trackersRM);
 
         // When administrator makes request to synchronize trackers with Redmine
         $this->signIn();
@@ -56,7 +56,7 @@ class SyncTrackersTestTest extends TestCase
     {
         $now = Carbon::create(2017,12,9,5);
         Carbon::setTestNow($now);
-        Redmine::shouldReceive('getTrackers')->once()->andReturn(collect());
+        RedmineApi::shouldReceive('getTrackers')->once()->andReturn(collect());
 
         $this->signInAsAdmin();
         $response = $this->get(route('api.trackers.sync'));

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
 use App\Jobs\SyncTimeEntries;
 use App\Models\Synchronization;
 use App\Models\TimeEntry;
@@ -19,7 +19,7 @@ class SyncTimeEntriesJobTest extends TestCase
     public function it_creates_new_time_entries_if_they_do_not_exist_in_db()
     {
         $timeEntriesRM = $this->makeFakeRedmineTimeEntries([],3);
-        Redmine::shouldReceive('getTimeEntries')->once()->andReturn($timeEntriesRM);
+        RedmineApi::shouldReceive('getTimeEntries')->once()->andReturn($timeEntriesRM);
 
         $syncTimeEntriesJob = new SyncTimeEntries();
         $syncTimeEntriesJob->handle();
@@ -42,7 +42,7 @@ class SyncTimeEntriesJobTest extends TestCase
     public function it_updates_time_entries_if_they_already_exist_in_db()
     {
         $timeEntriesRM = $this->makeFakeRedmineTimeEntries([],3);
-        Redmine::shouldReceive('getTimeEntries')->once()->andReturn($timeEntriesRM);
+        RedmineApi::shouldReceive('getTimeEntries')->once()->andReturn($timeEntriesRM);
 
         $syncTimeEntriesJob = new SyncTimeEntries();
         $syncTimeEntriesJob->handle();
@@ -66,7 +66,7 @@ class SyncTimeEntriesJobTest extends TestCase
     {
         $now = Carbon::create(2017,12,9,5);
         Carbon::setTestNow($now);
-        Redmine::shouldReceive('getTimeEntries')->once()->andReturn(collect());
+        RedmineApi::shouldReceive('getTimeEntries')->once()->andReturn(collect());
 
         $syncJob = new SyncTimeEntries();
         $syncJob->handle();

@@ -21,19 +21,20 @@ abstract class TestCase extends BaseTestCase
         return $this;
     }
 
-    protected function signInAsAdmin()
+    protected function signInAsAdmin(): static
     {
         $user =create('App\Models\User', ['is_admin' => true]);
         $this->actingAs($user);
         return $this;
     }
 
-    protected function makeFakeIssueArray($attributes = [])
+    protected function makeFakeIssueArray($attributes = []): array
     {
         $created_on = Carbon::instance($this->faker->dateTimeThisMonth());
 
         $issue = array_merge([
             'id' =>  $this->faker->unique()->randomNumber(5),
+            'parent_id' => null,
             'status_id' => 2,
             'priority_id' => 4,
             'tracker_id' => \factory(Tracker::class)->create()->id,
@@ -45,6 +46,7 @@ abstract class TestCase extends BaseTestCase
             'description' => $this->faker->realText(),
             'service_id' => 1,
             'start_date' => Carbon::parse($created_on->toDateString()),
+            'due_date' => Carbon::parse($created_on->toDateString())->addDays($this->faker->numberBetween(1, 30)),
             'created_on' => $created_on,
             'updated_on' => Carbon::instance($this->faker->dateTimeThisMonth()),
             'closed_on' => Carbon::instance($this->faker->dateTimeThisMonth()),

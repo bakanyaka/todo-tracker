@@ -9,8 +9,9 @@ use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
-class Redmine
+class RedmineApiService
 {
     protected $redmineUrl;
     protected $token;
@@ -26,22 +27,19 @@ class Redmine
     }
 
     /**
-     * @param $issue_id
-     * @return array
-     * @throws FailedToRetrieveRedmineDataException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
-    public function getIssue($issue_id)
+    public function getIssue($issue_id): array
     {
         $issueData = $this->getJsonDataFromRedmine("issues/{$issue_id}.json");
         return $this->parseRedmineIssueData($issueData['issue']);
     }
 
+
     /**
-     * @param Carbon $dt
-     * @return \Illuminate\Support\Collection
-     * @throws FailedToRetrieveRedmineDataException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
-    public function getUpdatedIssues(Carbon $dt)
+    public function getUpdatedIssues(Carbon $dt): Collection
     {
         $url = "issues.json?updated_on=>={$dt->format('Y-m-d')}&status_id=*";
         $issues = $this->getPaginatedDataFromRedmine($url,'issues');
@@ -49,68 +47,61 @@ class Redmine
     }
 
     /**
-     * @return \Illuminate\Support\Collection
-     * @throws FailedToRetrieveRedmineDataException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
-    public function getProjects()
+    public function getProjects(): Collection
     {
         $data = $this->getPaginatedDataFromRedmine("projects.json",'projects');
         return $data->map([$this,'parseRedmineProjectData']);
     }
 
+
     /**
-     * @return \Illuminate\Support\Collection
-     * @throws FailedToRetrieveRedmineDataException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
-    public function getTrackers()
+    public function getTrackers(): Collection
     {
         $data = $this->getPaginatedDataFromRedmine("trackers.json",'trackers');
         return $data->map([$this,'parseRedmineTrackerData']);
     }
 
 
-
     /**
-     * @return \Illuminate\Support\Collection
-     * @throws FailedToRetrieveRedmineDataException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
-    public function getUsers()
+    public function getUsers(): Collection
     {
         $data = $this->getPaginatedDataFromRedmine('users.json','users');
         return $data->map([$this, 'parseRedmineUserData']);
     }
 
+
     /**
-     * @param Carbon $dt
-     * @return \Illuminate\Support\Collection
-     * @throws FailedToRetrieveRedmineDataException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
-    public function getTimeEntries(Carbon $dt)
+    public function getTimeEntries(Carbon $dt): Collection
     {
         $url = "time_entries.json?spent_on=>={$dt->format('Y-m-d')}";
         $data = $this->getPaginatedDataFromRedmine($url,'time_entries');
         return $data->map([$this, 'parseRedmineTimeEntryData']);
     }
 
+
     /**
-     * @param int $projectId
-     * @return \Illuminate\Support\Collection
-     * @throws FailedToRetrieveRedmineDataException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
-    public function getVersions(int $projectId)
+    public function getVersions(int $projectId): Collection
     {
         $data = $this->getPaginatedDataFromRedmine( "/projects/{$projectId}/versions.json",'versions');
         return $data->map([$this, 'parseRedmineVersionData']);
     }
 
 
-
     /**
-     * @param string $uri
-     * @return array
-     * @throws FailedToRetrieveRedmineDataException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
-    protected function getJsonDataFromRedmine($uri): array
+    protected function getJsonDataFromRedmine(string $uri): array
     {
         try {
             $response = $this->client->get($uri);
@@ -120,15 +111,14 @@ class Redmine
         return json_decode($response->getBody(), true);
     }
 
+
     /**
-     * @param string $url
-     * @param string $dataProperty
-     * @return \Illuminate\Support\Collection
-     * @throws FailedToRetrieveRedmineDataException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
-    protected function getPaginatedDataFromRedmine($url, $dataProperty)
+    protected function getPaginatedDataFromRedmine(string $url, string $dataProperty): Collection
     {
-        if(strpos($url,'?') === false) {
+        if(!str_contains($url, '?')) {
             $url .= '?';
         }
         $data = $this->getJsonDataFromRedmine($url);
@@ -144,15 +134,12 @@ class Redmine
         return $items;
     }
 
-    /**
-     * @param  array $issue
-     * @return array
-     */
-    public function parseRedmineIssueData($issue)
+    public function parseRedmineIssueData(array $issue): array
     {
         $customFields = data_get($issue, 'custom_fields',[]);
         return [
             'id' =>  $issue['id'],
+            'parent_id' => data_get($issue, 'parent.id'),
             'project_id' => $issue['project']['id'],
             'status_id' => $issue['status']['id'],
             'tracker_id' => $issue['tracker']['id'],
@@ -165,13 +152,14 @@ class Redmine
             'description' => $issue['description'],
             'service_id' => $this->getCustomFieldValue($customFields,[80, 81]),
             'start_date' => Carbon::parse($issue['start_date'])->timezone('Europe/Moscow'),
+            'due_date' => $issue['due_date'] ? Carbon::parse($issue['due_date'])->timezone('Europe/Moscow') : null,
             'created_on' => Carbon::parse($issue['created_on'])->timezone('Europe/Moscow'),
             'updated_on' => Carbon::parse($issue['updated_on'])->timezone('Europe/Moscow'),
             'closed_on' => array_get($issue,'closed_on') ? Carbon::parse($issue['closed_on'])->timezone('Europe/Moscow') : null
         ];
     }
 
-    public function parseRedmineTrackerData($tracker)
+    public function parseRedmineTrackerData($tracker): array
     {
         return [
             'id' => $tracker['id'],
@@ -179,7 +167,7 @@ class Redmine
         ];
     }
 
-    public function parseRedmineProjectData($project)
+    public function parseRedmineProjectData($project): array
     {
         return [
             'id' => $project['id'],
@@ -190,7 +178,7 @@ class Redmine
         ];
     }
 
-    public function parseRedmineUserData($user)
+    public function parseRedmineUserData($user): array
     {
         return [
             'id' => $user['id'],
@@ -201,7 +189,7 @@ class Redmine
         ];
     }
 
-    public function parseRedmineTimeEntryData($timeEntry)
+    public function parseRedmineTimeEntryData($timeEntry): array
     {
         return [
             'id' => $timeEntry['id'],
@@ -214,14 +202,13 @@ class Redmine
         ];
     }
 
-    public function parseRedmineVersionData($version)
+    public function parseRedmineVersionData($version): array
     {
-        $customFields = data_get($version, 'custom_fields',[]);
         return [
             'id' => $version['id'],
             'project_id' => array_get($version, 'project.id'),
             'name' => $version['name'],
-            'custom_fields' => $version['custom_fields'],
+            'custom_fields' => array_get($version, 'custom_fields',[]),
         ];
     }
 

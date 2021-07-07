@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
 use App\Models\Project;
 use App\Models\Service;
 use Carbon\Carbon;
@@ -24,7 +24,7 @@ class SyncServicesTest extends TestCase
     {
         $versions = $this->makeFakeRedmineVersion();
         $project = factory(Project::class)->create();
-        Redmine::shouldReceive('getVersions')->once()->with($project->id)->andReturn($versions);
+        RedmineApi::shouldReceive('getVersions')->once()->with($project->id)->andReturn($versions);
 
         $response = $this->get(route('api.services.sync'));
 
@@ -43,7 +43,7 @@ class SyncServicesTest extends TestCase
             'id' => $versions[0]['id'],
             'project_id' => $project->id,
         ]);
-        Redmine::shouldReceive('getVersions')->once()->with($project->id)->andReturn($versions);
+        RedmineApi::shouldReceive('getVersions')->once()->with($project->id)->andReturn($versions);
 
         $response = $this->get(route('api.services.sync'));
 
@@ -59,7 +59,7 @@ class SyncServicesTest extends TestCase
         $versions = $this->makeFakeRedmineVersion();
         $project = factory(Project::class)->create();
         $service = factory(Service::class)->create(['project_id' => $project->id]);
-        Redmine::shouldReceive('getVersions')->once()->with($project->id)->andReturn($versions);
+        RedmineApi::shouldReceive('getVersions')->once()->with($project->id)->andReturn($versions);
 
         $response = $this->get(route('api.services.sync'));
 

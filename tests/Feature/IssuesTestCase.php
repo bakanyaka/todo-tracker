@@ -2,8 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
 use App\Models\Issue;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,16 +18,12 @@ class IssuesTestCase extends TestCase
         $this->artisan("db:seed");
     }
 
-    /**
-     * @param array $attributes
-     * @return array
-     */
-    protected function makeIssueAndTrackIt($attributes = [])
+    protected function makeIssueAndTrackIt(array $attributes = []): array
     {
         $issue = $this->makeFakeIssueArray($attributes);
         $issueId = $issue['id'];
 
-        Redmine::shouldReceive('getIssue')
+        RedmineApi::shouldReceive('getIssue')
             ->once()
             ->with($issueId)
             ->andReturn($issue);
@@ -36,16 +33,10 @@ class IssuesTestCase extends TestCase
         return $issue;
     }
 
-    /**
-     * @param \App\Models\User $user
-     * @param array $attributes
-     * @param bool $open
-     * @return Issue
-     */
-    protected function createTrackedIssue($user = null, $attributes = [], $open = true)
+    protected function createTrackedIssue(?User $user = null, array $attributes = [], bool $open = true): Issue
     {
         $state = $open ? 'open' : 'closed';
-        $user = $user ? $user : create('App\Models\User');
+        $user = $user ?? factory(User::class)->create();
         $issue = factory(Issue::class)->states($state)->create($attributes);
         $issue->track($user);
         return $issue;

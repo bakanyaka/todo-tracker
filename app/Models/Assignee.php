@@ -5,20 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\Models\Assignee
- *
- * @mixin \Eloquent
- * @property int $id
- * @property string $login
- * @property string $firstname
- * @property string $lastname
- * @property string $mail
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Issue[] $participatedIssues
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Assignee whereFirstname($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Assignee whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Assignee whereLastname($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Assignee whereLogin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Assignee whereMail($value)
+ * @mixin IdeHelperAssignee
  */
 class Assignee extends Model
 {

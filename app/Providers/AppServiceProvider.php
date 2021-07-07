@@ -2,12 +2,11 @@
 
 namespace App\Providers;
 
-use App\Services\Redmine;
+use App\Services\RedmineApiService;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,17 +34,17 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
 
-        $this->app->singleton('GuzzleHttp\Client', function() {
-            return new \GuzzleHttp\Client([
+        $this->app->singleton(Client::class, function () {
+            return new Client([
                 'base_uri' => config('services.redmine.uri'),
                 'headers' => [
-                    'X-Redmine-API-Key' => config('services.redmine.secret')
-                ]
+                    'X-Redmine-API-Key' => config('services.redmine.secret'),
+                ],
             ]);
         });
 
-        $this->app->singleton('Redmine', function ($app) {
-            return new Redmine($app->make('GuzzleHttp\Client'));
+        $this->app->singleton(RedmineApiService::class, function ($app) {
+            return new RedmineApiService($app->make(Client::class));
         });
     }
 }

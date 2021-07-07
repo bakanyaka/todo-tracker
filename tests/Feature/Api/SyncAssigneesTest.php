@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
 use App\Models\Assignee;
 use Carbon\Carbon;
 use Tests\TestCase;
@@ -18,7 +18,7 @@ class SyncAssigneesTest extends TestCase
     {
         // Given we have user in Redmine that doesn't exist in database
         $user = $this->makeFakeRedmineAssignees();
-        Redmine::shouldReceive('getUsers')->once()->andReturn(collect([$user]));
+        RedmineApi::shouldReceive('getUsers')->once()->andReturn(collect([$user]));
 
         // When administrator makes request to synchronize users with Redmine
         $this->signInAsAdmin();
@@ -51,7 +51,7 @@ class SyncAssigneesTest extends TestCase
         $assigneesDB = create(Assignee::class);
         $assigneesRM = $this->makeFakeRedmineAssignees(['id' => $assigneesDB->id]);
 
-        Redmine::shouldReceive('getUsers')->once()->andReturn(collect([$assigneesRM]));
+        RedmineApi::shouldReceive('getUsers')->once()->andReturn(collect([$assigneesRM]));
 
         // When administrator makes request to synchronize users with Redmine
         $this->signInAsAdmin();
@@ -71,7 +71,7 @@ class SyncAssigneesTest extends TestCase
     {
         $now = Carbon::create(2017,12,9,5);
         Carbon::setTestNow($now);
-        Redmine::shouldReceive('getUsers')->once()->andReturn(collect());
+        RedmineApi::shouldReceive('getUsers')->once()->andReturn(collect());
 
         $this->signInAsAdmin();
         $response = $this->get(route('api.assignees.sync'));

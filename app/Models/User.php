@@ -8,22 +8,7 @@ use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 /**
- * App\User
- *
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
- * @mixin \Eloquent
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $password
- * @property string|null $remember_token
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Issue[] $issues
- * @property string $username
- * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereUsername($value)
- * @property bool $is_admin
- * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereIsAdmin($value)
+ * @mixin IdeHelperUser
  */
 class User extends Authenticatable implements LdapAuthenticatable
 {

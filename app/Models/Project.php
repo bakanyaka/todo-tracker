@@ -5,20 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\Models\Project
- *
- * @property int $id
- * @property string $name
- * @property string $identifier
- * @property string|null $description
- * @property int|null $parent_id
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Project[] $children
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Project whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Project whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Project whereIdentifier($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Project whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Project whereParentId($value)
- * @mixin \Eloquent
+ * @mixin IdeHelperProject
  */
 class Project extends Model
 {

@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
 use App\Jobs\SyncIssues;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\Synchronization;
-use App\Services\Sync;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -29,10 +28,9 @@ class SyncIssuesJobTest extends TestCase
         $service = create(Service::class);
         create(Project::class,['id' => 2]);
         $redmineIssue = $this->makeFakeIssueArray(['service_id' => $service->id, 'project_id' => 2]);
-        Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
+        RedmineApi::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
 
-        $syncJob = new SyncIssues();
-        $syncJob->handle();
+        SyncIssues::dispatch();
 
         $issue = Issue::find($redmineIssue['id']);
 
@@ -52,20 +50,18 @@ class SyncIssuesJobTest extends TestCase
     /** @test */
     public function it_updates_issue_if_it_already_exists()
     {
-        $issue = create('App\Models\Issue');
+        $issue = factory(Issue::class)->create();
         $redmineIssue = $this->makeFakeIssueArray([
             'id' => $issue->id,
             'service_id' => factory(Service::class)->create()->id,
             'project_id' => factory(Project::class)->create()->id,
             'status_id' => 4
         ]);
+        RedmineApi::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
 
-        Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
+        SyncIssues::dispatch();
 
-        $syncJob = new SyncIssues();
-        $syncJob->handle();
         $updatedIssue = $issue->fresh();
-
         $this->assertEquals($redmineIssue['subject'], $updatedIssue->subject);
         $this->assertEquals($redmineIssue['assigned_to'], $updatedIssue->assigned_to);
         $this->assertEquals($redmineIssue['assigned_to_id'], $updatedIssue->assigned_to_id);
@@ -82,12 +78,11 @@ class SyncIssuesJobTest extends TestCase
     {
         $now = Carbon::create(2017,12,9,5);
         Carbon::setTestNow($now);
-        Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect());
+        RedmineApi::shouldReceive('getUpdatedIssues')->once()->andReturn(collect());
 
-        $syncJob = new SyncIssues();
-        $syncJob->handle();
+        SyncIssues::dispatch();
+
         $sync = Synchronization::where('type', 'issues')->first();
-
         $this->assertNotNull($sync);
         $this->assertEquals($now,$sync->completed_at);
     }
@@ -99,23 +94,22 @@ class SyncIssuesJobTest extends TestCase
         Synchronization::create(['completed_at' => Carbon::parse('2017-12-13'), 'type' => 'issues']);
         $completedAt = Carbon::parse('2017-12-15 10:00');
         Synchronization::create(['completed_at' => $completedAt, 'type' => 'issues']);
-        Redmine::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($completedAt) {
+        RedmineApi::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($completedAt) {
             return $dt == $completedAt;
         }))->andReturn(collect([]));
 
-        $syncJob = new SyncIssues();
-        $syncJob->handle();
+        SyncIssues::dispatch();
     }
 
     /** @test */
     public function it_retrieves_redmine_issues_updated_since_date_specified()
     {
         $date = Carbon::parse('2017-12-15 10:00');
-        Redmine::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($date) {
+        RedmineApi::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($date) {
             return $dt == $date;
         }))->andReturn(collect([]));
-        $syncJob = new SyncIssues($date);
-        $syncJob->handle();
+
+        SyncIssues::dispatch($date);
     }
 
     /** @test */
@@ -147,16 +141,13 @@ class SyncIssuesJobTest extends TestCase
             'updated_on' => Carbon::parse('2018-01-22 13:00:00'),
         ]);
         // When sync issues job is called
-        Redmine::shouldReceive('getUpdatedIssues')->once()->andReturn(collect($redmineIssues));
-        $syncJob = new SyncIssues();
-        $syncJob->handle();
+        RedmineApi::shouldReceive('getUpdatedIssues')->once()->andReturn(collect($redmineIssues));
+        SyncIssues::dispatch();
         // Then only issue that was modified should be updated in database
         $notModifiedIssue = $notModifiedIssue->fresh();
         $modifiedIssue = $modifiedIssue->fresh();
         $this->assertEquals('new subject', $modifiedIssue->subject);
         $this->assertEquals('old subject', $notModifiedIssue->subject);
-
-
     }
 
 }

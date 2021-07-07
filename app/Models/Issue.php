@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\BusinessDate;
 use App\Enums\OverdueState;
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
 use App\Filters\IssueFilters;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,64 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * App\Models\Issue
- *
- * @mixin \Eloquent
- * @property int $id
- * @property string $subject
- * @property BusinessDate $created_on
- * @property BusinessDate $updated_on
- * @property BusinessDate $due_date
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereCreatedOn($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereIssueId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereUpdatedAt($value)
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $trackedByUsers
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereSubject($value)
- * @property-read \App\Models\Service $service
- * @property int|null $service_id
- * @property-read BusinessDate $closed_on
- * @property-read mixed $estimated_hours
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereServiceId($value)
- * @property-read mixed $actual_time
- * @property-read mixed $percent_of_time_left
- * @property-read int|null $time_left
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereClosedOn($value)
- * @property string|null $department
- * @property int $priority_id
- * @property-read \App\Models\Priority $priority
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereDepartment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue wherePriorityId($value)
- * @property string|null $assigned_to
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue open()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereAssignedTo($value)
- * @property int $control
- * @property int $status_id
- * @property float $on_pause_hours
- * @property BusinessDate $status_changed_on
- * @property-read mixed $is_paused
- * @property-read \App\Models\Status $status
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue closed()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue filter(\App\Filters\IssueFilters $filters)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue markedForControl()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue paused()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereControl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereOnPauseHours($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereStatusChangedOn($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereStatusId($value)
- * @property int $project_id
- * @property-read \App\Models\Project $project
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue closedWithin($startDate, $endDate)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue createdWithin($startDate, $endDate)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Issue whereUpdatedOn($value)
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\TimeEntry[] $time_entries
+ * @mixin IdeHelperIssue
  */
 class Issue extends Model
 {
@@ -96,6 +39,7 @@ class Issue extends Model
         'created_on',
         'closed_on',
         'updated_on',
+        'start_date',
     ];
 
     /**
@@ -303,9 +247,11 @@ class Issue extends Model
      */
     public function getDueDateAttribute($value): ?BusinessDate
     {
-        return $this->estimatedHours ? $this->created_on->addBusinessHours($this->estimatedHours)->addBusinessHours(
-            $this->on_pause_hours
-        ) : null;
+        return $value
+            ? BusinessDate::parse($value)
+            : ($this->estimatedHours
+                ? $this->created_on->addBusinessHours($this->estimatedHours)->addBusinessHours($this->on_pause_hours)
+                : null);
     }
 
 
@@ -408,59 +354,6 @@ class Issue extends Model
     public function untrack(User $user)
     {
         $this->users()->detach($user);
-    }
-
-    /**
-     * Update model data with data loaded from Redmine API
-     */
-    public function updateFromRedmine(): static
-    {
-        $redmineIssue = Redmine::getIssue($this->id);
-        return $this->updateFromRedmineIssue($redmineIssue);
-    }
-
-    public function updateFromRedmineIssue(array $redmineIssue): static
-    {
-        $this->subject = $redmineIssue['subject'];
-        $this->assigned_to = $redmineIssue['assigned_to'];
-        $this->assigned_to_id = $redmineIssue['assigned_to_id'];
-        $this->created_on = Carbon::create(
-            $redmineIssue['created_on']->year,
-            $redmineIssue['created_on']->month,
-            $redmineIssue['created_on']->day,
-            $redmineIssue['created_on']->hour,
-            $redmineIssue['created_on']->minute,
-            $redmineIssue['created_on']->second,
-            $redmineIssue['created_on']->tz
-        );
-        $this->closed_on = $redmineIssue['closed_on'];
-        $this->updated_on = $redmineIssue['updated_on'];
-        $this->control = true;
-
-        $priority = Priority::find($redmineIssue['priority_id']);
-        if (!is_null($priority)) {
-            $this->priority_id = $priority->id;
-        }
-
-        $status = Status::find($redmineIssue['status_id']);
-        if (!is_null($status)) {
-            $this->status_id = $status->id;
-        }
-
-        $project = Project::find($redmineIssue['project_id']);
-        if (!is_null($project)) {
-            $this->project_id = $project->id;
-        }
-
-        $tracker = Tracker::find($redmineIssue['tracker_id']);
-        if (!is_null($tracker)) {
-            $this->tracker_id = $tracker->id;
-        }
-
-        $service = Service::find($redmineIssue['service_id']);
-        $this->service_id = $service ? $service->id : null;
-
-        return $this;
     }
 
     public static function defaultSort($a, $b): int

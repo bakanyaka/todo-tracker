@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Api;
 
 
 use App\Exceptions\FailedToRetrieveRedmineDataException;
-use App\Facades\Redmine;
+use App\Facades\RedmineApi;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Service as ServiceResource;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\Synchronization;
 use Carbon\Carbon;
-use Exception;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
@@ -22,7 +22,7 @@ class ServiceController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         return ServiceResource::collection(Service::all());
     }
@@ -32,7 +32,7 @@ class ServiceController extends Controller
         $versionIds = [];
         foreach (Project::pluck('id') as $projectId) {
             try {
-                $versions = Redmine::getVersions($projectId);
+                $versions = RedmineApi::getVersions($projectId);
                 $versions->each(function ($version) use ($projectId, &$versionIds) {
                     $hoursField = Arr::first($version['custom_fields'], function ($customField) {
                         return $customField['id'] === 82;
@@ -41,7 +41,7 @@ class ServiceController extends Controller
                         $versionIds[] = $version['id'];
                         Service::updateOrCreate(
                             [
-                                'id' => $version['id']
+                                'id' => $version['id'],
                             ],
                             [
                                 'name' => $version['name'],
