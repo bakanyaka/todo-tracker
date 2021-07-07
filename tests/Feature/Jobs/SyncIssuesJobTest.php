@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Jobs;
 
 use App\Facades\RedmineApi;
 use App\Jobs\SyncIssues;
@@ -26,7 +26,7 @@ class SyncIssuesJobTest extends TestCase
     public function it_creates_new_issue_if_it_does_not_exist()
     {
         $service = create(Service::class);
-        create(Project::class,['id' => 2]);
+        create(Project::class, ['id' => 2]);
         $redmineIssue = $this->makeFakeIssueArray(['service_id' => $service->id, 'project_id' => 2]);
         RedmineApi::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
 
@@ -55,7 +55,7 @@ class SyncIssuesJobTest extends TestCase
             'id' => $issue->id,
             'service_id' => factory(Service::class)->create()->id,
             'project_id' => factory(Project::class)->create()->id,
-            'status_id' => 4
+            'status_id' => 4,
         ]);
         RedmineApi::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
 
@@ -74,9 +74,22 @@ class SyncIssuesJobTest extends TestCase
     }
 
     /** @test */
+    public function it_creates_parent_issue()
+    {
+        $parentIssue = $this->makeFakeIssueArray();
+        $redmineIssue = $this->makeFakeIssueArray(['parent_id' => $parentIssue['id']]);
+        RedmineApi::shouldReceive('getIssue')->once()->andReturn($parentIssue);
+        RedmineApi::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
+
+        SyncIssues::dispatch();
+
+        $this->assertNotNull(Issue::find($parentIssue['id']));
+    }
+
+    /** @test */
     public function it_saves_sync_start_and_complete_timestamps_to_db()
     {
-        $now = Carbon::create(2017,12,9,5);
+        $now = Carbon::create(2017, 12, 9, 5);
         Carbon::setTestNow($now);
         RedmineApi::shouldReceive('getUpdatedIssues')->once()->andReturn(collect());
 
@@ -84,7 +97,7 @@ class SyncIssuesJobTest extends TestCase
 
         $sync = Synchronization::where('type', 'issues')->first();
         $this->assertNotNull($sync);
-        $this->assertEquals($now,$sync->completed_at);
+        $this->assertEquals($now, $sync->completed_at);
     }
 
     /** @test */
@@ -94,7 +107,8 @@ class SyncIssuesJobTest extends TestCase
         Synchronization::create(['completed_at' => Carbon::parse('2017-12-13'), 'type' => 'issues']);
         $completedAt = Carbon::parse('2017-12-15 10:00');
         Synchronization::create(['completed_at' => $completedAt, 'type' => 'issues']);
-        RedmineApi::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($completedAt) {
+        RedmineApi::shouldReceive('getUpdatedIssues')->once()->with(\Mockery::on(function (Carbon $dt) use ($completedAt
+        ) {
             return $dt == $completedAt;
         }))->andReturn(collect([]));
 
@@ -120,19 +134,19 @@ class SyncIssuesJobTest extends TestCase
         $notModifiedIssue = create(Issue::class, [
             'created_on' => '2018-01-22 12:00:00',
             'subject' => 'old subject',
-            'updated_on' => '2018-01-22 12:00:00'
+            'updated_on' => '2018-01-22 12:00:00',
         ]);
         $redmineIssues[] = $this->makeFakeIssueArray([
             'id' => $notModifiedIssue->id,
             'subject' => 'new subject',
             'created_on' => Carbon::parse('2018-01-22 12:00:00'),
-            'updated_on' => Carbon::parse('2018-01-22 12:00:00')
+            'updated_on' => Carbon::parse('2018-01-22 12:00:00'),
         ]);
         // And Issue that was modified
         $modifiedIssue = create(Issue::class, [
             'created_on' => '2018-01-22 12:00:00',
             'subject' => 'old subject',
-            'updated_on' => '2018-01-22 12:00:00'
+            'updated_on' => '2018-01-22 12:00:00',
         ]);
         $redmineIssues[] = $this->makeFakeIssueArray([
             'id' => $modifiedIssue->id,

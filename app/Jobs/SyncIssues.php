@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\RedmineIssueNotFoundException;
 use App\Facades\RedmineApi;
 use App\Models\Issue;
 use App\Models\Synchronization;
@@ -12,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class SyncIssues implements ShouldQueue
 {
@@ -23,6 +25,7 @@ class SyncIssues implements ShouldQueue
     public ?Carbon $date;
     protected bool $forceUpdateAll;
     protected IssueService $issueService;
+    protected Collection $issueData;
     protected int $updatedIssuesCount = 0;
 
     public function __construct(?Carbon $date = null, bool $forceUpdateAll = false)
@@ -34,8 +37,8 @@ class SyncIssues implements ShouldQueue
     public function handle(IssueService $issueService)
     {
         $this->issueService = $issueService;
-        $issues = RedmineApi::getUpdatedIssues($this->getSyncDate());
-        foreach ($issues as $redmineIssue) {
+        $this->issueData = RedmineApi::getUpdatedIssues($this->getSyncDate());
+        foreach ($this->issueData as $redmineIssue) {
             $this->saveIssue($redmineIssue);
         }
         Synchronization::create([
@@ -54,12 +57,28 @@ class SyncIssues implements ShouldQueue
         return $lastSync ? $lastSync->completed_at : Carbon::now()->subMonth();
     }
 
+
+    /**
+     * @throws \App\Exceptions\RedmineIssueNotFoundException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
+     * @throws \Throwable
+     */
     protected function saveIssue(array $redmineIssue): Issue
     {
+        if ($redmineIssue['parent_id']) {
+            $parentData = $this->issueData->firstWhere('id',$redmineIssue['parent_id']) ?? RedmineApi::getIssue($redmineIssue['parent_id']);
+            throw_unless(
+                $parentData,
+                RedmineIssueNotFoundException::class,
+                "Parent issue with id {$redmineIssue['parent_id']} for issue with id {$redmineIssue['id']} not found"
+            );
+            $this->saveIssue($parentData);
+        }
+
         $issue = Issue::setEagerLoads([])->withoutGlobalScopes()->firstOrNew(['id' => $redmineIssue['id']]);
         // Only update issue if it was updated in redmine
         if ($this->forceUpdateAll || $issue->updated_on === null || $issue->updated_on->lt($redmineIssue['updated_on'])) {
-            $this->issueService->fillIssueFromRedmineData($issue, $redmineIssue );
+            $this->issueService->fillIssueFromRedmineData($issue, $redmineIssue);
             $issue->save();
             $this->updatedIssuesCount++;
         }
