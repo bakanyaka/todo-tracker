@@ -3,14 +3,13 @@
 namespace Tests\Feature\Api;
 
 use App\Facades\RedmineApi;
-use App\Models\Project;
 use App\Models\Tracker;
 use Carbon\Carbon;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
+use Tests\TestCase;
 
-class SyncTrackersTestTest extends TestCase
+class SyncTrackersTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -54,7 +53,7 @@ class SyncTrackersTestTest extends TestCase
     /** @test */
     public function it_saves_sync_timestamp_to_database()
     {
-        $now = Carbon::create(2017,12,9,5);
+        $now = Carbon::create(2017, 12, 9, 5);
         Carbon::setTestNow($now);
         RedmineApi::shouldReceive('getTrackers')->once()->andReturn(collect());
 
@@ -62,24 +61,17 @@ class SyncTrackersTestTest extends TestCase
         $response = $this->get(route('api.trackers.sync'));
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('synchronizations',['completed_at' => $now, 'type' => 'trackers']);
-
+        $this->assertDatabaseHas('synchronizations', ['completed_at' => $now, 'type' => 'trackers']);
     }
 
-
-    /**
-     * @param array $attributes
-     * @param int $count
-     * @return \Illuminate\Support\Collection
-     */
-    protected function makeFakeRedmineTrackers($attributes = [], $count = 1)
+    protected function makeFakeRedmineTrackers(array $attributes = [], int $count = 1): Collection
     {
         $trackers = [];
         for ($i = 0; $i < $count; $i++) {
             $trackers[] = array_merge([
                 'id' => $this->faker->unique()->randomNumber(3),
                 'name' => $this->faker->unique()->sentence,
-            ],$attributes);
+            ], $attributes);
         }
         return collect($trackers);
     }

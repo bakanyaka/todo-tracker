@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\TimeEntryController;
 use App\Http\Controllers\Api\TrackerController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\IssuesGanttController;
 use App\Http\Controllers\TrackIssueController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
@@ -41,6 +42,7 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function () {
         Route::get('/reports/projects', [IssueReportController::class, 'byProject'])
             ->name('api.issues.reports.projects');
         Route::get('/reports', [IssueReportController::class, 'index'])->name('api.issues.reports');
+        Route::get('/gantt', IssuesGanttController::class)->name('api.issues.gantt');
     });
 
     Route::group(['prefix' => 'projects'], function () {

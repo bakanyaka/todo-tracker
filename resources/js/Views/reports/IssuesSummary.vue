@@ -111,9 +111,9 @@
 
 <script>
   import * as moment from 'moment';
-  import PeriodFilter from '../components/PeriodFilter';
-  import ProjectSelect from '../components/ProjectSelect';
-  import TrackerSelect from '../components/TrackerSelect';
+  import PeriodFilter from '../../Components/Shared/PeriodFilter';
+  import ProjectSelect from '../../Components/Shared/ProjectSelect';
+  import TrackerSelect from '../../Components/Shared/TrackerSelect';
   import IssuesChart from './IssuesChart';
 
   const brandSuccess = '#4dbd74';

@@ -222,6 +222,11 @@ class Issue extends Model
         return $this->hasMany(TimeEntry::class);
     }
 
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(Assignee::class, 'assigned_to_id');
+    }
+
     public function getCreatedOnAttribute($value): BusinessDate
     {
         return BusinessDate::parse($value);

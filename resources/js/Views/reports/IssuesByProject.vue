@@ -50,7 +50,7 @@
 
 <script>
 import moment from 'moment'
-import PeriodFilter from '../components/PeriodFilter'
+import PeriodFilter from '../../Components/Shared/PeriodFilter'
 import ProjectTree from './ProjectTree'
 
 export default {

@@ -37,7 +37,7 @@ class SyncIssues implements ShouldQueue
     public function handle(IssueService $issueService)
     {
         $this->issueService = $issueService;
-        $this->issueData = RedmineApi::getUpdatedIssues($this->getSyncDate());
+        $this->issueData = RedmineApi::getUpdatedIssues($this->getSyncDate())->sortBy('parent_id');
         foreach ($this->issueData as $redmineIssue) {
             $this->saveIssue($redmineIssue);
         }

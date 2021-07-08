@@ -5,7 +5,7 @@
 </template>
 
 <script>
-    import QuickIssueStats from "../components/QuickIssueStats";
+    import QuickIssueStats from "@/Components/Shared/QuickIssueStats";
 
     export default {
         components: {QuickIssueStats},

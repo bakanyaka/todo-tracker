@@ -89,9 +89,9 @@
 </template>
 
 <script>
-import filters from './Filters';
+import Filters from '@/Components/Issues/Filters';
 import Spinner from 'vue-simple-spinner';
-import QuickIssueStats from '../components/QuickIssueStats';
+import QuickIssueStats from '@/Components/Shared/QuickIssueStats';
 
 export default {
   data() {
@@ -161,7 +161,7 @@ export default {
   },
   components: {
     QuickIssueStats,
-    filters,
+    Filters,
     Spinner,
   },
   computed: {

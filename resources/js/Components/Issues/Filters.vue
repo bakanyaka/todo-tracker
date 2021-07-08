@@ -55,8 +55,8 @@
 </template>
 
 <script>
-  import PeriodFilter from '../components/PeriodFilter';
-  import TrackerSelect from '../components/TrackerSelect';
+  import PeriodFilter from '@/Components/Shared/PeriodFilter';
+  import TrackerSelect from '@/Components/Shared/TrackerSelect';
 
   export default {
     components: { TrackerSelect, PeriodFilter },

@@ -19,6 +19,7 @@
     "bootstrap-vue": "^2.16.0",
     "chart.js": "^2.9.3",
     "css-vars-ponyfill": "^1.17.2",
+    "dhtmlx-gantt": "^7.1.4",
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.19",
     "moment": "^2.27.0",
