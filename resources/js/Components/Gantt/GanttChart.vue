@@ -27,7 +27,7 @@ export default {
       immediate: true,
       deep: true,
       handler(value) {
-        console.log(value);
+        gantt.clearAll();
         gantt.parse(value);
       }
     }

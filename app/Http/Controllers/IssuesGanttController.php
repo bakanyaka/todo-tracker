@@ -6,17 +6,22 @@ use App\Models\Assignee;
 use App\Models\Issue;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class IssuesGanttController extends Controller
 {
-    public function __invoke(): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
         $issues = Issue::setEagerLoads([])->with('service')
             ->where(function (Builder $query) {
                 $query->whereNotNull('service_id')->orWhereNotNull('due_date');
             })
             ->whereNotNull('assigned_to_id')
+            ->when(
+                $request->has('assignees'),
+                fn(Builder $query) => $query->whereIn('assigned_to_id', $request->input('assignees'))
+            )
             ->orderBy('subject')
             ->open()
             ->get()
@@ -33,7 +38,7 @@ class IssuesGanttController extends Controller
             return $carry->push([
                 'id' => "a_{$assignee->id}",
                 'text' => "$assignee->lastname $assignee->firstname",
-                'color' => '#65c16f'
+                'color' => '#65c16f',
             ])->concat($value->map(fn(Issue $issue) => [
                 'id' => $issue->id,
                 'parent' => $issue->parent_id ?? "a_{$assignee->id}",
