@@ -37,15 +37,16 @@ class RedmineServiceTest extends TestCase
             'author' => $issueData['author']['name'],
             'author_id' => $issueData['author']['id'],
             'assigned_to' => $issueData['assigned_to']['name'],
+            'assigned_to_id' => $issueData['assigned_to']['id'],
             'subject' => $issueData['subject'],
             'description' => $issueData['description'],
             'service_id' => $issueData['custom_fields'][0]['value'],
+            'done_ratio' => $issueData['done_ratio'],
             'start_date' => Carbon::parse($issueData['start_date']),
             'due_date' => Carbon::parse($issueData['due_date']),
             'created_on' => Carbon::parse($issueData['created_on']),
             'updated_on' => Carbon::parse($issueData['updated_on']),
             'closed_on' => Carbon::parse($issueData['closed_on']),
-            'assigned_to_id' => $issueData['assigned_to']['id'],
         ], $result);
     }
 

@@ -1,5 +1,6 @@
 <template>
   <b-card>
+    <label>Сотрудник:</label>
     <multiselect v-model="selectedAssignees"
                  :options="assignees"
                  :multiple="true"
@@ -7,9 +8,11 @@
                  label="login"
                  :custom-label="customLabel"
                  @input="fetchTasks"
+                 placeholder="Выберите сотрудника для фильтрации или введите ФИО для поиска"
     >
     </multiselect>
-    <gantt-chart class="mt-4" :tasks="tasks" style="height: 60vh" :config="config" />
+
+    <gantt-chart class="mt-4" :tasks="tasks" style="height: 70vh" :config="config" />
   </b-card>
 </template>
 
@@ -29,11 +32,6 @@ export default {
       config: {
         readonly: true,
         open_tree_initially: true,
-        min_column_width: 25,
-        scales: [
-          { unit: 'month', step: 1, format: '%Y %M' },
-          { unit: 'day', step: 1, format: '%d' }
-        ]
       }
     }
   },

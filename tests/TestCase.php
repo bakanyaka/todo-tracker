@@ -45,6 +45,7 @@ abstract class TestCase extends BaseTestCase
             'subject' => $this->faker->name . ' : ' . $this->faker->realText(60),
             'description' => $this->faker->realText(),
             'service_id' => 1,
+            'done_ratio' => $this->faker->numberBetween(0, 100),
             'start_date' => Carbon::parse($created_on->toDateString()),
             'due_date' => Carbon::parse($created_on->toDateString())->addDays($this->faker->numberBetween(1, 30)),
             'created_on' => $created_on,

@@ -45,6 +45,7 @@ class IssuesGanttController extends Controller
                 'text' => "#{$issue->id}: {$issue->subject}",
                 'start_date' => $issue->start_date->format('Y-m-d H:i:s'),
                 'end_date' => $issue->due_date->format('Y-m-d H:i:s'),
+                'progress'=> round($issue->done_ratio / 100, 2)
             ]));
         }, collect());
 

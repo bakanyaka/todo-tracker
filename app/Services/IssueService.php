@@ -32,6 +32,7 @@ class IssueService
         $issue->subject = $data['subject'];
         $issue->assigned_to = $data['assigned_to'];
         $issue->assigned_to_id = $data['assigned_to_id'];
+        $issue->done_ratio = $data['done_ratio'];
         $issue->created_on = Carbon::create(
             $data['created_on']->year,
             $data['created_on']->month,

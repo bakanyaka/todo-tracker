@@ -39,6 +39,8 @@ class IssueServiceTest extends TestCase
         $this->assertEquals($issueData['priority_id'], $issue->priority_id);
         $this->assertEquals($issueData['status_id'], $issue->status_id);
         $this->assertEquals($issueData['assigned_to'], $issue->assigned_to);
+        $this->assertEquals($issueData['assigned_to_id'], $issue->assigned_to_id);
+        $this->assertEquals($issueData['done_ratio'], $issue->done_ratio);
         $this->assertEquals($issueData['created_on'], $issue->created_on);
         $this->assertEquals($issueData['closed_on'], $issue->closed_on);
         $this->assertEquals($issueData['start_date'], $issue->start_date);
@@ -61,6 +63,8 @@ class IssueServiceTest extends TestCase
         $this->assertEquals($issueData['priority_id'], $issue->priority_id);
         $this->assertEquals($issueData['status_id'], $issue->status_id);
         $this->assertEquals($issueData['assigned_to'], $issue->assigned_to);
+        $this->assertEquals($issueData['assigned_to_id'], $issue->assigned_to_id);
+        $this->assertEquals($issueData['done_ratio'], $issue->done_ratio);
         $this->assertEquals($issueData['created_on'], $issue->created_on);
         $this->assertEquals($issueData['closed_on'], $issue->closed_on);
         $this->assertEquals($issueData['start_date'], $issue->start_date);

@@ -40,6 +40,7 @@ class SyncIssuesJobTest extends TestCase
         $this->assertEquals($redmineIssue['assigned_to_id'], $issue->assigned_to_id);
         $this->assertEquals($redmineIssue['service_id'], $issue->service_id);
         $this->assertEquals($redmineIssue['priority_id'], $issue->priority_id);
+        $this->assertEquals($redmineIssue['done_ratio'], $issue->done_ratio);
         $this->assertEquals($redmineIssue['project_id'], $issue->project_id);
         $this->assertEquals($redmineIssue['tracker_id'], $issue->tracker_id);
         $this->assertEquals($redmineIssue['status_id'], $issue->status_id);
@@ -65,6 +66,7 @@ class SyncIssuesJobTest extends TestCase
         $this->assertEquals($redmineIssue['subject'], $updatedIssue->subject);
         $this->assertEquals($redmineIssue['assigned_to'], $updatedIssue->assigned_to);
         $this->assertEquals($redmineIssue['assigned_to_id'], $updatedIssue->assigned_to_id);
+        $this->assertEquals($redmineIssue['done_ratio'], $issue->done_ratio);
         $this->assertEquals($redmineIssue['service_id'], $updatedIssue->service_id);
         $this->assertEquals($redmineIssue['priority_id'], $updatedIssue->priority_id);
         $this->assertEquals($redmineIssue['project_id'], $updatedIssue->project_id);
