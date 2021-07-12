@@ -4,7 +4,9 @@
 namespace App\Services;
 
 
+use App\Exceptions\RedmineIssueNotFoundException;
 use App\Facades\RedmineApi;
+use App\Models\Category;
 use App\Models\Issue;
 use App\Models\Priority;
 use App\Models\Project;
@@ -13,7 +15,7 @@ use App\Models\Status;
 use App\Models\Tracker;
 use Carbon\Carbon;
 
-class IssueService
+class IssueSynchronizationService
 {
     /**
      * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
@@ -23,6 +25,31 @@ class IssueService
         $data = RedmineApi::getIssue($issue->id);
         $this->fillIssueFromRedmineData($issue, $data);
         $issue->save();
+        return $issue;
+    }
+
+    /**
+     * @throws \Throwable
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
+     */
+    public function syncIssueWithRedmineData(array $data, $forceUpdate = false): Issue
+    {
+        if ($data['parent_id']) {
+            $parentData = RedmineApi::getIssue($data['parent_id']);
+            throw_unless(
+                $parentData,
+                RedmineIssueNotFoundException::class,
+                "Parent issue with id {$data['parent_id']} for issue with id {$data['id']} not found"
+            );
+            $this->syncIssueWithRedmineData($parentData);
+        }
+
+        $issue = Issue::setEagerLoads([])->withoutGlobalScopes()->firstOrNew(['id' => $data['id']]);
+        // Only update issue if it was updated in redmine
+        if ($forceUpdate || $issue->updated_on === null || $issue->updated_on->lt($data['updated_on'])) {
+            $this->fillIssueFromRedmineData($issue, $data);
+            $issue->save();
+        }
         return $issue;
     }
 
@@ -71,6 +98,18 @@ class IssueService
         $service = Service::find($data['service_id']);
         $issue->service_id = $service ? $service->id : null;
 
+        $issue->category_id = $data['category_id'] ? $this->findOrCreateCategory($data['category_id'])->id : null;
+
         return $issue;
+    }
+
+    protected function findOrCreateCategory(int $categoryId): Category
+    {
+        $category = Category::find($categoryId);
+        if (!$category) {
+            $categoryData = RedmineApi::getIssueCategory($categoryId);
+            $category = Category::create(['id' => $categoryId, 'name' => $categoryData['name']]);
+        }
+        return $category;
     }
 }

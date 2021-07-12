@@ -42,6 +42,7 @@ abstract class TestCase extends BaseTestCase
             'author' => $this->faker->name,
             'assigned_to' => $this->faker->name,
             'assigned_to_id' => $this->faker->unique()->randomNumber(3),
+            'category_id' => null,
             'subject' => $this->faker->name . ' : ' . $this->faker->realText(60),
             'description' => $this->faker->realText(),
             'service_id' => 1,

@@ -4,6 +4,7 @@ namespace Tests\Feature\Jobs;
 
 use App\Facades\RedmineApi;
 use App\Jobs\SyncIssues;
+use App\Models\Category;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\Service;
@@ -62,7 +63,7 @@ class SyncIssuesJobTest extends TestCase
 
         SyncIssues::dispatch();
 
-        $updatedIssue = $issue->fresh();
+        $updatedIssue = $issue->refresh();
         $this->assertEquals($redmineIssue['subject'], $updatedIssue->subject);
         $this->assertEquals($redmineIssue['assigned_to'], $updatedIssue->assigned_to);
         $this->assertEquals($redmineIssue['assigned_to_id'], $updatedIssue->assigned_to_id);
@@ -86,6 +87,21 @@ class SyncIssuesJobTest extends TestCase
         SyncIssues::dispatch();
 
         $this->assertNotNull(Issue::find($parentIssue['id']));
+    }
+
+    /** @test */
+    public function it_creates_category_for_issues()
+    {
+        $redmineIssue = $this->makeFakeIssueArray(['category_id' => 10]);
+        RedmineApi::shouldReceive('getUpdatedIssues')->once()->andReturn(collect([$redmineIssue]));
+        RedmineApi::shouldReceive('getIssueCategory')->with(10)->once()->andReturn(['id' => 10, 'name' => 'some name']);
+
+        SyncIssues::dispatch();
+
+        $category = Category::find(10);
+
+        $this->assertNotNull($category);
+        $this->assertEquals('some name', $category->name);
     }
 
     /** @test */

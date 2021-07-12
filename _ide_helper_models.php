@@ -22,6 +22,7 @@ namespace App\Models{
  * @property string $mail
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Issue[] $assignedIssues
  * @property-read int|null $assigned_issues_count
+ * @property-read string $name
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Issue[] $participatedIssues
  * @property-read int|null $participated_issues_count
  * @method static \Illuminate\Database\Eloquent\Builder|Assignee newModelQuery()
@@ -34,6 +35,18 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Assignee whereMail($value)
  */
 	class IdeHelperAssignee extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * App\Models\Category
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Category newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Category newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Category query()
+ * @mixin \Eloquent
+ */
+	class IdeHelperCategory extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -60,8 +73,10 @@ namespace App\Models{
  * @property int|null $assigned_to_id
  * @property int|null $tracker_id
  * @property int|null $parent_id
- * @property string|null $start_date
+ * @property \Illuminate\Support\Carbon|null $start_date
  * @property \App\BusinessDate|null $due_date
+ * @property int $done_ratio
+ * @property-read \App\Models\Assignee|null $assignee
  * @property-read float|null $actual_time
  * @property-read int|null $estimated_hours
  * @property-read int $is_paused
@@ -95,6 +110,7 @@ namespace App\Models{
  * @method static Builder|Issue whereCreatedAt($value)
  * @method static Builder|Issue whereCreatedOn($value)
  * @method static Builder|Issue whereDepartment($value)
+ * @method static Builder|Issue whereDoneRatio($value)
  * @method static Builder|Issue whereDueDate($value)
  * @method static Builder|Issue whereId($value)
  * @method static Builder|Issue whereOnPauseHours($value)

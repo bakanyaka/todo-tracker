@@ -9,6 +9,7 @@
         >
           <b-form-radio value="assigned_to">Назначена</b-form-radio>
           <b-form-radio value="project">Проект</b-form-radio>
+          <b-form-radio value="category">Категория</b-form-radio>
         </b-form-radio-group>
       </b-form-group>
       <div class="ml-2 flex-grow-1">

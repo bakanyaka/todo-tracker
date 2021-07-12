@@ -16,16 +16,16 @@ use App\Http\Controllers\Api\AssigneeController;
 use App\Http\Controllers\Api\AssigneeReportController;
 use App\Http\Controllers\Api\IssueController;
 use App\Http\Controllers\Api\IssueReportController;
+use App\Http\Controllers\Api\IssuesGanttController;
 use App\Http\Controllers\Api\IssueStatsController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\RedmineSyncController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\TimeEntryController;
 use App\Http\Controllers\Api\TrackerController;
+use App\Http\Controllers\Api\TrackIssueController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\FrontendController;
-use App\Http\Controllers\IssuesGanttController;
-use App\Http\Controllers\TrackIssueController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login'],)->middleware('guest');;

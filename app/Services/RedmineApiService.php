@@ -28,6 +28,7 @@ class RedmineApiService
 
     /**
      * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getIssue($issue_id): array
     {
@@ -35,8 +36,19 @@ class RedmineApiService
         return $this->parseRedmineIssueData($issueData['issue']);
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
+     */
+    public function getIssueCategory(int $id): array
+    {
+        $data =  $this->getJsonDataFromRedmine("issue_categories/{$id}.json");
+        return $this->parseRedmineCategoryData($data['issue_category']);
+    }
+
 
     /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
     public function getUpdatedIssues(Carbon $dt): Collection
@@ -46,7 +58,9 @@ class RedmineApiService
         return $issues->map([$this, 'parseRedmineIssueData']);
     }
 
+
     /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
      */
     public function getProjects(): Collection
@@ -58,6 +72,7 @@ class RedmineApiService
 
     /**
      * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getTrackers(): Collection
     {
@@ -68,6 +83,7 @@ class RedmineApiService
 
     /**
      * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getUsers(): Collection
     {
@@ -78,6 +94,7 @@ class RedmineApiService
 
     /**
      * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getTimeEntries(Carbon $dt): Collection
     {
@@ -89,6 +106,7 @@ class RedmineApiService
 
     /**
      * @throws \App\Exceptions\FailedToRetrieveRedmineDataException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getVersions(int $projectId): Collection
     {
@@ -148,6 +166,7 @@ class RedmineApiService
             'author_id' => $issue['author']['id'],
             'assigned_to' => data_get($issue, 'assigned_to.name'),
             'assigned_to_id' => data_get($issue, 'assigned_to.id'),
+            'category_id' => data_get($issue, 'category.id'),
             'subject' => $issue['subject'],
             'description' => $issue['description'],
             'service_id' => $this->getCustomFieldValue($customFields, [80, 81]),
@@ -211,6 +230,14 @@ class RedmineApiService
             'project_id' => array_get($version, 'project.id'),
             'name' => $version['name'],
             'custom_fields' => array_get($version, 'custom_fields', []),
+        ];
+    }
+
+    protected function parseRedmineCategoryData(array $category): array
+    {
+        return [
+            'id' => $category['id'],
+            'name' =>$category['name']
         ];
     }
 

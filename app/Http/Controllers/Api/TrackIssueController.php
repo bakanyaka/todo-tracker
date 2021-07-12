@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Exceptions\FailedToRetrieveRedmineDataException;
+use App\Http\Controllers\Controller;
 use App\Models\Issue;
-use App\Services\IssueService;
+use App\Services\IssueSynchronizationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TrackIssueController extends Controller
 {
 
-    public function __construct(protected IssueService $issueService)
+    public function __construct(protected IssueSynchronizationService $issueService)
     {
     }
 

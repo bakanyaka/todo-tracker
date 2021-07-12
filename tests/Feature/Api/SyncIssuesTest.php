@@ -20,7 +20,7 @@ class SyncIssuesTest extends TestCase
         $this->signIn()->get(route('api.issues.sync', ['updated_since' => '2018-01-01']))->assertNoContent();
 
         Bus::assertDispatched(SyncIssues::class, function ($job) {
-            return $job->date->toDateString() === Carbon::parse('2018-01-01')->toDateString();
+            return $job->syncFromDate->toDateString() === Carbon::parse('2018-01-01')->toDateString();
         });
     }
 }

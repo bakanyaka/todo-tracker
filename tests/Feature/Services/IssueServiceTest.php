@@ -5,7 +5,7 @@ namespace Services;
 use App\Facades\RedmineApi;
 use App\Models\Issue;
 use App\Models\Service;
-use App\Services\IssueService;
+use App\Services\IssueSynchronizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -31,7 +31,7 @@ class IssueServiceTest extends TestCase
             ->with($issueData['id'])
             ->andReturn($issueData);
 
-        (new IssueService())->syncIssueWithRedmine($issue);
+        (new IssueSynchronizationService())->syncIssueWithRedmine($issue);
 
         $issue->refresh();
         $this->assertEquals($issueData['subject'], $issue->subject);
@@ -56,7 +56,7 @@ class IssueServiceTest extends TestCase
         $issueData = $this->makeFakeIssueArray(['service_id' => $service->id, 'parent_id' => 123]);
         $issue = new Issue(['id' => $issueData['id']]);
 
-        (new IssueService())->fillIssueFromRedmineData($issue, $issueData);
+        (new IssueSynchronizationService())->fillIssueFromRedmineData($issue, $issueData);
 
         $this->assertEquals($issueData['parent_id'], $issue->parent_id);
         $this->assertEquals($issueData['subject'], $issue->subject);
