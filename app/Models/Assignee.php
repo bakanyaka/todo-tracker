@@ -3,50 +3,37 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @mixin IdeHelperAssignee
  */
 class Assignee extends Model
 {
-    /**
-     * Don't auto-apply mass assignment protection.
-     *
-     * @var array
-     */
     protected $guarded = [];
-
-    /**
-     * Don't auto increment id column
-     *
-     * @var bool
-     */
     public $incrementing = false;
-
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
     public $timestamps = false;
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function participatedIssues()
+    public function participatedIssues(): BelongsToMany
     {
         return $this->belongsToMany(Issue::class, 'time_entries');
     }
 
-    public function participatedWithinPeriodIssues($startDate, $endDate)
+    public function participatedWithinPeriodIssues($startDate, $endDate): BelongsToMany
     {
         return $this->belongsToMany(Issue::class, 'time_entries')
-            ->wherePivot('spent_on','>=', $startDate)
-            ->wherePivot('spent_on','<', $endDate);
+            ->wherePivot('spent_on', '>=', $startDate)
+            ->wherePivot('spent_on', '<', $endDate);
     }
 
-    public function assignedIssues()
+    public function assignedIssues(): HasMany
     {
         return $this->hasMany(Issue::class, 'assigned_to_id');
+    }
+
+    public function getNameAttribute(): string
+    {
+        return "$this->lastname $this->firstname";
     }
 }
