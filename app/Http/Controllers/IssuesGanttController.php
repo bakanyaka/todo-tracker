@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OverdueState;
 use App\Models\Assignee;
 use App\Models\Issue;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +14,7 @@ class IssuesGanttController extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
-        $issues = Issue::setEagerLoads([])->with('service')
+        $issues = Issue::setEagerLoads([])->with('service', 'status')
             ->where(function (Builder $query) {
                 $query->whereNotNull('service_id')->orWhereNotNull('due_date');
             })
@@ -43,6 +44,7 @@ class IssuesGanttController extends Controller
                 'id' => $issue->id,
                 'parent' => $issue->parent_id ?? "a_{$assignee->id}",
                 'text' => "#{$issue->id}: {$issue->subject}",
+                'color' => $issue->getOverdueState()->is(OverdueState::Yes) ? '#ff4916' : '#3DB9D3',
                 'start_date' => $issue->start_date->format('Y-m-d H:i:s'),
                 'end_date' => $issue->due_date->format('Y-m-d H:i:s'),
                 'progress'=> round($issue->done_ratio / 100, 2)
