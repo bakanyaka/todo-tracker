@@ -18,6 +18,7 @@ class AssigneeResource extends JsonResource
             'login' => $this->login,
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
+            'name' => $this->name,
             'mail' => $this->mail,
         ];
     }

@@ -13,7 +13,6 @@ use App\Models\Project;
 use App\Models\Service;
 use App\Models\Status;
 use App\Models\Tracker;
-use Carbon\Carbon;
 
 class IssueSynchronizationService
 {
@@ -60,15 +59,7 @@ class IssueSynchronizationService
         $issue->assigned_to = $data['assigned_to'];
         $issue->assigned_to_id = $data['assigned_to_id'];
         $issue->done_ratio = $data['done_ratio'];
-        $issue->created_on = Carbon::create(
-            $data['created_on']->year,
-            $data['created_on']->month,
-            $data['created_on']->day,
-            $data['created_on']->hour,
-            $data['created_on']->minute,
-            $data['created_on']->second,
-            $data['created_on']->tz
-        );
+        $issue->created_on = $data['created_on'];
         $issue->closed_on = $data['closed_on'];
         $issue->updated_on = $data['updated_on'];
         $issue->start_date = $data['start_date'];

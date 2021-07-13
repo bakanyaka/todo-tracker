@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class IssueGanttService
 {
-    public function getGanttData(array $filters)
+    public function getGanttData(array $filters = [])
     {
         $groupBy = Arr::get($filters, 'group_by', 'assigned_to');
 
@@ -27,6 +27,14 @@ class IssueGanttService
             ->when(
                 array_key_exists('assignees', $filters),
                 fn(Builder $query) => $query->whereIn('assigned_to_id', $filters['assignees'])
+            )
+            ->when(
+                array_key_exists('projects', $filters),
+                fn(Builder $query) => $query->whereIn('project_id', $filters['projects'])
+            )
+            ->when(
+                array_key_exists('categories', $filters),
+                fn(Builder $query) => $query->whereIn('category_id', $filters['categories'])
             )
             ->orderBy('subject')
             ->open()
@@ -40,15 +48,17 @@ class IssueGanttService
             default => Assignee::find($issues->keys())
         };
 
-        $ganttData = $issues->reduce(function (Collection $carry, Collection $value, $key) use ($groups) {
+        $ganttData = $issues->reduce(function (Collection $carry, Collection $issuesGroup, $key) use ($groups) {
             $group = $groups->find($key) ?? (object) ['id' => 'g_other', 'name' => 'Прочее'];
             return $carry->push([
                 'id' => "g_{$group->id}",
                 'text' => $group->name,
                 'color' => '#65c16f',
-            ])->concat($value->map(fn(Issue $issue) => [
+            ])->concat($issuesGroup->map(fn(Issue $issue) => [
                 'id' => $issue->id,
-                'parent' => $issue->parent_id ?? "g_{$group->id}",
+                'parent' => $issue->parent_id && $issuesGroup->contains(
+                    fn($parentIssue) => $parentIssue->id === $issue->parent_id
+                ) ? $issue->parent_id : "g_{$group->id}",
                 'text' => "#{$issue->id}: {$issue->subject}",
                 'color' => $issue->getOverdueState()->is(OverdueState::Yes) ? '#ff4916' : '#3DB9D3',
                 'start_date' => ($issue->start_date ?? $issue->created_on)->format('Y-m-d H:i:s'),

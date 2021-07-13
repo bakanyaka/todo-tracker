@@ -13,17 +13,9 @@ use Illuminate\Support\Collection;
 
 class RedmineApiService
 {
-    protected $redmineUrl;
-    protected $token;
-    protected $client;
 
-    /**
-     * RedmineService constructor.
-     * @param  Client  $client
-     */
-    public function __construct(Client $client)
+    public function __construct(protected Client $client)
     {
-        $this->client = $client;
     }
 
     /**
@@ -42,7 +34,7 @@ class RedmineApiService
      */
     public function getIssueCategory(int $id): array
     {
-        $data =  $this->getJsonDataFromRedmine("issue_categories/{$id}.json");
+        $data = $this->getJsonDataFromRedmine("issue_categories/{$id}.json");
         return $this->parseRedmineCategoryData($data['issue_category']);
     }
 
@@ -171,7 +163,7 @@ class RedmineApiService
             'description' => $issue['description'],
             'service_id' => $this->getCustomFieldValue($customFields, [80, 81]),
             'done_ratio' => $issue['done_ratio'],
-            'start_date' => Carbon::parse($issue['start_date'])->timezone('Europe/Moscow'),
+            'start_date' => $issue['start_date'] ? Carbon::parse($issue['start_date'])->timezone('Europe/Moscow') : null,
             'due_date' => $issue['due_date'] ? Carbon::parse($issue['due_date'])->timezone('Europe/Moscow') : null,
             'created_on' => Carbon::parse($issue['created_on'])->timezone('Europe/Moscow'),
             'updated_on' => Carbon::parse($issue['updated_on'])->timezone('Europe/Moscow'),
@@ -237,7 +229,7 @@ class RedmineApiService
     {
         return [
             'id' => $category['id'],
-            'name' =>$category['name']
+            'name' => $category['name'],
         ];
     }
 

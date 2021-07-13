@@ -14,6 +14,7 @@
 //Auth::routes();
 use App\Http\Controllers\Api\AssigneeController;
 use App\Http\Controllers\Api\AssigneeReportController;
+use App\Http\Controllers\Api\CategoriesController;
 use App\Http\Controllers\Api\IssueController;
 use App\Http\Controllers\Api\IssueReportController;
 use App\Http\Controllers\Api\IssuesGanttController;
@@ -49,6 +50,11 @@ Route::group(['prefix' => 'api', 'middleware' => ['auth']], function () {
         Route::get('/', [ProjectController::class, 'index'])->name('api.projects');
         Route::get('/sync', [ProjectController::class, 'sync'])->name('api.projects.sync');
     });
+
+    Route::group(['prefix' => 'categories'], function () {
+        Route::get('/', [CategoriesController::class, 'index'])->name('api.categories.index');
+    });
+
 
     Route::group(['prefix' => 'trackers'], function () {
         Route::get('/', [TrackerController::class, 'index'])->name('api.trackers');

@@ -1,31 +1,48 @@
 <template>
   <b-card>
-    <div class="d-flex">
-      <b-form-group label="Группировка:" v-slot="{ ariaDescribedby }" class="d-flex flex-column justify-content-end">
-        <b-form-radio-group
-          id="group-by-radio"
-          v-model="filters.groupBy"
-          :aria-describedby="ariaDescribedby"
-        >
-          <b-form-radio value="assigned_to">Назначена</b-form-radio>
-          <b-form-radio value="project">Проект</b-form-radio>
-          <b-form-radio value="category">Категория</b-form-radio>
-        </b-form-radio-group>
+    <div class="row">
+      <b-form-group label="Группировка:" class="col">
+        <b-form-select id="group-by-select" v-model="filters.groupBy">
+          <b-form-select-option value="assigned_to">Назначена (Сотрудник)</b-form-select-option>
+          <b-form-select-option value="project">Проект</b-form-select-option>
+          <b-form-select-option value="category">Категория</b-form-select-option>
+        </b-form-select>
       </b-form-group>
-      <div class="ml-2 flex-grow-1">
+      <div class="ml-2 col">
         <label>Сотрудник:</label>
-        <multiselect v-model="filters.selectedAssignees"
+        <multiselect v-model="filters.assignees"
                      :options="assignees"
                      :multiple="true"
                      track-by="id"
-                     label="login"
-                     :custom-label="customLabel"
-                     placeholder="Выберите сотрудника для фильтрации или введите ФИО для поиска"
+                     label="name"
+                     placeholder="Выберите сотрудника"
+        >
+        </multiselect>
+      </div>
+      <div class="ml-2 col">
+        <label>Проект</label>
+        <multiselect v-model="filters.projects"
+                     :options="projects"
+                     :multiple="true"
+                     track-by="id"
+                     label="name"
+                     placeholder="Выберите проект"
+        >
+        </multiselect>
+      </div>
+      <div class="ml-2 col">
+        <label>Категория</label>
+        <multiselect v-model="filters.categories"
+                     :options="categories"
+                     :multiple="true"
+                     track-by="id"
+                     label="name"
+                     placeholder="Выберите категорию"
         >
         </multiselect>
       </div>
     </div>
-    <gantt-chart class="mt-2" :tasks="tasks" style="height: 70vh" :config="config" />
+    <gantt-chart class="mt-1" :tasks="tasks" style="height: 70vh" :config="config" />
   </b-card>
 </template>
 
@@ -38,8 +55,12 @@ export default {
   data() {
     return {
       assignees: [],
+      projects: [],
+      categories: [],
       filters: {
-        selectedAssignees: [],
+        assignees: [],
+        projects: [],
+        categories: [],
         groupBy: 'assigned_to',
       },
       tasks: {
@@ -53,6 +74,8 @@ export default {
   },
   created() {
     this.fetchAssignees();
+    this.fetchProjects();
+    this.fetchCategories();
     this.fetchTasks();
   },
   watch: {
@@ -65,10 +88,11 @@ export default {
   },
   methods: {
     async fetchTasks() {
-      const assignees = this.filters.selectedAssignees.map(({ id }) => id);
       const { data } = await axios.get(route('api.issues.gantt'), {
         params: {
-          assignees,
+          assignees: this.filters.assignees.map(({ id }) => id),
+          projects: this.filters.projects.map(({ id }) => id),
+          categories: this.filters.categories.map(({ id }) => id),
           group_by: this.filters.groupBy
         }
       });
@@ -78,9 +102,14 @@ export default {
       const { data } = await axios.get(route('api.assignees'));
       this.assignees = data.data;
     },
-    customLabel({ firstname, lastname }) {
-      return `${lastname} ${firstname}`
-    }
+    async fetchProjects() {
+      const { data } = await axios.get(route('api.projects'));
+      this.projects = data.data;
+    },
+    async fetchCategories() {
+      const { data } = await axios.get(route('api.categories.index'));
+      this.categories = data.data;
+    },
   }
 }
 </script>
