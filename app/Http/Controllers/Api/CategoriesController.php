@@ -12,6 +12,7 @@ class CategoriesController extends Controller
 
     public function index(): AnonymousResourceCollection
     {
-        return CategoryResource::collection(Category::all());
+        $categories = Category::orderBy('name')->get();
+        return CategoryResource::collection($categories);
     }
 }

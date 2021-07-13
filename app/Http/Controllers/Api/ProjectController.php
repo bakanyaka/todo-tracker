@@ -14,7 +14,8 @@ class ProjectController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        return ProjectResource::collection(Project::all());
+        $projects = Project::orderBy('name')->get();
+        return ProjectResource::collection($projects);
     }
 
     public function sync()
