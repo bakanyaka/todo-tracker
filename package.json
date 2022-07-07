@@ -22,7 +22,7 @@
     "css-vars-ponyfill": "^1.17.2",
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.19",
-    "moment": "^2.27.0",
+    "moment": "^2.29.4",
     "simple-line-icons": "^2.5.5",
     "vue": "^2.6.11",
     "vue-chartjs": "^3.5.0",
