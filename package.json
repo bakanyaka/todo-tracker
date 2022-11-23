@@ -33,7 +33,7 @@
     "vuejs-datepicker": "^0.9.29"
   },
   "devDependencies": {
-    "browser-sync": "^2.26.12",
+    "browser-sync": "^2.27.10",
     "browser-sync-webpack-plugin": "^1.2.0",
     "cross-env": "^7.0.2",
     "laravel-mix": "^5.0.4",
